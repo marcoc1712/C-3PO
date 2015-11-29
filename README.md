@@ -1,5 +1,5 @@
 # C-3PO
-Squeezebox server plugin that handles server side file type conversion and resampling. 
+Squeezebox server plugin. Handles server side file type conversion and resampling. 
 Replace custom-convert.conf.
 
 Best used with Squeezelite-r2 (https://github.com/marcoc1712/squeezelite) as player,
