@@ -1,0 +1,158 @@
+[% PROCESS settings/header.html %]
+	
+	[% WRAPPER setting title="PLUGIN_C3PO_TITLE" desc="PLUGIN_C3PO_TITLE_DESC" %]
+		[% "PLUGIN_C3PO_TITLE_DESC" | string %]
+	[% END %]
+	
+	[% WRAPPER setting title="PLUGIN_C3PO_RESAMPLE_WHEN" desc="PLUGIN_C3PO_RESAMPLE_WHEN_DESC" %]
+		<select class="stdedit" name="pref_resampleWhen" id="resampleWhen">
+			<option [% IF prefs.resampleWhen == "A" %]selected="selected" [% END %]value="A">
+				[% 'PLUGIN_C3PO_RESAMPLE_WHEN_ALWAYS' | string %]
+			</option>
+			<option [% IF prefs.resampleWhen == "N" %]selected="selected" [% END %]value="N">
+				[% 'PLUGIN_C3PO_RESAMPLE_WHEN_NEVER' | string %]
+			</option>
+			<option [% IF prefs.resampleWhen == "E" %]selected="selected" [% END %]value="E">
+				[% 'PLUGIN_C3PO_RESAMPLE_WHEN_NOT_SUPPORTED' | string %]
+			</option>
+		</select>
+	[% END %]
+	
+	[% WRAPPER setting title="PLUGIN_C3PO_RESAMPLE_TO" desc="PLUGIN_C3PO_RESAMPLE_TO_DESC" %]
+		<select class="stdedit" name="pref_resampleTo" id="resampleTo">
+			<option [% IF prefs.resampleTo == "X" %]selected="selected" [% END %]value="X">
+				[% 'PLUGIN_C3PO_RESAMPLE_TO_MAX' | string %]
+			</option>
+			<option [% IF prefs.resampleTo == "S" %]selected="selected" [% END %]value="S">
+				[% 'PLUGIN_C3PO_RESAMPLE_TO_MAX_SYNC' | string %]
+			</option>
+		</select>
+	[% END %]
+	[% WRAPPER setting title="PLUGIN_C3PO_OUT_CODEC" desc="PLUGIN_C3PO_OUT_CODEC_DESC" %]
+		<select class="stdedit" name="pref_outCodec" id="outCodec">
+			<option [% IF prefs.outCodec == "wav" %]selected="selected" [% END %]value="wav">
+				[% 'PLUGIN_C3PO_OUT_CODEC_WAV' | string %]
+			</option>
+			<option [% IF prefs.outCodec == "aif" %]selected="selected" [% END %]value="aif">
+				[% 'PLUGIN_C3PO_OUT_CODEC_AIFF' | string %]
+			</option>
+			<option [% IF prefs.outCodec == "flc0" %]selected="selected" [% END %]value="flc0">
+				[% 'PLUGIN_C3PO_OUT_CODEC_FLAC_0' | string %]
+			</option>
+			<option [% IF prefs.outCodec == "flc5" %]selected="selected" [% END %]value="flc5">
+				[% 'PLUGIN_C3PO_OUT_CODEC_FLAC_5' | string %]
+			</option>
+			<option [% IF prefs.outCodec == "flc8" %]selected="selected" [% END %]value="flc8">
+				[% 'PLUGIN_C3PO_OUT_CODEC_FLAC_8' | string %]
+			</option>
+		</select>
+	[% END %]
+	[% WRAPPER setting title="PLUGIN_C3PO_OUT_BITDEPTH" desc="PLUGIN_C3PO_OUT_BITDEPTH_DESC" %]
+		<select class="stdedit" name="pref_outBitDepth" id="outBitDepth">
+			<option [% IF prefs.outBitDepth == 1 %]selected="selected" [% END %]value=1>
+				[% 'PLUGIN_C3PO_OUT_BITDEPTH_1' | string %]
+			</option>
+			<option [% IF prefs.outBitDepth == 2 %]selected="selected" [% END %]value=2>
+				[% 'PLUGIN_C3PO_OUT_BITDEPTH_2' | string %]
+			</option>
+			<option [% IF prefs.outBitDepth == 3 %]selected="selected" [% END %]value=3>
+				[% 'PLUGIN_C3PO_OUT_BITDEPTH_3' | string %]
+			</option>
+			<option [% IF prefs.outBitDepth == 4 %]selected="selected" [% END %]value=4>
+				[% 'PLUGIN_C3PO_OUT_BITDEPTH_4' | string %]
+			</option>
+			<option [% IF prefs.outBitDepth == 8 %]selected="selected" [% END %]value=8>
+				[% 'PLUGIN_C3PO_OUT_BITDEPTH_8' | string %]
+			</option>
+
+		</select>
+	[% END %]
+	[% IF 0 %]
+		[% WRAPPER setting title="PLUGIN_C3PO_OUT_BYTEORDER" desc="PLUGIN_C3PO_OUT_BYTEORDER_DESC" %]
+			<select class="stdedit" name="pref_outByteOrder" id="outByteOrder">
+				<option [% IF prefs.outByteOrder == "L" %]selected="selected" [% END %]value="L">
+					[% 'PLUGIN_C3PO_OUT_BYTEORDER_L' | string %]
+				</option>
+				<option [% IF prefs.outByteOrder == "B" %]selected="selected" [% END %]value="B">
+					[% 'PLUGIN_C3PO_OUT_BYTEORDER_B' | string %]
+				</option>
+			</select>
+		[% END %]
+	[% END %]
+	[% WRAPPER setting title="PLUGIN_C3PO_OUT_ENCODING" desc="PLUGIN_C3PO_OUT_ENCODING_DESC" %]
+		<select class="stdedit" name="pref_outEncoding" id="outEncoding">
+			<option [% IF prefs.outEncoding == "s" %]selected="selected" [% END %]value="s">
+				[% 'PLUGIN_C3PO_OUT_ENCODING_S' | string %]
+			</option>
+			<option [% IF prefs.outEncoding == "u" %]selected="selected" [% END %]value="u">
+				[% 'PLUGIN_C3PO_OUT_ENCODING_U' | string %]
+			</option>
+			<option [% IF prefs.outEncoding == "f" %]selected="selected" [% END %]value="f">
+				[% 'PLUGIN_C3PO_OUT_ENCODING_F' | string %]
+			</option>
+		</select>
+	[% END %]
+	
+	[% WRAPPER setting title="PLUGIN_C3PO_OUT_CHANNELS" desc="PLUGIN_C3PO_OUT_CHANNELS_DESC" %]
+		<input type="text" class="stdedit sliderInput_1_64" name="pref_outChannels" id="outChannels" value="[% prefs.outChannels %]" size="5">
+	[% END %]
+			
+	[% WRAPPER setting title="PLUGIN_C3PO_GAIN" desc="PLUGIN_C3PO_GAIN" %]
+		<input type="text" class="stdedit sliderInput_0_10" name="pref_gain" id="gain" value="[% prefs.gain %]" size="5">
+	[% END %]
+	
+	[% WRAPPER setting title="PLUGIN_C3PO_OUT_QUALITY" desc="PLUGIN_C3PO_OUT_QUALITY_DESC" %]
+		<select class="stdedit" name="pref_quality" id="quality">
+			<option [% IF prefs.quality == "q" %]selected="selected" [% END %]value="q">
+				[% 'PLUGIN_C3PO_OUT_QUALITY_Q' | string %]
+			</option>
+			<option [% IF prefs.quality == "l" %]selected="selected" [% END %]value="l">
+				[% 'PLUGIN_C3PO_OUT_QUALITY_L' | string %]
+			</option>
+			<option [% IF prefs.quality == "m" %]selected="selected" [% END %]value="m">
+				[% 'PLUGIN_C3PO_OUT_QUALITY_M' | string %]
+			</option>
+			<option [% IF prefs.quality == "h" %]selected="selected" [% END %]value="h">
+				[% 'PLUGIN_C3PO_OUT_QUALITY_H' | string %]
+			</option>
+			<option [% IF prefs.quality == "v" %]selected="selected" [% END %]value="v">
+				[% 'PLUGIN_C3PO_OUT_QUALITY_V' | string %]
+			</option>
+		</select>
+	[% END %]
+	
+	[% WRAPPER setting title="PLUGIN_C3PO_OUT_PHASE" desc="PLUGIN_C3PO_OUT_PHASE_DESC" %]
+		<select class="stdedit" name="pref_phase" id="phase">
+			<option [% IF prefs.phase == "M" %]selected="selected" [% END %]value="M">
+				[% 'PLUGIN_C3PO_OUT_PHASE_M' | string %]
+			</option>
+			<option [% IF prefs.phase == "I" %]selected="selected" [% END %]value="I">
+				[% 'PLUGIN_C3PO_OUT_PHASE_I' | string %]
+			</option>
+			<option [% IF prefs.phase == "L" %]selected="selected" [% END %]value="L">
+				[% 'PLUGIN_C3PO_OUT_PHASE_L' | string %]
+			</option>
+		</select>
+	[% END %]
+		
+	[% WRAPPER setting title="PLUGIN_C3PO_ALIASING" desc="PLUGIN_C3PO_ALIASING_DESC" %]
+
+		<div class="prefDesc">[% "ENABLE" | string %]
+			<input name="pref_aliasing" type="checkbox" [% IF prefs.aliasing %] checked [% END %]>
+		</div>
+
+	[% END %]
+	
+	[% WRAPPER setting title="PLUGIN_C3PO_BANDWIDTH" desc="PLUGIN_C3PO_BANDWIDTH_DESC" %]
+		<input type="text" class="stdedit sliderInput_740_997" name="pref_bandwidth" id="bandwidth" value="[% prefs.bandwidth %]" size="5">
+	[% END %]
+	
+	[% WRAPPER setting title="PLUGIN_C3PO_DITHER" desc="PLUGIN_C3PO_DITHER_DESC" %]
+
+		<div class="prefDesc">[% "ENABLE" | string %]
+			<input name="pref_dither" type="checkbox" [% IF prefs.dither %] checked [% END %]>
+		</div>
+
+	[% END %]
+	
+[% PROCESS settings/footer.html %]

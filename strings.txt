@@ -1,0 +1,290 @@
+PLUGIN_C3PO_TITLE
+	EN	GENERAL SETTINGS
+	IT	IMPOSTAZIONI GENERALI
+
+PLUGIN_C3PO_USECUESHEETS
+	EN	Enable .cue sheets
+	IT	Abilita l'uso dei cue sheets
+
+PLUGIN_C3PO_USECUESHEETS_DESC
+	EN	Enable .cue sheets (disable if you need Qubuz or other StdIn)
+	IT	Abilita l'uso di cue sheets (Incompatibile con Qubuz ed altri servizi)
+
+
+PLUGIN_C3PO_TITLE_DESC
+	EN	General Settings. See also per player settings.
+	IT	Impostazioni generali. Verificare anche le impostazioni per singolo lettore.
+
+PLUGIN_C3PO_TITLE_GOTO_PLAYERS
+	EN	Players
+	IT	Lettori
+	
+PLUGIN_C3PO
+	EN	C-3PO Transcoding Helper
+	IT	C-3PO Transcoding Helper
+
+PLUGIN_C3PO_DESC
+	EN	Automate conversion of file types and resampling
+	IT	Automatizza la conversione dei tipi di file ed il resampling
+	
+PLUGIN_C3PO_MODULE_NAME
+	EN	C-3PO Transcoding Helper
+	IT	C-3PO Transcoding Helper
+	
+PLUGIN_C3PO_RESAMPLE_WHEN
+	EN	Resample
+	IT	Ricampiona
+	
+PLUGIN_C3PO_RESAMPLE_WHEN_DESC
+	EN	Ask the server to resample always, never or only by exception when sample rate is not supported.
+	IT	Chiede al server di ricampionare sempre, mai o solo per eccezione, se il player non supporta la frequenza.
+
+PLUGIN_C3PO_RESAMPLE_WHEN_ALWAYS
+	EN	Always
+	IT	Sempre
+	
+PLUGIN_C3PO_RESAMPLE_WHEN_NEVER
+	EN	Never
+	IT	Mai
+	
+PLUGIN_C3PO_RESAMPLE_WHEN_NOT_SUPPORTED
+	EN	Only when samplerate is not supported
+	IT	Solo se la frequenza di campionamento non è supportata
+
+PLUGIN_C3PO_RESAMPLE_TO
+	EN	Target sample rate is
+	IT	Alla frequenza
+	
+PLUGIN_C3PO_RESAMPLE_TO_DESC
+	EN	Set target sample rate at max absolute samplerate or max synchronous samplerate 
+	IT	Imposta la frequenza di campionamento alla massima assoluta disponibile o alla massima sincrona, cioè multiplo (o sottomultiplo) di quella in ingresso
+
+PLUGIN_C3PO_RESAMPLE_TO_MAX
+	EN	Max supported
+	IT	Massima supportata
+	
+PLUGIN_C3PO_RESAMPLE_TO_MAX_SYNC
+	EN	Max syncronous
+	IT	Massima sincrona
+
+PLUGIN_C3PO_OUT_CODEC
+	EN	Output format
+	IT	Formato in uscita
+
+PLUGIN_C3PO_OUT_CODEC_DESC
+	EN	Output format. Compressed are usefull when Network bandwidth is a concern, trade it by cpu load.
+	IT	Formato in uscita. I formati compressi riducono l'utilizzo di rete, al costo di un maggior carico di cpu.
+
+PLUGIN_C3PO_OUT_CODEC_WAV
+	EN	wav (uncommpressed pcm)
+	IT	wav (pcm non compresso)
+
+PLUGIN_C3PO_OUT_CODEC_AIFF
+	EN	aiff (uncommpressed pcm)
+	IT	aiff (pcm non compresso)
+
+PLUGIN_C3PO_OUT_CODEC_FLAC_0
+	EN	Flac (not compressed)
+	IT	Flac (non compresso)
+	
+PLUGIN_C3PO_OUT_CODEC_FLAC_5
+	EN	Flac (medium compression)
+	IT	Flac (compresione media)
+	
+PLUGIN_C3PO_OUT_CODEC_FLAC_8
+	EN	Flac (max compression)
+	IT	Flac (compresione massima)
+
+PLUGIN_C3PO_OUT_BITDEPTH
+	EN	bit-depth
+	IT	bit-depth
+	
+PLUGIN_C3PO_OUT_BITDEPTH_DESC
+	EN	output bit-depth
+	IT	bit-depth dello stream in uscita
+	
+PLUGIN_C3PO_OUT_BITDEPTH_1
+	EN	1 Byte, 8 bit
+	IT	1 Byte, 8 bit
+	
+PLUGIN_C3PO_OUT_BITDEPTH_2
+	EN	2 Byte, 16 bit
+	IT	2 Byte, 16 bit
+
+PLUGIN_C3PO_OUT_BITDEPTH_3
+	EN	3 Byte, 24 bit
+	IT	3 Byte, 24 bit
+
+PLUGIN_C3PO_OUT_BITDEPTH_4
+	EN	4 Byte, 32 bit
+	IT	4 Byte, 32 bit
+
+PLUGIN_C3PO_OUT_BITDEPTH_8
+	EN	8 Byte, 64 bit
+	IT	8 Byte, 64 bit
+
+PLUGIN_C3PO_OUT_BYTEORDER
+	EN	byte-order
+	IT	byte-order
+	
+PLUGIN_C3PO_OUT_BYTEORDER_DESC
+	EN	Specify whether the byte-order of the audio data is, respectively, little endian, big endian, 
+	IT	ordinamento dei byte, rispettivamente little endian, big endian
+	
+PLUGIN_C3PO_OUT_BYTEORDER_L
+	EN	little endian
+	IT	little endian
+	
+PLUGIN_C3PO_OUT_BYTEORDER_B
+	EN	big endian
+	IT	big endian
+	
+PLUGIN_C3PO_OUT_ENCODING
+	EN	encoding
+	IT	encoding
+	
+PLUGIN_C3PO_OUT_ENCODING_DESC
+	EN	The audio encoding type: signed-integer, unsigned-integer or floating-point.
+	IT	Tipo di codifica: intero, intero assoluto o decimale.
+	
+PLUGIN_C3PO_OUT_ENCODING_S
+	EN	signed-integer
+	IT	signed-integer
+PLUGIN_C3PO_OUT_ENCODING_U
+	EN	unsigned-integer
+	IT	unsigned-integer
+PLUGIN_C3PO_OUT_ENCODING_F
+	EN	floating-point
+	IT	floating-point
+
+PLUGIN_C3PO_OUT_CHANNELS
+	EN	channels.
+	IT	canali
+
+PLUGIN_C3PO_OUT_CHANNELS_DESC
+	EN	Numero di canali
+	IT	Numero di canali
+
+PLUGIN_C3PO_GAIN
+	EN	Gain reduction (in dB)
+	IT	Riduzione guadagno (in dB)
+	
+PLUGIN_C3PO_GAIN_DESC
+	EN	Gain reduction (in dB) to avoid clipping induced by transcoding or resampling. Some standards bodies recommend as much as 9dB headroom, but in most cases, 3dB is enough.
+	IT	Riduzione del volume (in dB) ad evitare distorsioni di clipping causate dal ricampionamento. Alcuni standard raccomandano 9 dB di headroom, ma i molti casi, 3 dB sono sufficienti.
+
+PLUGIN_C3PO_OUT_QUALITY
+	EN	quality
+	IT	qualità
+	
+PLUGIN_C3PO_OUT_QUALITY_DESC
+	EN	Specify the resampling quality.  Higher quality uses more processing power on your server.
+	IT	Qualità nel resampling, più è alta più tempo e risorse richiede al server.
+
+PLUGIN_C3PO_OUT_QUALITY_Q
+	EN	Quick
+	IT	Veloce
+
+PLUGIN_C3PO_OUT_QUALITY_L
+	EN	Low
+	IT	Bassa
+
+PLUGIN_C3PO_OUT_QUALITY_M
+	EN	Medium
+	IT	Media
+	
+PLUGIN_C3PO_OUT_QUALITY_H
+	EN	High
+	IT	Alta
+	
+PLUGIN_C3PO_OUT_QUALITY_V
+	EN	Very high
+	IT	Molto alta
+	
+PLUGIN_C3PO_OUT_PHASE
+	EN	Phase response
+	IT	Risposta in fase
+	
+PLUGIN_C3PO_OUT_PHASE_DESC
+	EN	Filter phase
+	IT	Risposta in fase del filtro applicato
+	
+PLUGIN_C3PO_OUT_PHASE_M
+	EN	Minimum
+	IT	Minima
+	
+PLUGIN_C3PO_OUT_PHASE_I
+	EN	Intermediate 
+	IT	Intermedia
+	
+PLUGIN_C3PO_OUT_PHASE_L
+	EN	Linear 
+	IT	Lineare
+	
+PLUGIN_C3PO_ALIASING
+	EN	Aliasing
+	IT	Aliasing
+	
+PLUGIN_C3PO_ALIASING_DESC
+	EN	Allow aliasing/imaging above the pass-band.
+	IT	Ammette aliasing a frequenze superiori del limite di banda
+
+PLUGIN_C3PO_BANDWIDTH
+	EN	Minimal band-width
+	IT	Larghezza di banda minima
+	 
+PLUGIN_C3PO_BANDWIDTH_DESC
+	EN	Allows the band-width to be set to any value in the range 740?997, note that band-width values greater than 990 are not recommended for normal use.
+	IT	Valore in millesimi della banda passante, da un minimo di 740 ad un massimo di 997. Da notare che valori superiori al 990 sono sconsiglai per l'uso normale.
+	
+PLUGIN_C3PO_DITHER
+	EN	Dithering
+	IT	Dithering
+	
+PLUGIN_C3PO_DITHER_DESC
+	EN	Enable the automatic ditehering
+	IT	Abilita il dithering automatico
+
+PLUGIN_C3PO_PLAYER_TITLE
+	EN	PLAYER SETTINGS
+	IT	IMPOSTAZIONI LETTORE
+
+PLUGIN_C3PO_PLAYER_TITLE_DESC
+	EN	Remember to apply changes.
+	IT	Ricordarsi di confermare le modifiche.
+
+PLUGIN_C3PO_USE_GLOBAL
+	EN	Use global settings
+	IT	Usa le impostazioni generali
+	
+PLUGIN_C3PO_USE_GLOBAL_DESC
+	EN	Use global settings (see Advanced tab, C-3PO Transcoding Helper section) for this player.
+	IT	Usa le impostazioni generali (vedi Advanced, Transcoding Helper) per questo player.
+
+PLUGIN_C3PO_USE_GLOBAL_SHOW
+	EN	Show or Hide
+	IT	Mostra o Nascondi
+
+PLUGIN_C3PO_SAMPLE_RATE_LIST
+	EN	Supported Sample Rates
+	IT	Sample rate supportati
+	
+PLUGIN_C3PO_SAMPLE_RATE_LIST_DESC
+	EN	List of sample rate supported by the player, can not exceed the settled maximum value.
+	IT	Elenco dei sample rate supportati dal lettore, non possono eccedere il valore massimo impostato.
+
+PLUGIN_C3PO_CODEC_SELECTION_TITLE
+	EN	Supported formats.
+	IT	Formati supportati.
+	
+PLUGIN_C3PO_CODEC_SELECTION_DESC
+	EN	List of formats (aka codecs) supported by the player. If some options appear disabled means that C-3PO does not support those formats. In particular, 'dsf' and 'dff' are handled similarly by the plugin DSDPlay, while generally 'lossy' formats are not supported. PCM is WAV
+	IT	Elenco dei formati (o codec) supportati dal lettore. Se alcune opzioni appaiono disabilitate significa che C-3PO non supporta quei formati. In particolare, 'dsf' e 'dff' vengono gestiti in modo analogo mediante il plugin DSDPlay, mentre in generale non sono gestiti i formati 'lossy'. PCM è WAV.
+
+PLUGIN_C3PO_ENABLE_SEEK_TITLE
+	EN	Enable seek (cue sheet)
+	IT	Abilita ricerca (cue sheet).
+	
+PLUGIN_C3PO_ENABLE_SEEK_DESC
+	EN	Enable seek capabilities ("T" and "U"), necessary for cue sheet usage but incompatible with "I" stream format, used by many on line services (i.e. Qobuz).
+	IT	Abilita la capacità di ricerca ("T" e "U"), indispensabile per l'uso dei cue sheets ma incompatibile con la modalità "I", necessaria per molti servizi on line (es. Qobuz).
