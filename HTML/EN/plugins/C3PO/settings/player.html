@@ -118,17 +118,6 @@
 			</select>
 		[% END %]
 
-		[% WRAPPER setting title="PLUGIN_C3PO_OUT_BYTEORDER" desc="PLUGIN_C3PO_OUT_BYTEORDER_DESC" %]
-			<select class="stdedit" name="pref_outByteOrder" id="outByteOrder"[% IF prefs.useGlogalSettings %] disabled [% END %]>
-				<option [% IF prefs.outByteOrder == "L" %]selected="selected" [% END %]value="L">
-					[% 'PLUGIN_C3PO_OUT_BYTEORDER_L' | string %]
-				</option>
-				<option [% IF prefs.outByteOrder == "B" %]selected="selected" [% END %]value="B">
-					[% 'PLUGIN_C3PO_OUT_BYTEORDER_B' | string %]
-				</option>
-			</select>
-		[% END %]
-
 		[% WRAPPER setting title="PLUGIN_C3PO_OUT_ENCODING" desc="PLUGIN_C3PO_OUT_ENCODING_DESC" %]
 			<select class="stdedit" name="pref_outEncoding" id="outEncoding"[% IF prefs.useGlogalSettings %] disabled [% END %]>
 				<option [% IF prefs.outEncoding == "s" %]selected="selected" [% END %]value="s">

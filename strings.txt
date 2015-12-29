@@ -64,7 +64,7 @@ PLUGIN_C3PO_RESAMPLE_TO_MAX
 	IT	Massima supportata
 	
 PLUGIN_C3PO_RESAMPLE_TO_MAX_SYNC
-	EN	Max syncronous
+	EN	Max synchronous
 	IT	Massima sincrona
 
 PLUGIN_C3PO_OUT_CODEC

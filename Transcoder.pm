@@ -219,8 +219,8 @@ sub willResample{
 	my $targetSamplerate=$transcodeTable->{'targetSamplerate'};
 	my $fileSamplerate = $transcodeTable->{'fileInfo'}->{info}->{samplerate};
 	
-	Plugins::C3PO::Logger::verboseMessage("targetSamplerate: ".$targetSamplerate);
-	Plugins::C3PO::Logger::verboseMessage("fileSamplerate: ".$fileSamplerate);
+	Plugins::C3PO::Logger::verboseMessage("targetSamplerate: ". defined $targetSamplerate ? $targetSamplerate : 'undef');
+	Plugins::C3PO::Logger::verboseMessage("fileSamplerate: ". defined $fileSamplerate ? $fileSamplerate : 'undef');
 
 	if ((defined $targetSamplerate) &&
 		((!$fileSamplerate) || !($fileSamplerate == $targetSamplerate))){

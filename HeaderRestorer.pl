@@ -39,6 +39,13 @@ if ($file && $file eq 'HeaderRestorer.exe'){
 	
 	$C3PODir = File::Spec->canonpath(getAncestor($Bin,2));
 
+} elsif ($file eq 'HeaderRestorer'){
+
+	#running on linux or mac OS x from inside the Bin folder
+	#$C3PODir= File::Spec->canonpath(File::Basename::dirname(__FILE__)); #C3PO Folder
+	$C3PODir = File::Spec->canonpath(getAncestor($Bin,1));
+        
+
 } elsif ($file && $file eq 'HeaderRestorer.pl'){
 
 	#running .pl 
@@ -51,8 +58,25 @@ if ($file && $file eq 'HeaderRestorer.exe'){
 	die "unexpected filename";
 }
 
-use lib rel2abs(catdir($C3PODir, 'lib'));
-use lib rel2abs(catdir($C3PODir,'CPAN'));
+
+my $lib= File::Spec->rel2abs(catdir($C3PODir, 'lib'));
+my $cpan=  File::Spec->rel2abs(catdir($C3PODir,'CPAN'));
+my $util=  File::Spec->rel2abs(catdir($C3PODir,'Util'));
+
+#print '$directories is : '.$lib."\n";
+#print '$directories is : '.$cpan."\n";
+#print '$directories is : '.$util."\n";
+
+#use Data::Dump;
+#Data::Dump::dump @INC;
+
+my @i=($lib,$cpan,$C3PODir);
+
+unshift @INC, @i;
+
+#Data::Dump::dump @INC;
+
+require Utils::Config;
 
 unshift @INC, Utils::Config::expandINC($C3PODir);
 

@@ -51,11 +51,6 @@ use File::Basename;
 my $C3PODir=$Bin;
 my ($volume,$directories,$file) =File::Spec->splitpath($0);
 
-
-#print '$volume is      : '.$volume."\n";
-#print '$directories is : '.$directories."\n";
-#print '$file is   : '.$file."\n";
-
 if ($file && $file eq 'C-3PO.exe'){
 
 	# We are running the compiled version in 
@@ -63,6 +58,13 @@ if ($file && $file eq 'C-3PO.exe'){
 	#plugin folder.
 	
 	$C3PODir = File::Spec->canonpath(getAncestor($Bin,2));
+
+} elsif ($file eq 'C-3PO'){
+
+	#running on linux or mac OS x from inside the Bin folder
+	#$C3PODir= File::Spec->canonpath(File::Basename::dirname(__FILE__)); #C3PO Folder
+	$C3PODir = File::Spec->canonpath(getAncestor($Bin,1));
+        
 
 } elsif ($file && $file eq 'C-3PO.pl'){
 
@@ -76,9 +78,19 @@ if ($file && $file eq 'C-3PO.exe'){
 	die "unexpected filename";
 }
 
-use lib rel2abs(catdir($C3PODir, 'lib'));
-use lib rel2abs(catdir($C3PODir,'CPAN'));
+my $lib = File::Spec->rel2abs(catdir($C3PODir, 'lib'));
+my $cpan= File::Spec->rel2abs(catdir($C3PODir,'CPAN'));
+my $util= File::Spec->rel2abs(catdir($C3PODir,'Util'));
 
+#print '$directories is : '.$lib."\n";
+#print '$directories is : '.$cpan."\n";
+#print '$directories is : '.$util."\n";
+
+my @i=($C3PODir,$lib,$cpan);
+
+unshift @INC, @i;
+
+require Utils::Config;
 unshift @INC, Utils::Config::expandINC($C3PODir);
 
 # let standard modules load.
@@ -103,19 +115,19 @@ use constant LOCALFILE    => 0;
 use constant NOMYSB       => 1;
 #
 #######################################################################
-use Logger;
-use Transcoder;
-use Shared;
-use OsHelper;
+require Logger;
+require Transcoder;
+require Shared;
+require OsHelper;
 
-use FfmpegHelper;
-use FlacHelper;
-use SoxHelper;
-use DummyTranscoderHelper;
+require FfmpegHelper;
+require FlacHelper;
+require SoxHelper;
+require DummyTranscoderHelper;
 
-use Utils::Log;
-use Utils::File;
-use Utils::Config;
+require Utils::Log;
+require Utils::File;
+require Utils::Config;
 
 require FileHandle;
 require Getopt::Long;
@@ -151,7 +163,7 @@ sub main{
 	if (!defined $options) {Plugins::C3PO::Logger::dieMessage("Missing options");}
 	
 	$isDebug= $options->{debug};
-	Plugins::C3PO::Logger::infoMessage('debug? '.$isDebug ? 'Yes' : 'No');
+	Plugins::C3PO::Logger::infoMessage('debug? '.defined $isDebug ? ($isDebug ? 'Yes' : 'No') :'No');
 	
 	Plugins::C3PO::Logger::debugMessage('options '.Data::Dump::dump($options));
 	
