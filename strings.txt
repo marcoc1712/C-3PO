@@ -2,6 +2,22 @@ PLUGIN_C3PO_TITLE
 	EN	GENERAL SETTINGS
 	IT	IMPOSTAZIONI GENERALI
 
+PLUGIN_C3PO_CODEC_SELECTION_TITLE
+	EN	Supported formats.
+	IT	Formati supportati.
+	
+PLUGIN_C3PO_CODEC_SELECTION_DESC
+	EN	List of formats (aka codecs) supported. If some options appear disabled means that C-3PO does not support those formats. In particular, 'dsf' and 'dff' are handled similarly by the plugin DSDPlay, while generally 'lossy' formats are not supported. PCM is WAV
+	IT	Elenco dei formati (o codec) supportati. Se alcune opzioni appaiono disabilitate significa che C-3PO non supporta quei formati. In particolare, 'dsf' e 'dff' vengono gestiti in modo analogo mediante il plugin DSDPlay, mentre in generale non sono gestiti i formati 'lossy'. PCM è WAV.
+
+PLUGIN_C3PO_CODEC_SELECTION_PLAYER_DESC
+	EN	List of formats (aka codecs) supported. General setting, see Advanced settings.
+	IT	Elenco dei formati (o codec) supportati. Impostazione generale, vedi impostazioni avanzate.
+
+PLUGIN_C3PO_ENABLE_SEEK_TITLE
+	EN	Enable seek (cue sheet)
+	IT	Abilita ricerca (cue sheet).
+	
 PLUGIN_C3PO_USECUESHEETS
 	EN	Enable .cue sheets
 	IT	Abilita l'uso dei cue sheets
@@ -9,7 +25,6 @@ PLUGIN_C3PO_USECUESHEETS
 PLUGIN_C3PO_USECUESHEETS_DESC
 	EN	Enable .cue sheets (disable if you need Qubuz or other StdIn)
 	IT	Abilita l'uso di cue sheets (Incompatibile con Qubuz ed altri servizi)
-
 
 PLUGIN_C3PO_TITLE_DESC
 	EN	General Settings. See also per player settings.
@@ -245,6 +260,14 @@ PLUGIN_C3PO_DITHER_DESC
 	EN	Enable the automatic ditehering
 	IT	Abilita il dithering automatico
 
+PLUGIN_C3PO_EXTRA
+	EN	Additional effects (sperimental)
+	IT	Effetti aggiuntivi (sperimentale)
+
+PLUGIN_C3PO_EXTRA_DESC
+	EN	Free text extension to the builded SOX command. WARNING: Could break C-3PO if the resulting command is invalid. Use with care and at your own risk.
+	IT	Estensione libera al comando di SOX costruito. ATTENZIONE può provocare malfunzionamenti, usare con cautela ed a proprio rischio.
+
 PLUGIN_C3PO_PLAYER_TITLE
 	EN	PLAYER SETTINGS
 	IT	IMPOSTAZIONI LETTORE
@@ -273,18 +296,139 @@ PLUGIN_C3PO_SAMPLE_RATE_LIST_DESC
 	EN	List of sample rate supported by the player, can not exceed the settled maximum value.
 	IT	Elenco dei sample rate supportati dal lettore, non possono eccedere il valore massimo impostato.
 
-PLUGIN_C3PO_CODEC_SELECTION_TITLE
-	EN	Supported formats.
-	IT	Formati supportati.
-	
-PLUGIN_C3PO_CODEC_SELECTION_DESC
-	EN	List of formats (aka codecs) supported by the player. If some options appear disabled means that C-3PO does not support those formats. In particular, 'dsf' and 'dff' are handled similarly by the plugin DSDPlay, while generally 'lossy' formats are not supported. PCM is WAV
-	IT	Elenco dei formati (o codec) supportati dal lettore. Se alcune opzioni appaiono disabilitate significa che C-3PO non supporta quei formati. In particolare, 'dsf' e 'dff' vengono gestiti in modo analogo mediante il plugin DSDPlay, mentre in generale non sono gestiti i formati 'lossy'. PCM è WAV.
-
-PLUGIN_C3PO_ENABLE_SEEK_TITLE
-	EN	Enable seek (cue sheet)
-	IT	Abilita ricerca (cue sheet).
-	
 PLUGIN_C3PO_ENABLE_SEEK_DESC
 	EN	Enable seek capabilities ("T" and "U"), necessary for cue sheet usage but incompatible with "I" stream format, used by many on line services (i.e. Qobuz).
 	IT	Abilita la capacità di ricerca ("T" e "U"), indispensabile per l'uso dei cue sheets ma incompatibile con la modalità "I", necessaria per molti servizi on line (es. Qobuz).
+
+PLUGIN_C3PO_ENABLE_STDIN_TITLE
+	EN	Enable input fron standard Input (i.e. Qobuz, CDPlay)
+	IT	Abilita 'stdIn' (es. Qobuz).
+	
+PLUGIN_C3PO_ENABLE_STDIN_DESC
+	EN	Enable input fron standard Input capability ("I"), used by many on line services (i.e. Qobuz), but incompatible with ("T" and "U"), necessary for cue sheet usage.
+	IT	Abilita l'ingresso da 'standard Input' ("I"), necessario per molti servizi on line (es. Qobuz), ma incompatibile con le capacità di ricerca ("T" and "U")indispensabile per l'uso dei cue sheets.
+
+PLUGIN_C3PO_CONVERT_TITLE
+	EN	Enable transcoding
+	IT	Abilita la conversione di formato.
+	
+PLUGIN_C3PO_CONVERT_DESC
+	EN	Enable transcoding to the selected 'output format'.
+	IT	Abilita la conversione al 'formato in uscita' selezionato.
+
+PLUGIN_C3PO_RESAMPLE_TITLE
+	EN	Enable resampling
+	IT	Abilita il ricampionamento.
+	
+PLUGIN_C3PO_RESAMPLE_DESC
+	EN	Enable resampling using selected parameters.
+	IT	Abilita il ricampionamento mediante i parametri selezionati.
+
+PLUGIN_C3PO_CODEC_IN_HEADER
+	EN	In.
+	IT	In.
+PLUGIN_C3PO_CAPABILITY_HEADER
+	EN	Capabilities.
+	IT	Capacità.
+PLUGIN_C3PO_CODEC_OUT_HEADER
+	EN	Out.
+	IT	Out.
+PLUGIN_C3PO_RESAMPLE_HEADER
+	EN	Resample.
+	IT	Ricampiona.
+PLUGIN_C3PO_OTHER_HEADER
+	EN	Other.
+	IT	Altro.
+
+PLUGIN_C3PO_LOG_C3PO
+	EN	Log file position
+	IT	Posizione del file di log.
+
+PLUGIN_C3PO_STATUS
+	EN	STATUS
+	IT	STATUS
+
+PLUGIN_C3PO_STATUS_ERROR
+	EN	ERROR
+	IT	ERRORE
+
+PLUGIN_C3PO_STATUS_WARNING
+	EN	WARNING
+	IT	ATTENZIONE
+
+PLUGIN_C3PO_STATUS_INFO
+	EN	INFO
+	IT	INFORMAZIONE
+		
+PLUGIN_C3PO_STATUS_OK
+	EN	No problem.
+	IT	Nessun problema riscontrato.
+	
+PLUGIN_C3PO_STATUS_001
+	EN	Unable to run C-3PO transcoder see server log.
+	IT	Impossibile eseguire C-3PO transcoder, verificare il log del server.
+	
+PLUGIN_C3PO_STATUS_012
+	EN	Squeezebox server could not find SOX.exe
+	IT	Squeezebox server non trova SOX.exe nel sistema.
+
+PLUGIN_C3PO_STATUS_013
+	EN	Squeezebox server could not find FLAC.exe
+	IT	Squeezebox server non trova FLAC.exe nel sistema.
+
+PLUGIN_C3PO_STATUS_014
+	EN	Squeezebox server could not find FAAD.exe
+	IT	Squeezebox server non trova FAAD.exe nel sistema.
+
+PLUGIN_C3PO_STATUS_CLIENT_021
+	EN	Squeezelite version is non compliant (Squeezelite-R2).
+	IT	La verisone di Squeezelite non è compatibile (Squeezelite-R2).
+
+PLUGIN_C3PO_STATUS_SERVER_021
+	EN	Squeezelite version is non compliant (Squeezelite-R2). See players.
+	IT	La versione di Squeezelite non è compatibile (Squeezelite-R2). Vedi Lettori.
+	
+PLUGIN_C3PO_STATUS_101
+	EN	Unable to run C-3PO transcoder, fault back to PERL. See server log.
+	IT	Impossibile eseguire C-3PO transcoder, verrà utilizzato PERL. Verificare il log del server.
+		
+PLUGIN_C3PO_STATUS_CLIENT_502
+	EN	StdIn (es. Qobuz) enabled in windows, faulf back to 'Always upsample' at 'Max allowed sample rate'.
+	IT	StdIn (es. Qobuz) abilitato in windows, verrà utilizzato Il ricampionamento al massimo sample rate supportato.
+
+PLUGIN_C3PO_STATUS_SERVER_502
+	EN	StdIn (es. Qobuz) enabled in windows, faulf back to 'Always upsample' at 'Max allowed sample rate' (see players).
+	IT	StdIn (es. Qobuz) abilitato in windows, verrà utilizzato Il ricampionamento al massimo sample rate supportato (controllare in player).
+
+PLUGIN_C3PO_STATUS_CLIENT_503
+	EN	StdIn (es. Qobuz) and Seek (cue sheet) capability selected for the same codec. Seek will be ignored.
+	IT	StdIn (es. Qobuz) e Ricerca(cue sheet) selezionati per lo stesso formato. Ricerca verrà ignorato.
+
+PLUGIN_C3PO_STATUS_SERVER_503
+	EN	StdIn (es. Qobuz) and Seek (cue sheet) capability selected for the same codec. Seek will be ignored (see players).
+	IT	StdIn (es. Qobuz) e Ricerca(cue sheet) selezionati per lo stesso formato. Ricerca verrà ignorato (controllare in players).
+
+PLUGIN_C3PO_STATUS_CLIENT_504
+	EN	Apple lossless is always decoded when resampled.
+	IT	Apple lossless viene comunque decodificato prima del ricampionamento.
+	
+PLUGIN_C3PO_STATUS_CLIENT_521
+	EN	Player is not Squeezelite-R2, assuming is compliant.
+	IT	Il player non è Squeezelite-R2, si assume sia compatibile.
+
+PLUGIN_C3PO_STATUS_901
+	EN	FFMPEG not found, fault back to FLAC.
+	IT	FFMPEG non è stato trovato, verrà utilizzato FLAC.
+
+PLUGIN_C3PO_STATUS_CLIENT_904
+	EN	FLAC is always decoded before resampling.
+	IT	FLAC viene comunque decodificato prima del ricampionamento.
+
+PLUGIN_C3PO_STATUS_905
+	EN	Extra effects in SOX command.
+	IT	Effetti aggiuntivi nel comando SOX.
+
+PLUGIN_C3PO_STATUS_CLIENT_921
+	EN	Using Daphile as player, assuming is Squeezelite-R2 compliant.
+	IT	Utilizzo di Daphile come player, si assume sia compatibile con Squeezelite-R2.
+

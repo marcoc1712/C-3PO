@@ -24,22 +24,23 @@ use strict;
 #use Data::Dump qw(dump);
 
 my @clientPrefNamesScalar = qw(	id macaddress model modelName name 
-								maxSupportedSamplerate codecs enableSeek);
+								maxSupportedSamplerate 
+								enableSeek enableStdin 
+								enableConvert enableResample);
 								
 my @clientPrefNamesHash	  = qw(	sampleRates);
 
 my @clientPrefNames= @clientPrefNamesScalar;
 push @clientPrefNames, @clientPrefNamesHash;
 
-my @sharedPrefNames		  = qw(	#useCueSheets
-								resampleWhen resampleTo outCodec 
+my @sharedPrefNames		  = qw(	resampleWhen resampleTo outCodec 
 								outBitDepth 
-								#outByteOrder 
-								outEncoding 
-								outChannels gain quality phase aliasing 
-								bandwidth dither);
-
-my @globalPrefNames		  = qw(	serverFolder logFolder C3POfolder pathToPrefFile
+								gain quality phase aliasing 
+								bandwidth dither extra);
+								#outChannels
+				
+my @globalPrefNames		  = qw(	codecs
+                                serverFolder logFolder C3POfolder pathToPrefFile
 								pathToFlac pathToSox pathToFaad pathToFFmpeg
 								pathToC3PO_exe pathToC3PO_pl pathToPerl
 								C3POwillStart 
@@ -101,7 +102,7 @@ sub buildTranscoderTable{
 	my $clientString=shift; #the client sting here
 	my $prefs= shift; #the pref hash here
 	my $options =shift; #the options hash here
-			
+	
 	my $transcodeTable={};
 	for my $i (getClientPrefNameScalarList()){
 		
@@ -135,13 +136,14 @@ sub buildTranscoderTable{
 		$transcodeTable->{$i}= $useGlogalSettings ?
 					$prefs->{$i} : $prefs->{$clientString}->{$i};
 		
-	}					
+	}
 
 	for my $i (getGlobalPrefNameList()) {
 	
 		$transcodeTable->{$i}=$prefs->{$i};
 	}
 	
+	# split codec name and compression factor (for flac).
 	my $outCodec= $transcodeTable->{'outCodec'};
 	$transcodeTable->{'outCompression'}=undef;
 	

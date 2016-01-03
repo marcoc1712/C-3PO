@@ -24,6 +24,8 @@
 package Plugins::C3PO::SoxHelper;
 
 use strict;
+my $stdBuffer = 8192; #44100/16
+my $buffer= $stdBuffer;
 
 sub resample{
 	my $transcodeTable = shift;
@@ -37,9 +39,9 @@ sub resample{
 	my $useSoxToEncodeWhenResampling =
 		Plugins::C3PO::Transcoder::useSoxToEncodeWhenResampling($transcodeTable);
 	
-	my $outChannels		=$transcodeTable->{'outChannels'};
+	#my $outChannels		=$transcodeTable->{'outChannels'};
 	my $outBitDepth		=$transcodeTable->{'outBitDepth'};
-	my $outEncoding		=$transcodeTable->{'outEncoding'};
+	#my $outEncoding		=$transcodeTable->{'outEncoding'};
 	#my $outByteOrder	=$transcodeTable->{'outByteOrder'};
 	my $outCompression	=$transcodeTable->{'outCompression'};
 	my $quality			=$transcodeTable->{'quality'};
@@ -49,10 +51,12 @@ sub resample{
 	my $gain			=$transcodeTable->{'gain'};
 	my $dither			=$transcodeTable->{'dither'};
 	
+	my $extra			=$transcodeTable->{'extra'};
+	
 	my $file			=$transcodeTable->{'options'}->{'file'};
 	
 	my $inCodec			=$transcodeTable->{'transitCodec'};
-	my $outCodec		=$transcodeTable->{'outCodec'};
+	my $outCodec		=Plugins::C3PO::Transcoder::getOutputCodec($transcodeTable);
 	
 	my $exe				=$transcodeTable->{'pathToSox'};
 	my $command			=$transcodeTable->{'command'};
@@ -61,12 +65,12 @@ sub resample{
 
 	my $outFormatSpec="";
 
-	# -c 2 -r 19200 -3 -s -C 8
+	# -r 19200 -3 -C 8
 
 	if ($outSamplerate){$outFormatSpec= $outFormatSpec.' -r '.$outSamplerate};
-	if ($outChannels){$outFormatSpec= $outFormatSpec.' -c '.$outChannels};
+	#if ($outChannels){$outFormatSpec= $outFormatSpec.' -c '.$outChannels};
 	if ($outBitDepth){$outFormatSpec= $outFormatSpec.' -'.$outBitDepth};
-	if ($outEncoding){$outFormatSpec= $outFormatSpec.' -'.$outEncoding};
+	#if ($outEncoding){$outFormatSpec= $outFormatSpec.' -'.$outEncoding};
 	#if ($outByteOrder){$outFormatSpec= $outFormatSpec.' -'.$outByteOrder};
 
 	if ($outCompression){$outFormatSpec= $outFormatSpec.' -C '.$outCompression};
@@ -84,7 +88,7 @@ sub resample{
 	if ($outSamplerate){$rateString= $rateString.' '.$outSamplerate};
 	
 	my $effects="";
-	
+
 	if ($gain){$effects= $effects.' gain -'.$gain};
 	
 	$effects=$effects.$rateString;
@@ -116,7 +120,15 @@ sub resample{
 	
 	if ((!defined $command) || ($command eq "")){
 
-		$commandString = $commandString.qq(-q -t $inCodec "$file" -t );
+		if ($isRuntime){
+			
+			$commandString = $commandString.qq(-q -t $inCodec "$file" -t );
+		
+		}else{
+		
+			$commandString = $commandString."-q -t $inCodec ".'$FILE$'." -t ";
+		}
+		
 
 	} else {
 	
@@ -124,8 +136,13 @@ sub resample{
 
 	}
 	$transcodeTable->{'transitCodec'}= _translateCodec($outCodec);
-	$commandString = $commandString.qq($outCodec$outFormatSpec -$effects);
-
+	
+	$commandString = $commandString.qq($outCodec$outFormatSpec --buffer=$buffer -$effects);
+	
+	if ($extra && !($extra eq "")){
+	
+		$commandString = $commandString." ".$extra;
+	}
 	return $commandString;
 
 }
@@ -136,7 +153,7 @@ sub transcode{
 	my $isRuntime		= Plugins::C3PO::Transcoder::isRuntime($transcodeTable);
 	
 	my $inCodec			= $transcodeTable->{'transitCodec'};
-	my $outCodec		= $transcodeTable->{'outCodec'};
+	my $outCodec		= Plugins::C3PO::Transcoder::getOutputCodec($transcodeTable);
 	my $file			= $transcodeTable->{'options'}->{'file'};
 	my $command			= $transcodeTable->{'command'};
 	my $outCompression	= $transcodeTable->{'outCompression'};
@@ -150,17 +167,24 @@ sub transcode{
 	my $commandString = "";
 	
 	if (!defined ($command)|| ($command eq "")){
-
-		$commandString = qq(-q -t $inCodec "$file" -t $outCodec );
-
+		
+		if ($isRuntime){
+			
+			$commandString = qq(-q -t $inCodec "$file" -t $outCodec );
+		
+		}else{
+		
+			$commandString = "-q -t $inCodec ".'$FILE$'." -t $outCodec ";
+		}
+		
 	} else {
 		
 		$commandString = qq(-q -t $inCodec - -t $outCodec );
 	}
 
 	if ($outCompression){
-		$commandString = $commandString.'-C '.$outCompression
-	};
+		$commandString = $commandString.'-C '.$outCompression.' ';
+	}
 	
 	if ($isRuntime){
 

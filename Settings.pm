@@ -26,6 +26,7 @@ use Digest::MD5 qw(md5_hex);
 
 use Slim::Utils::Log;
 use Slim::Utils::Prefs;
+use Data::Dump qw(dump);
 
 require Plugins::C3PO::Shared;
 
@@ -46,7 +47,67 @@ sub prefs {
 
 sub handler {
 	my ($class, $client, $params, $callback, @args) = @_;
+	
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug('Settings - handler');	
+	}
+	
+	$params->{'logFolder'} =$prefs->get('logFolder');;
+	
+	my $status= Plugins::C3PO::Plugin::getStatus();
+	
+	$params->{'displayStatus'}	= $status->{'display'};
+	$params->{'status'}			= $status->{'status'};
+	$params->{'status_msg'}		= $status->{'message'};
+	$params->{'status_details'}	= $status->{'details'};
+	
+	my $prefCodecs = $prefs->get('codecs');
+	
+	if ($params->{'saveSettings'}){
+	
+		for my $codec (keys %$prefCodecs){
+			
+			my $selected = $params->{'pref_codecs'.$codec};
+			$prefCodecs->{$codec} = $selected ? 'on' : undef;
+		}
+		$prefs->set('codecs', $prefCodecs);
+		$prefs->writeAll( );
+		
+		$class->SUPER::handler( $client, $params );
+		Plugins::C3PO::Plugin::settingsChanged();
+	}
+	$params->{'prefs'}->{'codecs'}=$prefCodecs; 
+	$params->{'disabledCodecs'}=getdisabledCodecs($prefCodecs);
 
+	if (main::DEBUGLOG && $log->is_debug) {
+			$log->debug(
+				dump("preference CODECS: ").
+				dump($prefs->get('codecs')));	
+	}
 	return $class->SUPER::handler( $client, $params );
+}
+sub getdisabledCodecs{
+	my $prefCodecs = shift;
+	my $capabilities= Plugins::C3PO::Plugin::getCapabilities();
+	my $caps = $capabilities->{'codecs'};
+	my $out={};
+	
+	if (main::DEBUGLOG && $log->is_debug) {
+	
+		$log->debug(dump("capabilities: ").
+					dump($capabilities));
+	}
+	
+	for my $codec (keys %$prefCodecs){
+		
+		if (!($caps->{$codec}->{'supported'})){
+			$out->{$codec} = 1; 
+		}
+	}
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug(dump("disabled CODECS: ".$out).
+					dump($out));	
+	}
+	return $out;
 }
 1;
