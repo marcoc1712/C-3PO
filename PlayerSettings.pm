@@ -20,6 +20,8 @@
 package Plugins::C3PO::PlayerSettings;
 
 use strict;
+use warnings;
+
 use base qw(Slim::Web::Settings);
 
 use Slim::Utils::Log;
@@ -39,11 +41,14 @@ sub needsClient {
 sub page {
 	return return Slim::Web::HTTP::CSRF->protectURI('plugins/C3PO/settings/player.html');
 }
-my %showDetails={};
+my %showDetails=();
 
 sub handler {
 	my ($class, $client, $params, $callback, @args) = @_;
 	
+	#refresh the codec list.
+	my $clientCodecList=Plugins::C3PO::Plugin::initClientCodecs($client);
+		
 	my @prefList=Plugins::C3PO::Shared::getSharedPrefNameList();
 	
 	Plugins::C3PO::Plugin::refreshClientPreferences($client);
@@ -51,19 +56,41 @@ sub handler {
 	
 	my $prefCodecs = $prefs->client($client)->get('codecs');
 	my $prefSeeks  = $prefs->client($client)->get('enableSeek');
+	my $prefStdin  = $prefs->client($client)->get('enableStdin');
+	my $prefConvert  = $prefs->client($client)->get('enableConvert');
+	my $prefResample = $prefs->client($client)->get('enableResample');
 	
 	my $prefSampleRates = Plugins::C3PO::Plugin::translateSampleRates(
 								$prefs->client($client)->get('sampleRates'));
 
-	#Show or Hide details.
-	if (!defined $showDetails{$client->id()}){
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug("Inizio Handler: ");
+		$log->debug("showDetails: ");		
+		$log->debug(dump(%showDetails));
 		
-		$showDetails{$client->id()}=
-				$prefs->client($client)->get('useGlogalSettings') ? 0 : 1;
+		$log->debug("useGlogalSettings - prefs: ".
+		            $prefs->client($client)->get('useGlogalSettings').
+					" - param: ". $params->{'prefs'}->{'useGlogalSettings'}.
+					" - param: ". $params->{'pref_useGlogalSettings'});
+
+	}							
+
+	if (main::DEBUGLOG && $log->is_debug) {
+			$log->debug(dump("PREF CODECS before: "));
+			$log->debug(dump($prefCodecs));
 	}
-
+	
+	my $status= Plugins::C3PO::Plugin::getStatus($client);
+	
+	$params->{'displayStatus'}	= $status->{'display'};
+	$params->{'status'}			= $status->{'status'};
+	$params->{'status_msg'}		= $status->{'message'};
+	$params->{'status_details'}	= $status->{'details'};
+		
+	###########################################################################	
+	
 	if ($params->{'saveSettings'}){
-
+	
 		# Don't copy into prefs from disabled or not showed  parameters, 
 		# it will result in a complete erasure of preferences.
 		
@@ -73,15 +100,9 @@ sub handler {
 				copyParamsToPrefs($client,$params,$item);
 			}
 		}
+		
 		copyParamsToPrefs($client,$params,'useGlogalSettings');
-		
-		for my $codec (keys %$prefCodecs){
 			
-			my $selected = $params->{'pref_codecs'.$codec};
-			$prefCodecs->{$codec} = $selected ? 'on' : undef;
-		}
-		$prefs->client($client)->set('codecs', $prefCodecs);
-		
 		for my $codec (keys %$prefSeeks){
 			
 			my $selected = $params->{'pref_enableSeek'.$codec};
@@ -89,21 +110,47 @@ sub handler {
 		}
 		$prefs->client($client)->set('enableSeek', $prefSeeks);
 		
+		for my $codec (keys %$prefStdin){
+			
+			my $selected = $params->{'pref_enableStdin'.$codec};
+			$prefStdin->{$codec} = $selected ? 'on' : undef;
+		}
+		$prefs->client($client)->set('enableStdin', $prefStdin);
+		
+		for my $codec (keys %$prefConvert){
+			
+			my $selected = $params->{'pref_enableConvert'.$codec};
+			$prefConvert->{$codec} = $selected ? 'on' : undef;
+		}
+		$prefs->client($client)->set('enableConvert', $prefConvert);
+		
+		for my $codec (keys %$prefResample){
+			
+			my $selected = $params->{'pref_enableResample'.$codec};
+			$prefResample->{$codec} = $selected ? 'on' : undef;
+		}
+		$prefs->client($client)->set('enableResample', $prefResample);
+		
 		for my $rate (keys %$prefSampleRates){
 			
 			my $selected = $params->{'pref_sampleRates'.$rate};
 			$prefSampleRates->{$rate} = $selected ? 'on' : undef;
 		}
-		$prefs->client($client)->set(
-				'sampleRates', 
+		$prefs->client($client)->set( 'sampleRates', 
 				Plugins::C3PO::Plugin::translateSampleRates($prefSampleRates));
 		
-		Plugins::C3PO::Plugin::setupTranscoder($client);
-	}	
-	if ($params->{'showDetailsButton'}) {
-		$showDetails{$client->id()} = $showDetails{$client->id()} ? 0 : 1;
-	}	
-
+		
+		$prefs->writeAll( );
+		$class->SUPER::handler( $client, $params );
+		Plugins::C3PO::Plugin::settingsChanged($client);
+	}
+	############################################################################
+	
+	if (main::DEBUGLOG && $log->is_debug) {
+			$log->debug(dump("PREF CODECS after: "));
+			$log->debug(dump($prefCodecs));
+	}
+	
 	for my $item (@prefList){
 	
 		copyPrefsToParams($client,$params,$item);
@@ -120,23 +167,21 @@ sub handler {
 	copyPrefsToParams($client,$params,'name');
 	copyPrefsToParams($client,$params,'maxSupportedSamplerate');
 
-	
 	$params->{'prefs'}->{'codecs'}=$prefCodecs; 
 	$params->{'prefs'}->{'enableSeek'}=$prefSeeks; 
+	$params->{'prefs'}->{'enableStdin'}=$prefStdin; 
+	$params->{'prefs'}->{'enableConvert'}=$prefConvert; 
+	$params->{'prefs'}->{'enableResample'}=$prefResample; 
 	$params->{'prefs'}->{'sampleRates'}=$prefSampleRates; 
-	
 	
 	# copy here params that are not preference.
 	$params->{'showDetails'} = $showDetails{$client->id()};
 	
 	$params->{'disabledCodecs'}=getdisabledCodecs($prefCodecs);
 
-	if (main::DEBUGLOG && $log->is_debug) {$log->debug(
-			dump("disabledCodecs CODECS: ".$params->{'disabledCodecs'}));		
-	}
-	
-	if (main::DEBUGLOG && $log->is_debug) {$log->debug(
-			dump($params->{'disabledCodecs'}));
+	if (main::DEBUGLOG && $log->is_debug) {
+			$log->debug(dump("disabledCodecs CODECS: "));
+			$log->debug(dump($params->{'disabledCodecs'}));
 	}
 	
 	my $caps= Plugins::C3PO::Plugin::getCapabilities();
@@ -144,24 +189,29 @@ sub handler {
 	
 	$params->{'orderedSampleRates'}=$sampleRates; 
 	
-	if (main::DEBUGLOG && $log->is_debug) {$log->debug(
-			dump("orderedSampleRates: ".$params->{'orderedSampleRates'}));	
-	}
-	
-	if (main::DEBUGLOG && $log->is_debug) {$log->debug(
-			dump($params->{'orderedSampleRates'}));
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug(dump("orderedSampleRates: "));	
+		$log->debug(dump($params->{'orderedSampleRates'}));
 	}
 	
 	$params->{'disabledSampleRates'}=
 		getdisabledSampleRates($client,$prefSampleRates);		
 			
-	if (main::DEBUGLOG && $log->is_debug) {$log->debug(
-			dump("disabledSampleRates: ".$params->{'disabledSampleRates'}));		
-	}
-	if (main::DEBUGLOG && $log->is_debug) {$log->debug(
-			dump($params->{'disabledSampleRates'}));
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug(dump("disabledSampleRates: "));		
+		$log->debug(dump($params->{'disabledSampleRates'}));
 	}
 	
+	#Show or Hide details.
+	if (!exists $showDetails{$client->id()}){
+		
+		$showDetails{$client->id()}=
+				$prefs->client($client)->get('useGlogalSettings') ? 0 : 1;
+	}
+	#flip $showDetails
+	if ($params->{'showDetailsButton'}) {
+		$showDetails{$client->id()} = $showDetails{$client->id()} ? 0 : 1;
+	}	
 	return $class->SUPER::handler($client, $params );
 }
 sub getdisabledSampleRates{
@@ -199,19 +249,15 @@ sub getdisabledSampleRates{
 }
 sub getdisabledCodecs{
 	my $prefCodecs = shift;
-	my $caps= Plugins::C3PO::Plugin::getCapabilities();
-	my $codecs = $caps->{'codecs'};
+
+	my $C3POprefs	= Plugins::C3PO::Plugin::getPreferences();
+	my $codecs		= $C3POprefs->get('codecs');
+	
 	my $out={};
-	
-	if (main::DEBUGLOG && $log->is_debug) {
-	
-		$log->debug(dump("capabilities: ".$caps).
-					dump($caps));
-	}
-	
+
 	for my $codec (keys %$prefCodecs){
 		
-		if (!($codecs->{$codec}->{'supported'})){
+		if (!($codecs->{$codec})){
 			$out->{$codec} = 1; 
 		}
 	}

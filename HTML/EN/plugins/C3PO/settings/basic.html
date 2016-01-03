@@ -1,9 +1,30 @@
 [% PROCESS settings/header.html %]
-	
+	[% IF displayStatus %]
+		[% WRAPPER setting title=status desc=status_msg %]
+			[% status_msg | string %]
+		[% END %]
+		[% WRAPPER setting title="" desc="" %]
+			<table width="100%">
+			[% FOREACH detail IN status_details %]
+				<p>[% detail.value | string %]</p>
+			[% END %]
+			</table>
+		[% END %]
+	[% END %]
 	[% WRAPPER setting title="PLUGIN_C3PO_TITLE" desc="PLUGIN_C3PO_TITLE_DESC" %]
 		[% "PLUGIN_C3PO_TITLE_DESC" | string %]
 	[% END %]
-	
+	[% WRAPPER setting title="PLUGIN_C3PO_CODEC_SELECTION_TITLE" desc="PLUGIN_C3PO_CODEC_SELECTION_DESC" %]
+		[% FOREACH codec IN prefs.codecs %]
+			<input type="checkbox" name="pref_codecs[% codec.key %]" id="codecs[% codec.key %]" value="1" [% codec.value ? "checked" : "" %]
+			[% FOREACH c2 IN disabledCodecs %]
+				[% IF codec.key == c2.key %] 
+					[% IF c2.value %] disabled [% END %]
+				[% END %]
+			[% END %]>
+			<label for="pref_codecs[% codec.key %]">[% codec.key | string %]&nbsp;&nbsp;</label>
+		[% END %]
+	[% END %]
 	[% WRAPPER setting title="PLUGIN_C3PO_RESAMPLE_WHEN" desc="PLUGIN_C3PO_RESAMPLE_WHEN_DESC" %]
 		<select class="stdedit" name="pref_resampleWhen" id="resampleWhen">
 			<option [% IF prefs.resampleWhen == "A" %]selected="selected" [% END %]value="A">
@@ -78,25 +99,25 @@
 				</option>
 			</select>
 		[% END %]
-	[% END %]
-	[% WRAPPER setting title="PLUGIN_C3PO_OUT_ENCODING" desc="PLUGIN_C3PO_OUT_ENCODING_DESC" %]
-		<select class="stdedit" name="pref_outEncoding" id="outEncoding">
-			<option [% IF prefs.outEncoding == "s" %]selected="selected" [% END %]value="s">
-				[% 'PLUGIN_C3PO_OUT_ENCODING_S' | string %]
-			</option>
-			<option [% IF prefs.outEncoding == "u" %]selected="selected" [% END %]value="u">
-				[% 'PLUGIN_C3PO_OUT_ENCODING_U' | string %]
-			</option>
-			<option [% IF prefs.outEncoding == "f" %]selected="selected" [% END %]value="f">
-				[% 'PLUGIN_C3PO_OUT_ENCODING_F' | string %]
-			</option>
-		</select>
+		[% WRAPPER setting title="PLUGIN_C3PO_OUT_ENCODING" desc="PLUGIN_C3PO_OUT_ENCODING_DESC" %]
+			<select class="stdedit" name="pref_outEncoding" id="outEncoding">
+				<option [% IF prefs.outEncoding == "s" %]selected="selected" [% END %]value="s">
+					[% 'PLUGIN_C3PO_OUT_ENCODING_S' | string %]
+				</option>
+				<option [% IF prefs.outEncoding == "u" %]selected="selected" [% END %]value="u">
+					[% 'PLUGIN_C3PO_OUT_ENCODING_U' | string %]
+				</option>
+				<option [% IF prefs.outEncoding == "f" %]selected="selected" [% END %]value="f">
+					[% 'PLUGIN_C3PO_OUT_ENCODING_F' | string %]
+				</option>
+			</select>
+		[% END %]
+	
+		[% WRAPPER setting title="PLUGIN_C3PO_OUT_CHANNELS" desc="PLUGIN_C3PO_OUT_CHANNELS_DESC" %]
+			<input type="text" class="stdedit sliderInput_1_64" name="pref_outChannels" id="outChannels" value="[% prefs.outChannels %]" size="5">
+		[% END %]
 	[% END %]
 	
-	[% WRAPPER setting title="PLUGIN_C3PO_OUT_CHANNELS" desc="PLUGIN_C3PO_OUT_CHANNELS_DESC" %]
-		<input type="text" class="stdedit sliderInput_1_64" name="pref_outChannels" id="outChannels" value="[% prefs.outChannels %]" size="5">
-	[% END %]
-			
 	[% WRAPPER setting title="PLUGIN_C3PO_GAIN" desc="PLUGIN_C3PO_GAIN" %]
 		<input type="text" class="stdedit sliderInput_0_10" name="pref_gain" id="gain" value="[% prefs.gain %]" size="5">
 	[% END %]
@@ -134,25 +155,23 @@
 			</option>
 		</select>
 	[% END %]
-		
 	[% WRAPPER setting title="PLUGIN_C3PO_ALIASING" desc="PLUGIN_C3PO_ALIASING_DESC" %]
-
-		<div class="prefDesc">[% "ENABLE" | string %]
-			<input name="pref_aliasing" type="checkbox" [% IF prefs.aliasing %] checked [% END %]>
-		</div>
-
+		<input name="pref_aliasing" type="checkbox" [% IF prefs.aliasing %] checked [% END %]>
 	[% END %]
-	
 	[% WRAPPER setting title="PLUGIN_C3PO_BANDWIDTH" desc="PLUGIN_C3PO_BANDWIDTH_DESC" %]
 		<input type="text" class="stdedit sliderInput_740_997" name="pref_bandwidth" id="bandwidth" value="[% prefs.bandwidth %]" size="5">
 	[% END %]
-	
 	[% WRAPPER setting title="PLUGIN_C3PO_DITHER" desc="PLUGIN_C3PO_DITHER_DESC" %]
-
-		<div class="prefDesc">[% "ENABLE" | string %]
-			<input name="pref_dither" type="checkbox" [% IF prefs.dither %] checked [% END %]>
-		</div>
-
+		<input name="pref_dither" type="checkbox" [% IF prefs.dither %] checked [% END %]>
 	[% END %]
 	
+	[% WRAPPER setting title="PLUGIN_C3PO_EXTRA" desc="PLUGIN_C3PO_EXTRA_DESC" %]
+		<input type="text" class="stdedit" name="pref_extra" id="extra" value="[% prefs.extra | html %]" size="50" maxlength="100">
+	[% END %]
+	
+	[% WRAPPER setting title="PLUGIN_C3PO_LOG_C3PO" desc="" %]
+	<div class="prefDesc">
+		<a "[% logFolder | lower %]" target="log">[% logFolder %]</a>
+	</div>
+	[% END %]
 [% PROCESS settings/footer.html %]

@@ -51,7 +51,7 @@ sub transcode {
 	my $transcodeTable =shift;
 	
 	my $isRuntime	= Plugins::C3PO::Transcoder::isRuntime($transcodeTable);
-	my $outCodec	= $transcodeTable->{'outCodec'};
+	my $outCodec	= Plugins::C3PO::Transcoder::getOutputCodec($transcodeTable);
 	my $command		= $transcodeTable->{'command'};
 	my $exe			= $transcodeTable->{'pathToFFmpeg'};
 	my $file		= $transcodeTable->{'options'}->{'file'};

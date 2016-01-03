@@ -27,7 +27,10 @@
 
 package Plugins::C3PO::Plugin;
 
+
 use strict;
+use warnings;
+
 use FindBin qw($Bin);
 use lib $Bin; #not needed here, we just neeed to know $Bin
 
@@ -56,9 +59,8 @@ use Plugins::C3PO::Transcoder;
 use Plugins::C3PO::OsHelper;
 use Plugins::C3PO::FfmpegHelper;
 use Plugins::C3PO::FlacHelper;
+use Plugins::C3PO::FaadHelper;
 use Plugins::C3PO::SoxHelper;
-use Plugins::C3PO::DummyTranscoderHelper;
-
 use Plugins::C3PO::Utils::Config;
 use Plugins::C3PO::Utils::File;
 use Plugins::C3PO::Utils::Log;
@@ -66,17 +68,16 @@ use Plugins::C3PO::Utils::Log;
 use Slim::Utils::Log;
 use Slim::Utils::Prefs;
 use Slim::Utils::Strings qw(string);
+use Slim::Player::TranscodingHelper;
 
 my $preferences = preferences('plugin.C3PO');
+my $serverPreferences = preferences('server');
 
 my $log = Slim::Utils::Log->addLogCategory( {
 	category     => 'plugin.C3PO',
 	defaultLevel => 'ERROR',
 	description  => 'PLUGIN_C3PO_MODULE_NAME',
 } );
-##
-#  C-3PO specific
-##
 
 ##
 #
@@ -88,16 +89,26 @@ my %supportedCodecs=();
 $supportedCodecs{'wav'}{'supported'}=1;
 $supportedCodecs{'wav'}{'defaultEnabled'}=1;
 $supportedCodecs{'wav'}{'defaultEnableSeek'}=1;
-$supportedCodecs{'pcm'}{'supported'}=1;
-$supportedCodecs{'pcm'}{'defaultEnabled'}=1;
-$supportedCodecs{'pcm'}{'defaultEnableSeek'}=1;
+$supportedCodecs{'wav'}{'defaultEnableStdin'}=0;
 $supportedCodecs{'aif'}{'supported'}=1;
 $supportedCodecs{'aif'}{'defaultEnabled'}=1;
-$supportedCodecs{'aif'}{'defaultEnableSeek'}=1;
+$supportedCodecs{'aif'}{'defaultEnableSeek'}=0;
+$supportedCodecs{'aif'}{'defaultEnableStdin'}=0;
 $supportedCodecs{'flc'}{'supported'}=1;
 $supportedCodecs{'flc'}{'defaultEnabled'}=1;
 $supportedCodecs{'flc'}{'defaultEnableSeek'}=0;
+$supportedCodecs{'flc'}{'defaultEnableStdin'}=1;
+$supportedCodecs{'alc'}{'supported'}=1;
+$supportedCodecs{'alc'}{'defaultEnabled'}=1;
+$supportedCodecs{'alc'}{'defaultEnableSeek'}=0;
+$supportedCodecs{'alc'}{'defaultEnableStdin'}=0;
 $supportedCodecs{'loc'}{'unlisted'}=1;
+$supportedCodecs{'pcm'}{'unlisted'}=1;
+$supportedCodecs{'dff'}{'supported'}=0;
+$supportedCodecs{'dsf'}{'supported'}=0;
+
+my %previousCodecs=();
+
 #
 # samplerates
 #
@@ -146,7 +157,7 @@ $capabilities->{'codecs'}=\%supportedCodecs;
 $capabilities->{'samplerates'}=\%OrderedsampleRates;
 
 if (main::DEBUGLOG && $log->is_debug) {
-			 $log->debug("C-3PO-capabilities: ".dump($capabilities));
+	$log->debug("C-3PO-capabilities: ".dump($capabilities));
 }
 #
 ###############################################
@@ -162,8 +173,9 @@ sub refreshClientPreferences{
 	my $client = shift;
 	
 	if ($client){
-	
-		if (!defined($preferences->client($client)->get('useGlogalSettings'))){
+		
+		#It's the first time client is connecting.
+		if (!defined($preferences->client($client)->get('resampleWhen'))){
 	
 			$preferences->client($client)->set('useGlogalSettings', 'on');
 		}
@@ -287,6 +299,16 @@ sub testC3POEXE{
 		
 	my $command= qq("$pathToC3PO_exe" -h hello -l "$logFolder");
 	
+	if (! main::DEBUGLOG) {
+	
+		$command = $command." --nodebuglog";
+	}
+	
+	if (! main::INFOLOG){
+	
+		$command = $command." --noinfolog";
+	}
+	
 	$command= Plugins::C3PO::Shared::finalizeCommand($command);
 	
 	
@@ -321,6 +343,15 @@ sub testC3POPL{
 
 	my $command= qq("$pathToPerl" "$pathToC3PO_pl" -h hello -l "$logFolder");
 	
+	if (! main::DEBUGLOG || ! $log->is_debug) {
+	
+		$command = $command." --nodebuglog";
+	}
+	
+	if (! main::INFOLOG || ! $log->is_info){
+	
+		$command = $command." --noinfolog";
+	}
 	$command= Plugins::C3PO::Shared::finalizeCommand($command);
 	
 	if (main::INFOLOG && $log->is_info) {
@@ -353,14 +384,18 @@ sub initPlugin {
 	my $class = shift;
 
 	$class->SUPER::initPlugin(@_);
+	
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug('initPlugin');	
+	}
 
 	if ( main::WEBUI ) {
 		Plugins::C3PO::Settings->new;
 		Plugins::C3PO::PlayerSettings->new;
 	}
-
+	
 	# init preferences
-	$preferences->init({
+	$preferences->init({		
 		serverFolder				=> $serverFolder,
 		logFolder					=> $logFolder,
 		pathToFlac					=> $pathToFlac,
@@ -370,27 +405,27 @@ sub initPlugin {
 		pathToC3PO_pl				=> $pathToC3PO_pl,
 		pathToC3PO_exe				=> $pathToC3PO_exe,
 		C3POfolder					=> $C3POfolder,
-		#pathToC3PO					=> undef,
 		pathToPerl					=> $pathToPerl,
 		C3POwillStart				=> $C3POwillStart,
 		pathToHeaderRestorer_pl		=>  $pathToHeaderRestorer_pl,
 		pathToHeaderRestorer_exe	=> $pathToHeaderRestorer_exe,
-		#useCueSheets				=> undef,
 		resampleWhen				=> "A",
 		resampleTo					=> "S",
 		outCodec					=> "wav",
 		outBitDepth					=> 3,
-		#outByteOrder				=> "L",
-		outEncoding					=> "s",
-		outChannels					=> 2,
+		#outChannels					=> 2,
 		gain						=> 3,
 		quality						=> "v",
 		phase						=> "M",
 		aliasing					=> "on",
 		bandwidth					=> 907,
 		dither						=> "on",
+		extra						=> "",
 	});
 	
+	#check codec list.
+	my $codecList=initCodecs();
+		
 	#check File location at every startup.
 	initFilesLocations();
 	
@@ -416,6 +451,8 @@ sub initPlugin {
 	$preferences->set('pathToSox', $pathToSox);
 	$preferences->set('pathToFaad', $pathToFaad);
 	$preferences->set('pathToFFmpeg', $pathToFFmpeg);
+
+	disableProfiles();
 
 	# Subscribe to new client events
 	Slim::Control::Request::subscribe(
@@ -454,7 +491,7 @@ sub clientCalback{
 	
 	refreshClientPreferences($client);
 	my $prefs= getPreferences($client);
-	
+
 	my $id= $client->id();
 	my $macaddress= $client->macaddress();
 	my $modelName= $client->modelName();
@@ -463,7 +500,7 @@ sub clientCalback{
 	my $maxSupportedSamplerate= $client->maxSupportedSamplerate();
 	
 	my $samplerateList= initSampleRates($client);
-	my $codecList=initCodecs($client);
+	my $clientCodecList=initClientCodecs($client);
 	
 	if (main::INFOLOG && $log->is_info) {
 			 $log->info("$type ClientCallback received from \n".
@@ -474,7 +511,7 @@ sub clientCalback{
 						"name:                   $name \n".
 						"max samplerate:         $maxSupportedSamplerate \n".
 						"supported sample rates: $samplerateList \n".
-						"supported codecs :      $codecList".
+						"supported codecs :      $clientCodecList".
 						"");
 	}
 	#register the new client in preferences.
@@ -486,7 +523,7 @@ sub clientCalback{
 	$preferences->client($client)->set('maxSupportedSamplerate',$maxSupportedSamplerate);
 	
 	setupTranscoder($client);
-	
+
 	return 1;
 }
 
@@ -634,18 +671,62 @@ sub guessSampleRateList{
 sub initCodecs{
 	my $client = shift;
 	
+	if ($client){
+	
+		return initClientCodecs($client)
+	}
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug('initCodecs');	
+	}
+	my $prefs= getPreferences();
+	my $codecList="";
+	my $prefCodecs;
+	
+	if (!defined($prefs->get('codecs'))){
+	
+		$prefCodecs= defaultCodecs();
+
+	} else {
+		
+		$prefCodecs = refreshCodecs();
+	}
+	#build the complete list string
+	for my $codec (keys %$prefCodecs){
+
+		if (length($codecList)>0) {
+
+			$codecList=$codecList." ";
+		}
+		$codecList=$codecList.$codec;
+	}
+	$prefs->set('codecs', $prefCodecs);
+	return ($codecList);
+}
+
+sub initClientCodecs{
+	my $client = shift;
+	
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug('initClientCodecs');	
+	}
+	
 	my $prefs= getPreferences($client);
 	my $codecList="";
 	my $prefCodecs;
 	my $prefEnableSeek;
+	my $prefEnableStdin;
+	my $prefEnableConvert;
+	my $prefEnableResample;
 
 	if (!defined($prefs->client($client)->get('codecs'))){
 	
-		($prefCodecs, $prefEnableSeek) = defaultCodecs($client);
+		($prefCodecs, $prefEnableSeek,$prefEnableStdin,
+		 $prefEnableConvert,$prefEnableResample) = defaultClientCodecs($client);
 
 	} else {
 		
-		($prefCodecs, $prefEnableSeek) = refreshCodecs($client);
+		($prefCodecs, $prefEnableSeek,$prefEnableStdin,
+		 $prefEnableConvert,$prefEnableResample) = refreshClientCodecs($client);
 	}
 	#build the complete list string
 	for my $codec (keys %$prefCodecs){
@@ -658,6 +739,9 @@ sub initCodecs{
 	}
 	$prefs->client($client)->set('codecs', $prefCodecs);
 	$prefs->client($client)->set('enableSeek', $prefEnableSeek);
+	$prefs->client($client)->set('enableStdin', $prefEnableStdin);
+	$prefs->client($client)->set('enableConvert', $prefEnableConvert);
+	$prefs->client($client)->set('enableResample', $prefEnableResample);
 
 	if (main::DEBUGLOG && $log->is_debug) {
 			 $log->debug("New codecs: ".dump($prefCodecs));
@@ -669,22 +753,21 @@ sub initCodecs{
 	return ($codecList);
 }
 sub defaultCodecs{
-	my $client=shift;
+	
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug('defaultCodecs');	
+	}
 	
 	my $caps=getCapabilities();
 	my $codecs= $caps->{'codecs'};
 	
 	my $prefCodecs =();
-	my $prefEnableSeek =();
+
 	my $supported=();
-	
-	#add all the codecs supported by the client.
-	for my $codec (Slim::Player::CapabilitiesHelper::supportedFormats($client)) {
-		$supported->{$codec} = 1;
-	}
+
 	#add all the codecs supported by C-3PO.
 	for my $codec (keys %$codecs) {
-		$supported->{$codec} = 1;
+		$supported->{$codec} = $codecs->{$codec}->{'supported'};
 	}
 	#set default enabled and remove unlisted.
 	for my $codec (keys %$supported){
@@ -692,48 +775,105 @@ sub defaultCodecs{
 		if (exists $codecs->{$codec}->{'unlisted'}){ next;}
 		
 		$prefCodecs->{$codec}=undef;
-		$prefEnableSeek->{$codec}=undef;
 		
-		if ((exists $codecs->{$codec}->{'supported'}) &&
-			($codecs->{$codec}->{'defaultEnabled'})){
+		if (exists $codecs->{$codec}->{'supported'}){
+
+			$prefCodecs->{$codec}=$codecs->{$codec}->{'supported'} ? "on" :undef;;
+		}	
+	}
+	
+	if (main::DEBUGLOG && $log->is_debug) {
+			 $log->debug("Default codecs  : ".dump($prefCodecs));
+	}
+	return ($prefCodecs);
+}
+sub defaultClientCodecs{
+	my $client=shift;
+	
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug('initClientCodecs');	
+	}
+
+	my $C3POprefs	= getPreferences();
+	my $codecs		= $C3POprefs->get('codecs');
+	
+	my $capabilities=getCapabilities();
+	my $caps= $capabilities->{'codecs'};
+	
+	my $prefCodecs =();
+	my $prefEnableSeek =();
+	my $prefEnableStdin =();
+	my $prefEnableConvert =();
+	my $prefEnableResample =();
+	
+	my $supported=();
+	
+	#add all the codecs supported by the client.
+	for my $codec (Slim::Player::CapabilitiesHelper::supportedFormats($client)) {
+		$supported->{$codec} = 0;
+		
+	}
+	#add all the codecs supported by C-3PO.
+	for my $codec (keys %$codecs) {
+		$supported->{$codec} = $codecs->{$codec};
+	}
+	#set default enabled
+	for my $codec (keys %$supported){
+		
+		if ($caps->{$codec}->{'unlisted'}){ next;}
+		
+		$prefCodecs->{$codec}=undef;
+		$prefEnableSeek->{$codec}=undef;
+		$prefEnableStdin->{$codec}=undef;
+		$prefEnableConvert->{$codec}=undef;
+		$prefEnableResample->{$codec}=undef;
+		
+		if ($supported->{$codec}){
 
 			$prefCodecs->{$codec}="on";
+			$prefEnableConvert->{$codec}="on";
+			$prefEnableResample->{$codec}="on";
 
-			if ($codecs->{$codec}->{'defaultEnableSeek'}){
+			if ($caps->{$codec}->{'defaultEnableSeek'}){
 
 				$prefEnableSeek->{$codec}="on";
 			}
-		}
-			
+			if ($caps->{$codec}->{'defaultEnableStdin'}){
+
+				$prefEnableStdin->{$codec}="on";
+			}
+		}	
 	}
 	
 	if (main::DEBUGLOG && $log->is_debug) {
 			 $log->debug("Default codecs  : ".dump($prefCodecs));
 			 $log->debug("Enable Seek for : ".dump($prefEnableSeek));
+			 $log->debug("Enable Stdin for : ".dump($prefEnableStdin));
+			 $log->debug("Enable Convert for : ".dump($prefEnableConvert));
+			 $log->debug("Enable Resample for : ".dump($prefEnableResample));
 	}
-	return ($prefCodecs, $prefEnableSeek);
+	return ($prefCodecs, $prefEnableSeek, $prefEnableStdin,
+	        $prefEnableConvert,$prefEnableResample);
 }
 sub refreshCodecs{
-	my $client=shift;
-	my $prefs= getPreferences($client);
+	
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug('refreshCodecs');	
+	}
+	
+	my $prefs= getPreferences();
 
-	my $prefRef = $prefs->client($client)->get('codecs');
-	my $prefEnableSeekRef = $prefs->client($client)->get('enableSeek');
+	my $prefRef = $prefs->get('codecs');
 	
 	my $caps=getCapabilities();
 	my $codecs= $caps->{'codecs'};
 	
 	my $prefCodecs =();
-	my $prefEnableSeek=();
 	my $supported=();
-	
-	#add all the codecs supported by the client.
-	for my $codec (Slim::Player::CapabilitiesHelper::supportedFormats($client)) {
-		$supported->{$codec} = 1;
-	}
+
 	#add all the codecs supported by C-3PO.
 	for my $codec (keys %$codecs) {
-		$supported->{$codec} = 1;
+		$supported->{$codec} = $codecs->{$codec}->{'supported'};
 	}
 	#remove unlisted and unsupported.
 	for my $codec (keys %$prefRef){
@@ -743,13 +883,10 @@ sub refreshCodecs{
 		}
 		
 		$prefCodecs->{$codec}=undef;
-		$prefEnableSeek->{$codec}=undef;
 		
-		if (exists ($codecs->{$codec}->{'supported'}) &&
-		    ($codecs->{$codec}->{'supported'})){
+		if ($codecs->{$codec}->{'supported'}){
 
 			$prefCodecs->{$codec}=$prefRef->{$codec};
-			$prefEnableSeek->{$codec}=$prefEnableSeekRef->{$codec}
 		}
 	}
 	for my $codec (keys %$supported){
@@ -760,55 +897,603 @@ sub refreshCodecs{
 			if (!exists $prefCodecs->{$codec}){
 			
 				$prefCodecs->{$codec}=undef;
-				$prefEnableSeek->{$codec}=undef;
-			
 			}
 		} 
 	}
 	if (main::DEBUGLOG && $log->is_debug) {
-			 $log->debug("Refreshed codecs       : ".dump($prefCodecs));
-			 $log->debug("Refreshed seekk enabled: ".dump($prefEnableSeek));
+			 $log->debug("Refreshed codecs       : ".dump($prefCodecs)); 
 	}
-	return ($prefCodecs,$prefEnableSeek); 
+	return ($prefCodecs);
+}
+sub refreshClientCodecs{
+	my $client=shift;
+	
+	my $prefs= getPreferences($client);
+
+	my $prefRef = $prefs->client($client)->get('codecs');
+	my $prefEnableSeekRef = $prefs->client($client)->get('enableSeek');
+	my $prefEnableStdinRef = $prefs->client($client)->get('enableStdin');
+	my $prefEnableConvertRef = $prefs->client($client)->get('enableConvert');
+	my $prefEnableResampleRef = $prefs->client($client)->get('enableResample');
+	
+	if (main::DEBUGLOG && $log->is_debug) {
+			 $log->debug("codecs           : ".dump($prefRef));
+			 $log->debug("seek enabled     : ".dump($prefEnableSeekRef));
+			 $log->debug("stdin enabled    : ".dump($prefEnableStdinRef));
+			 $log->debug("convert enabled  : ".dump($prefEnableConvertRef));
+			 $log->debug("resample enabled : ".dump($prefEnableResampleRef));			 
+	}
+	
+	my $capabilities=getCapabilities();
+	my $caps= $capabilities->{'codecs'};
+	
+	my $C3POprefs	= getPreferences();
+	my $codecs		= $C3POprefs->get('codecs');
+	
+	my $prefCodecs =();
+	my $prefEnableSeek=();
+	my $prefEnableStdin=();
+	my $prefEnableConvert =();
+	my $prefEnableResample =();
+	
+	my $supported=();
+	
+	#add all the codecs supported by the client.
+	for my $codec (Slim::Player::CapabilitiesHelper::supportedFormats($client)) {
+		$supported->{$codec} = 0;
+	}
+	#add all the codecs supported by C-3PO.
+	for my $codec (keys %$codecs) {
+		$supported->{$codec} = $codecs->{$codec};
+	}
+	#remove unlisted and unsupported.
+	for my $codec (keys %$prefRef){
+
+		if ($caps->{$codec}->{'unlisted'}){
+			next;
+		}
+
+		if ($prefRef->{$codec} && $codecs->{$codec}){
+
+			$prefCodecs->{$codec}=$prefRef->{$codec};
+			$prefEnableSeek->{$codec}=$prefEnableSeekRef->{$codec};
+			$prefEnableStdin->{$codec}=$prefEnableStdinRef->{$codec};
+			$prefEnableConvert->{$codec}=$prefEnableConvertRef->{$codec};
+			$prefEnableResample->{$codec}=$prefEnableResampleRef->{$codec};
+		
+		} elsif ($codecs->{$codec}){
+		
+			# codec was suported but disabled for player.
+			$prefCodecs->{$codec}="on";
+			$prefEnableConvert->{$codec}="on";
+			$prefEnableResample->{$codec}="on";
+			
+			
+			if ($caps->{$codec}->{'defaultEnableSeek'}){
+
+				$prefEnableSeek->{$codec}="on";
+			} else{
+				$prefEnableSeek->{$codec}=undef;
+			}
+			if ($caps->{$codec}->{'defaultEnableStdin'}){
+
+				$prefEnableStdin->{$codec}="on";
+			} else {
+				$prefEnableStdin->{$codec}=undef;	
+			}
+		} else {
+			
+			# codec is supported by the player but not C-3PO.
+			$prefCodecs->{$codec}=undef;
+			$prefEnableSeek->{$codec}=undef;
+			$prefEnableStdin->{$codec}=undef;
+			$prefEnableConvert->{$codec}=undef;
+			$prefEnableResample->{$codec}=undef;
+		}
+	}
+	for my $codec (keys %$supported){
+
+		if ($caps->{$codec}->{'unlisted'}){
+			next;
+		}
+		
+		if ($codecs->{$codec}){
+
+			# codec is new added in supported
+			if (!exists $prefCodecs->{$codec}){
+			
+				$prefCodecs->{$codec}="on";
+				$prefEnableConvert->{$codec}="on";
+				$prefEnableResample->{$codec}="on";
+
+				if ($caps->{$codec}->{'defaultEnableSeek'}){
+
+					$prefEnableSeek->{$codec}="on";
+				} else{
+					$prefEnableSeek->{$codec}=undef;
+				}
+				if ($caps->{$codec}->{'defaultEnableStdin'}){
+
+					$prefEnableStdin->{$codec}="on";
+				} else {
+					$prefEnableStdin->{$codec}=undef;	
+				}
+			}
+		} else{
+			
+			# codec is supported by the player but not C-3PO.
+			$prefCodecs->{$codec}=undef;
+			$prefEnableSeek->{$codec}=undef;
+			$prefEnableStdin->{$codec}=undef;
+			$prefEnableConvert->{$codec}=undef;
+			$prefEnableResample->{$codec}=undef;
+		}
+	}
+	if (main::DEBUGLOG && $log->is_debug) {
+			 $log->debug("Refreshed codecs       : ".dump($prefCodecs));
+			 $log->debug("Refreshed seek enabled : ".dump($prefEnableSeek));
+			 $log->debug("Refreshed stdin enabled: ".dump($prefEnableStdin));
+			 $log->debug("Refreshed Convert enabled : ".dump($prefEnableConvert));
+			 $log->debug("Refreshed Resample enable : ".dump($prefEnableResample));			 
+	}
+	return ($prefCodecs,$prefEnableSeek, $prefEnableStdin,
+	        $prefEnableConvert,$prefEnableResample);
+}
+sub settingsChanged{
+	my $unusedClient=shift;
+	# it takes so little rebuild profiles for any player...
+	
+	my $prefs= getPreferences();
+	
+	if (main::INFOLOG && $log->is_info) {	
+			my $conv = Slim::Player::TranscodingHelper::Conversions();
+			my $caps = \%Slim::Player::TranscodingHelper::capabilities;
+			$log->info("STATUS QUO ANTE: ");
+			$log->info("LMS conversion Table:   ".dump($conv));
+			$log->info("LMS Capabilities Table: ".dump($caps));
+	}
+	
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug("preferences:");
+		$log->debug(dump Plugins::C3PO::Shared::prefsToHash($prefs));
+	}
+	
+	disableProfiles();
+	
+	if (main::DEBUGLOG && $log->is_debug) {	
+			my $conv = Slim::Player::TranscodingHelper::Conversions();
+			my $caps = \%Slim::Player::TranscodingHelper::capabilities;
+			$log->debug("AFTER PROFILES DISABLING: ");
+			$log->debug("LMS conversion Table:   ".dump($conv));
+			$log->debug("LMS Capabilities Table: ".dump($caps));
+	}
+
+	my @clientList = Slim::Player::Client::clients();
+
+	for my $client (@clientList){
+	
+		playerSettingChanged($client);
+	}
+	if (main::INFOLOG && $log->is_info) {	
+			my $conv = Slim::Player::TranscodingHelper::Conversions();
+			my $caps = \%Slim::Player::TranscodingHelper::capabilities;
+			$log->info("RESULT: ");
+			$log->info("LMS conversion Table:   ".dump($conv));
+			$log->info("LMS Capabilities Table: ".dump($caps));
+	}
+}
+sub playerSettingChanged{
+	my $client = shift;
+	
+	my $prefs= getPreferences($client);
+				
+	#refresh the codec list.
+	initClientCodecs($client);
+
+	#refresh preferences.
+	setupTranscoder($client);
+}
+
+sub disableProfiles{
+	
+	my %codecs=();
+	
+	my %newCodecs = %{getPreferences()->get('codecs')};
+	
+	if (main::DEBUGLOG && $log->is_debug) {		
+		$log->debug("New codecs: ");
+		$log->debug(dump(%newCodecs));
+		$log->debug("previous codecs: ");
+		$log->debug(dump(%previousCodecs));
+		$log->debug("codecs: ");
+		$log->debug(dump(%codecs));
+	}
+	
+	for my $c (keys %previousCodecs){
+	
+		if ($previousCodecs{$c}) {$codecs{$c}=1;}
+	}
+	for my $c (keys %newCodecs){
+		
+		if ($newCodecs{$c}) {$codecs{$c}=1;}
+	}
+	
+	if (main::DEBUGLOG && $log->is_debug) {		
+		$log->debug("codecs: ");
+		$log->debug(dump(%codecs));
+	}
+	
+	my $conv = Slim::Player::TranscodingHelper::Conversions();
+	
+	if (main::DEBUGLOG && $log->is_debug) {		
+		$log->debug("transcodeTable: ".dump($conv));
+	}
+	for my $profile (keys $conv){
+		
+		#flc-pcm-*-00:04:20:12:b3:17
+		#aac-aac-*-*
+		
+		my ($inputtype, $outputtype, $clienttype, $clientid) = inspectProfile($profile);
+		
+		if ($codecs{$inputtype}){
+		
+			if (main::DEBUGLOG && $log->is_debug) {		
+				$log->debug("disable: ". $profile);
+			}
+			
+			disableProfile($profile);
+			
+			my @clientList= Slim::Player::Client::clients();
+	
+			for my $client (@clientList){
+			
+				if (main::DEBUGLOG && $log->is_debug) {			
+					$log->debug("clientid: ".$clientid);
+					$log->debug("client-Id: ".$client->id());
+				}
+				if ($clientid && ($clientid eq $client->id())){
+				
+					if (main::DEBUGLOG && $log->is_debug) {	
+						my $conv = Slim::Player::TranscodingHelper::Conversions();
+						$log->debug("transcodeTable: ".dump($conv));
+					}
+					
+					delete $Slim::Player::TranscodingHelper::commandTable{ $profile };
+					delete $Slim::Player::TranscodingHelper::capabilities{ $profile };
+					
+					
+					if (main::DEBUGLOG && $log->is_debug) {		
+						my $conv = Slim::Player::TranscodingHelper::Conversions();
+						$log->debug("transcodeTable: ".dump($conv));
+					}
+				}
+			}
+
+		}
+	}
+	%previousCodecs	= %newCodecs;
+}
+sub inspectProfile{
+	my $profile=shift;
+	
+	my $inputtype;
+	my $outputtype;
+	my $clienttype;
+	my $clientid;;
+	
+	if ($profile =~ /^(\S+)\-+(\S+)\-+(\S+)\-+(\S+)$/) {
+
+		$inputtype  = $1;
+		$outputtype = $2;
+		$clienttype = $3;
+		$clientid   = lc($4);
+		
+		return ($inputtype, $outputtype, $clienttype, $clientid);	
+	}
+	return (undef,undef,undef,undef);
+}
+sub enableProfile{
+	my $profile = shift;
+	my @out = ();
+	
+	my @disabled = @{ $serverPreferences->get('disabledformats') };
+	for my $format (@disabled) {
+
+		if ($format eq $profile) {next;}
+		push @out, $format;
+	}
+	$serverPreferences->set('disabledformats', \@out);
+	$serverPreferences->writeAll();
+}
+sub disableProfile{
+	my $profile = shift;
+	my @disabled = @{ $serverPreferences->get('disabledformats') };
+	my $found=0;
+	for my $format (@disabled) {
+		
+		if ($format eq $profile){
+			$found=1;
+			last;}
+	}
+	if (! $found ){
+		push @disabled, $profile;
+		$serverPreferences->set('disabledformats', \@disabled);
+		$serverPreferences->writeAll();
+	}
 }
 sub setupTranscoder{
 	my $client=shift;
 	
 	my $transcodeTable=buildTranscoderTable($client);
 	
-	if (main::INFOLOG && $log->is_info) {
-			 $log->info("transcodeTable: ".dump($transcodeTable));
+	if (main::DEBUGLOG && $log->is_debug) {
+			 $log->debug("TranscoderTable:");
+			 $log->debug(dump($transcodeTable));
 	}
+	my %logger=();
+		$logger{'DEBUGLOG'}=main::DEBUGLOG;
+		$logger{'INFOLOG'}=main::INFOLOG;
+		$logger{'log'}=$log;
 	
-	my $commandTable=Plugins::C3PO::Transcoder::initTranscoder($transcodeTable);
+	my $commandTable=Plugins::C3PO::Transcoder::initTranscoder($transcodeTable,\%logger);
 	
+	if (main::INFOLOG && $log->is_info) {
+		$log->info("commandTable: ".dump($commandTable));
+	}
+
 	for my $profile (keys %$commandTable){
 
 		my $cmd = $commandTable->{$profile};
 		
-		if (main::INFOLOG && $log->is_info) {
-			 $log->info("\n".
+		if (main::DEBUGLOG && $log->is_debug) {
+			 $log->debug("\n".
 						"PROFILE  : ".$cmd->{'profile'}."\n".
 						" Command : ".$cmd->{'command'}."\n".
 						" Capabilities: ".
 						dump($cmd->{'capabilities'}));
 		}
-		
+		enableProfile($profile);
 		$Slim::Player::TranscodingHelper::commandTable{ $cmd->{'profile'} } = $cmd->{'command'};
 		$Slim::Player::TranscodingHelper::capabilities{ $cmd->{'profile'} } = $cmd->{'capabilities'};
 	} 
 }
-
 sub buildTranscoderTable{
 	my $client=shift;
+	
+	#make sure codecs are up to date for the client:
+	my $clientCodecList=initClientCodecs($client);
+	
 	my $prefs= getPreferences($client);
 	
-	my $transocoderTable= Plugins::C3PO::Shared::getTranscoderTableFromPreferences($prefs,$client);
+	my $transcoderTable= Plugins::C3PO::Shared::getTranscoderTableFromPreferences($prefs,$client);
 	
 	#add the path to the preference file itself.
-	$transocoderTable->{'pathToPrefFile'}=getPathToPrefFile();
+	$transcoderTable->{'pathToPrefFile'}=getPathToPrefFile();
 	
-	return $transocoderTable;
+	return $transcoderTable;
+}
+sub getStatus{
+	my $client=shift;
+	
+	my $displayStatus;
+	my $status;
+	my $message;
+	
+	my $in = _calcStatus();
+	my %statusTab=();
+	my %details=();
+	
+	if (main::DEBUGLOG && $log->is_debug) {
+			 $log->debug(dump($in));
+	}
+	for my $dest (keys %$in) {
+		
+		 if (($client && ($dest eq $client || $dest eq 'all')) ||
+		     (!$client && ($dest eq 'server' || $dest eq 'all'))) {
+			
+			my $stat = $in->{$dest};
+			for my $st (keys %$stat){
+			
+				$statusTab{$st} = $stat->{$st}
+				
+			}
+		 }
+	}
+	if (main::DEBUGLOG && $log->is_debug) {
+			 $log->debug(dump(%statusTab));
+	}
+	if (scalar(keys %statusTab)== 0){
+		
+		$displayStatus=0;
+		$status= Slim::Web::HTTP::CSRF->protectName('PLUGIN_C3PO_STATUS');
+		$message= Slim::Web::HTTP::CSRF->protectName('PLUGIN_C3PO_STATUS_000');
+	
+	} elsif (scalar (keys %statusTab) == 1){
+		
+		my @stat = (keys %statusTab);
+		my $st= shift @stat;
+		
+		$displayStatus=1;
+		$status = $statusTab{$st}{'status'};
+		$message= $statusTab{$st}{'message'};
+		
+	} else{
+		#use the worst status as message.
+		$status = Slim::Web::HTTP::CSRF->protectName('PLUGIN_C3PO_STATUS');
+		my $seen=0;
+		foreach my $st (sort keys %statusTab){
+			
+			if (! $seen){
+				$message= $statusTab{$st}{'status'};
+			}
+			$details{$st}= $statusTab{$st}{'message'};
+		}
+		$displayStatus=1;
+	} 
+	my %out= ();
+	
+	$out{'display'}=$displayStatus;
+	$out{'status'}=$status;
+	$out{'message'}=$message;
+	$out{'details'}=\%details;
+	
+	if (main::DEBUGLOG && $log->is_debug) {
+			 $log->debug(dump(%out));
+	}
+	
+	return \%out;
+}
+sub _calcStatus{
+	
+	# Error/Warning/Info conditions, see Strings for descrptions.
+
+	my $status;
+	my $message;
+	my %statusTab=();
+	my $ref= \%statusTab;
+	
+	my $prefs= getPreferences();
+	
+	if (!$C3POwillStart){
+		
+		$ref = _getStatusLine('001','all',$ref);
+
+	}
+	if ($C3POwillStart && $C3POwillStart eq 'pl'){
+		
+		$ref = _getStatusLine('101','all',$ref);
+
+	}
+	if (!$pathToFaad){
+		
+		$ref = _getStatusLine('014','all',$ref);
+
+	}
+	if (!$pathToFlac){
+		
+		$ref = _getStatusLine('013','all',$ref);
+
+	}
+	if (!$pathToSox){
+		
+		$ref = _getStatusLine('012','all',$ref);
+
+	}
+	if ($prefs->get('extra') && !($prefs->get('extra') eq "") ){
+		
+		$ref = _getStatusLine('905','all',$ref);
+
+	}
+	my @clientList= Slim::Player::Client::clients();
+
+	for my $client (@clientList){
+		
+		if (main::DEBUGLOG && $log->is_debug) {
+			
+			$log->debug("Id         ".$client->id());
+			$log->debug("name       ".$client->name());
+			$log->debug("model name ".$client->modelName());
+			$log->debug("model      ".$client->model());
+			$log->debug("firmware   ".$client->revision());
+			
+		}
+		if (($client->model() eq 'squeezelite') && !($client->modelName() eq 'SqueezeLite-R2')){
+
+			my $firmware = $client->revision();
+			
+			if (index(lc($firmware),'daphile') != -1) {
+
+				$ref = _getStatusLine('921',$client,$ref);
+
+			} else {
+				
+				$ref = _getStatusLine('021','server',$ref);
+				$ref = _getStatusLine('021',$client,$ref);
+
+			}
+			
+		} elsif (! ($client->model() eq 'squeezelite')) {
+
+				$ref = _getStatusLine('521',$client,$ref);
+
+		}
+		
+		$prefs= getPreferences($client);
+		
+		my $prefEnableSeekRef		= $prefs->client($client)->get('enableSeek');
+		my $prefEnableStdinRef		= $prefs->client($client)->get('enableStdin');
+		my $prefEnableConvertRef	= $prefs->client($client)->get('enableConvert');
+		my $prefEnableResampleRef	= $prefs->client($client)->get('enableResample');
+		
+		for my $codec (keys %$prefEnableSeekRef){
+			
+			if ($prefEnableStdinRef->{$codec} && 
+			    main::ISWINDOWS &&
+				(($prefs->get('resampleWhen')eq 'E') ||
+				 ($prefs->get('resampleTo') eq 'S'))) {
+				
+				if (main::DEBUGLOG && $log->is_debug) {	
+					$log->debug("Player: ".$client->name());
+					$log->debug("codec: ".$codec);
+					$log->debug("Stdin: ".$prefEnableStdinRef->{$codec});
+					$log->debug("ISWINDOWS: ".main::ISWINDOWS);
+					$log->debug("resampleWhen: ".$prefs->get('resampleWhen'));
+					$log->debug("resampleTo: ".$prefs->get('resampleTo'));
+				}
+				
+				$ref = _getStatusLine('502','server',$ref);
+				$ref = _getStatusLine('502',$client,$ref);
+
+			}
+			if ($prefEnableSeekRef->{$codec} && $prefEnableStdinRef->{$codec}){
+				
+				$ref = _getStatusLine('503','server',$ref);
+				$ref = _getStatusLine('503',$client,$ref);
+
+			}
+			if ($prefEnableSeekRef->{$codec} && $prefEnableStdinRef->{$codec}){
+				
+				$ref = _getStatusLine('503','server',$ref);
+				$ref = _getStatusLine('503',$client,$ref);
+
+			}
+			if ($prefEnableResampleRef->{$codec} && !$prefEnableConvertRef->{$codec}){
+			
+				if ($codec eq 'alc'){
+					$ref = _getStatusLine('504',$client,$ref);
+				} elsif ($codec eq 'flc'){
+					$ref = _getStatusLine('904',$client,$ref);
+				}
+			}
+		}
+	}
+	return \%statusTab;
+}
+sub _getStatusLine{
+	
+	my $code=shift;
+	my $dest= shift;
+	my $tab=shift;
+
+	my $status = ($code < 500 ? "PLUGIN_C3PO_STATUS_ERROR" : 
+				  $code < 900 ? "PLUGIN_C3PO_STATUS_WARNING" : 
+							    "PLUGIN_C3PO_STATUS_INFO");
+	
+	$tab->{$dest}->{$code}->{'status'}=$status;
+	
+	my $base= 'PLUGIN_C3PO_STATUS_';
+
+	if ($dest eq 'server') { 
+		$tab->{$dest}->{$code}->{'message'}=$base.'SERVER_'.$code;
+		
+	} elsif ($dest eq 'all') { 
+		$tab->{$dest}->{$code}->{'message'}=$base.$code;
+
+	} else{
+		$tab->{$dest}->{$code}->{'message'}=$base.'CLIENT_'.$code;
+	};
+	
+	return $tab;
 }
 1;
 

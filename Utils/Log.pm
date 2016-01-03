@@ -64,7 +64,8 @@ sub writeLog {
 			close $fh;
 
 		} else{
-
+		
+			warn "$line \n";
 		   #die ("can't write logFile ".qq($logfile));
 		   #do nothing at the moment.
 

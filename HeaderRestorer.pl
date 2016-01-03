@@ -67,17 +67,10 @@ my $util=  File::Spec->rel2abs(catdir($C3PODir,'Util'));
 #print '$directories is : '.$cpan."\n";
 #print '$directories is : '.$util."\n";
 
-#use Data::Dump;
-#Data::Dump::dump @INC;
-
-my @i=($lib,$cpan,$C3PODir);
-
+my @i=($C3PODir,$lib,$cpan);
 unshift @INC, @i;
 
-#Data::Dump::dump @INC;
-
 require Utils::Config;
-
 unshift @INC, Utils::Config::expandINC($C3PODir);
 
 # let standard modules load.
@@ -103,11 +96,11 @@ use constant NOMYSB       => 1;
 #
 #######################################################################
 
-use Logger;
-use OsHelper;
+require Logger;
+require OsHelper;
 
-use Utils::Log;
-use Utils::Config;
+require Utils::Log;
+require Utils::Config;
 
 require Getopt::Long;
 require Data::Dump;

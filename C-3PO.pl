@@ -51,7 +51,14 @@ use File::Basename;
 my $C3PODir=$Bin;
 my ($volume,$directories,$file) =File::Spec->splitpath($0);
 
-if ($file && $file eq 'C-3PO.exe'){
+
+#print '$volume is      : '.$volume."\n";
+#print '$directories is : '.$directories."\n";
+#print '$file is   : '.$file."\n";
+
+if (!$file) {die "undefined filename";}
+
+if ($file eq 'C-3PO.exe'){
 
 	# We are running the compiled version in 
 	# \Bin\MSWin32-x86-multi-thread folder inside the
@@ -66,7 +73,7 @@ if ($file && $file eq 'C-3PO.exe'){
 	$C3PODir = File::Spec->canonpath(getAncestor($Bin,1));
         
 
-} elsif ($file && $file eq 'C-3PO.pl'){
+} elsif ($file eq 'C-3PO.pl'){
 
 	#running .pl 
 	#$C3PODir= File::Spec->canonpath(File::Basename::dirname(__FILE__)); #C3PO Folder
@@ -122,8 +129,8 @@ require OsHelper;
 
 require FfmpegHelper;
 require FlacHelper;
+require FaadHelper;
 require SoxHelper;
-require DummyTranscoderHelper;
 
 require Utils::Log;
 require Utils::File;
@@ -139,10 +146,10 @@ require Audio::Scan;
 our $logFolder;
 our $logfile;
 our $isDebug;
-our $logLevel = DEBUGLOG ? 'debug' : INFOLOG ? 'info' : 'warn';
+our $logLevel = main::DEBUGLOG ? 'debug' : main::INFOLOG ? 'info' : 'warn';
 
 #$logLevel='verbose'; #to show more debug mesages
-$logLevel='debug';
+#$logLevel='debug';
 #$logLevel='info';
 #$logLevel='warn'; #to show less debug mesages
 
@@ -158,22 +165,14 @@ sub main{
 
 	Plugins::C3PO::Logger::verboseMessage ('C3PO.pl Started');
 
-
 	my $options=getOptions();
 	if (!defined $options) {Plugins::C3PO::Logger::dieMessage("Missing options");}
 	
-	$isDebug= $options->{debug};
-	Plugins::C3PO::Logger::infoMessage('debug? '.defined $isDebug ? ($isDebug ? 'Yes' : 'No') :'No');
-	
-	Plugins::C3PO::Logger::debugMessage('options '.Data::Dump::dump($options));
-	
-	#if (!defined $logFolder) {Plugins::C3PO::Logger::warnMessage("Missing log directory in options")}
-		
 	if (defined $options->{logFolder}){
 	
 		$logFolder=$options->{logFolder};
 
-		Plugins::C3PO::Logger::debugMessage ('found log foder in options: '.$logFolder);
+		Plugins::C3PO::Logger::verboseMessage ('found log foder in options: '.$logFolder);
 		
 		my $newLogfile= Plugins::C3PO::Logger::getLogFile($logFolder);
 		Plugins::C3PO::Logger::verboseMessage("Swithing log file to ".$newLogfile);
@@ -182,9 +181,18 @@ sub main{
 		Plugins::C3PO::Logger::verboseMessage("Now log file is $logfile");
 	
 	}
+	
+	$isDebug= $options->{debug};
+	if ($isDebug){
+		Plugins::C3PO::Logger::infoMessage('Running in debug mode');
+	}
+	Plugins::C3PO::Logger::debugMessage('options '.Data::Dump::dump($options));
+	
 	if (defined $options->{hello}) {
 
-		my $message="C-3PO says $options->{hello}! see $logfile for errors";
+		my $message="C-3PO says $options->{hello}! see $logfile for errors ".
+					"log level is $logLevel";
+					
 		print $message;
 
 		Plugins::C3PO::Logger::infoMessage($message);
@@ -251,6 +259,7 @@ sub executeCommand{
 
 	Plugins::C3PO::Logger::infoMessage(qq(Command is: $command));
 	Plugins::C3PO::Logger::verboseMessage($main::isDebug ? 'in debug' : 'production');
+	
 	if ($main::isDebug){
 	
 		return $command;
