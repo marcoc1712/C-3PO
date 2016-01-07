@@ -254,9 +254,8 @@ sub testC3PO{
 	
 	if (!testC3POEXE()){
 	
-		if (main::INFOLOG && $log->is_info) {
-			 $log->info('invalid path to C-3PO : '.$pathToC3PO_exe);
-		}
+			 $log->warn('invalid path to C-3PO : '.(defined $pathToC3PO_exe ? $pathToC3PO_exe : ""));
+		
 	}else {
 		
 		if (main::INFOLOG && $log->is_info) {

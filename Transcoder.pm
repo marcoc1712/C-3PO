@@ -53,7 +53,7 @@ sub getOutputCodec{
 	if ($transcodeTable->{'enableConvert'}->{$inCodec}){return $outCodec;}
 	
 	if ($transcodeTable->{'enableResample'}->{$inCodec} && 
-	    $inCodec eq 'alc'){return $outCodec;}
+	    compareCodecs($inCodec, 'alc')){return $outCodec;}
 
 	return $inCodec;
 }
@@ -61,8 +61,8 @@ sub getOutputCodec{
 sub isCompressedCodec{
 	my $codec= shift;
 
-	if ($codec eq 'flc') {return 1};
-	if ($codec eq 'alc') {return 1};
+	if (compareCodecs($codec, 'flc')) {return 1};
+	if (compareCodecs($codec, 'alc')) {return 1};
 	
 	return 0;
 }
@@ -81,12 +81,11 @@ sub useFFMpegToSplit{
 	#in runtime use transitCodec instead of inCodec.
 	my $inCodec= isRuntime($transcodeTable) 
 		? $transcodeTable->{'transitCodec'} : $transcodeTable->{'inCodec'};
-
-	if ($inCodec eq 'wav') {return 1};
-	if ($inCodec eq 'pcm') {return 1};
-	if ($inCodec eq 'aif') {return 1};
-	if ($inCodec eq 'alc') {return 0};
-	if ($inCodec eq 'flc') {return 0};
+ 
+	if (compareCodecs($inCodec, 'wav')) {return 1};
+	if (compareCodecs($inCodec, 'aif')) {return 1};
+	if (compareCodecs($inCodec, 'alc')) {return 0};
+	if (compareCodecs($inCodec, 'flc')) {return 0};
 
 	return 0;
 }
@@ -97,12 +96,13 @@ sub useFAADToSplit {
 		
 	if (useFFMpegToSplit($transcodeTable)) {return 0;}
 	
-	if ($inCodec eq 'wav') {return 0};
-	if ($inCodec eq 'pcm') {return 0};
-	if ($inCodec eq 'aif') {return 0};
-	if ($inCodec eq 'alc') {return 1};
-	if ($inCodec eq 'flc') {return 0};
-}
+	if (compareCodecs($inCodec, 'wav')) {return 0};
+	if (compareCodecs($inCodec, 'aif')) {return 0};
+	if (compareCodecs($inCodec, 'alc')) {return 1};
+	if (compareCodecs($inCodec, 'flc')) {return 0};
+	
+	return 0;
+	}
 
 sub useFFMpegToTranscode {
 	
@@ -120,9 +120,10 @@ sub useFFMpegToTranscode {
 	# avoid to encode before upsampling.
 	if (isCompressedCodec($outcodec)) {return 0};
 	
-	if ($inCodec eq 'wav') {return 1};
-	if ($inCodec eq 'pcm') {return 1};
-	if ($inCodec eq 'aif') {return 1};
+	if (compareCodecs($inCodec, 'wav')) {return 1};
+	if (compareCodecs($inCodec, 'aif')) {return 1};
+	if (compareCodecs($inCodec, 'alc')) {return 0};
+	if (compareCodecs($inCodec, 'flc')) {return 0};
 	
 	return 0;
 }
@@ -135,7 +136,7 @@ sub useFlacToDecodeWhenSplitting {
 	my $inCodec= $transcodeTable->{'inCodec'};
 	my $outCodec=getOutputCodec($transcodeTable);
 
-	if (!($inCodec eq 'flc')) {return 0};
+	if (!compareCodecs($inCodec, 'flc')) {return 0};
 	
 	return 0; # AIF will not worlk with 1. See FlacTranscode.
 }
@@ -147,10 +148,11 @@ sub useSoxToDecodeWhenResampling {
 	my $transcodeTable =shift;
 	my $inCodec= $transcodeTable->{'inCodec'};
 	
-	if ($inCodec eq 'alc') {return 0};
-	if ($inCodec eq 'flc') {return 1};
-	if ($inCodec eq 'wav') {return 1};
-	if ($inCodec eq 'aif') {return 1};
+	if (compareCodecs($inCodec, 'alc')) {return 0};
+	if (compareCodecs($inCodec, 'flc')) {return 1};
+	if (compareCodecs($inCodec, 'wav')) {return 1};
+	if (compareCodecs($inCodec, 'aif')) {return 1};
+	
 	return 1;
 }
 sub useSoxToEncodeWhenResampling {
@@ -251,12 +253,22 @@ sub isNative{
 		
 	return 0;
 }
+sub compareCodecs{
+	my $Acodec= shift;
+	my $Bcodec= shift;
+	
+	if ($Acodec eq 'pcm'){ $Acodec = 'wav';}
+	if ($Bcodec eq 'pcm'){ $Bcodec = 'wav';}
+	
+	return ($Acodec eq $Bcodec);
+
+}
 sub isSplittingRequested{
 	my $transcodeTable =shift;
 	my $inCodec= $transcodeTable->{'inCodec'};
 	
 	if (!isResamplingRequested($transcodeTable) && 
-	    ($inCodec eq getOutputCodec($transcodeTable))){ return 0;}
+		compareCodecs($inCodec, getOutputCodec($transcodeTable))){ return 0;}
 	
 	if (!isRuntime($transcodeTable) && 
 	    $transcodeTable->{'enableSeek'}->{$inCodec}) {return 1;} 
@@ -277,75 +289,75 @@ sub isTranscodingRequested{
 	my $transitCodec = $transcodeTable->{'transitCodec'};
 	
 	if (!isRuntime($transcodeTable) && 
-	    !($inCodec eq $outCodec) &&
+	    !compareCodecs($inCodec, $outCodec) &&
 	    $transcodeTable->{'enableConvert'}->{$inCodec}) {return 1;}
 	
 	if (!isRuntime($transcodeTable)) {return 0;}
 	
 	# WAV -> WAV -> FLAC [v] -> 1
-	if (($inCodec eq $transitCodec) &&
-	    !($inCodec eq $outCodec) &&
+	if (compareCodecs($inCodec, $transitCodec) &&
+	    !compareCodecs($inCodec, $outCodec) &&
 	    $transcodeTable->{'enableConvert'}->{$inCodec}) {return 1;}
 		
 	# WAV -> WAV -> FLAC [ ] -> 0
-	if (($inCodec eq $transitCodec) &&
-	    !($inCodec eq $outCodec) &&
+	if (compareCodecs($inCodec, $transitCodec) &&
+	    !compareCodecs($inCodec, $outCodec) &&
 	    !$transcodeTable->{'enableConvert'}->{$inCodec}) {return 0;}
 		
 	# FLAC -> WAV -> FLAC [v] -> 1
-	if (!($inCodec eq $transitCodec) &&
-		!($transitCodec eq $outCodec) &&
-		($inCodec eq $outCodec) &&
+	if (!compareCodecs($inCodec, $transitCodec) &&
+		!compareCodecs($transitCodec, $outCodec) &&
+		!compareCodecs($inCodec, $outCodec) &&
 	    $transcodeTable->{'enableConvert'}->{$inCodec}) {return 1;}
 	
 	# FLAC -> WAV -> FLAC [v] -> 1
-	if (!($inCodec eq $transitCodec) &&
-		!($transitCodec eq $outCodec) &&
-		($inCodec eq $outCodec) &&
+	if (!compareCodecs($inCodec, $transitCodec) &&
+		!compareCodecs($transitCodec, $outCodec) &&
+		!compareCodecs($inCodec, $outCodec) &&
 	    $transcodeTable->{'enableConvert'}->{$inCodec}) {return 1;}
 
 	# FLAC -> WAV -> FLAC [ ] -> 1
-	if (!($inCodec eq $transitCodec) &&
-		!($transitCodec eq $outCodec) &&
-		($inCodec eq $outCodec) &&
+	if (!compareCodecs($inCodec, $transitCodec) &&
+		!compareCodecs($transitCodec, $outCodec) &&
+		!compareCodecs($inCodec, $outCodec) &&
 	    !$transcodeTable->{'enableConvert'}->{$inCodec}) {return 1;}
 		
 	# FLAC -> WAV -> WAV [v] -> 1
-	if (!($inCodec eq $transitCodec) &&
-		($transitCodec eq $outCodec) &&
+	if (!compareCodecs($inCodec, $transitCodec) &&
+		compareCodecs($transitCodec, $outCodec) &&
 	    $transcodeTable->{'enableConvert'}->{$inCodec}) {return 0;}
 	
 	# FLAC -> WAV -> WAV [v] -> 0
-	if (!($inCodec eq $transitCodec) &&
-		($transitCodec eq $outCodec) &&
+	if (!compareCodecs($inCodec, $transitCodec) &&
+		compareCodecs($transitCodec, $outCodec) &&
 	    $transcodeTable->{'enableConvert'}->{$inCodec}) {return 0;}
 	
 	# WAV -> FLAC -> AIF [v] -> 1
-	if (!($inCodec eq $transitCodec) &&
-		!($transitCodec eq $outCodec) &&
-		!($inCodec eq $outCodec) &&
+	if (!compareCodecs($inCodec, $transitCodec) &&
+		!compareCodecs($transitCodec, $outCodec) &&
+		!compareCodecs($inCodec,$outCodec) &&
 	    $transcodeTable->{'enableConvert'}->{$inCodec}) {return 1;}
 	
 	# WAV -> FLAC -> AIF [ ] -> 1
-	if (!($inCodec eq $transitCodec) &&
-		!($transitCodec eq $outCodec) &&
-		!($inCodec eq $outCodec) &&
+	if (!compareCodecs($inCodec, $transitCodec) &&
+		!compareCodecs($transitCodec, $outCodec) &&
+		!compareCodecs($inCodec, $outCodec) &&
 	    !$transcodeTable->{'enableConvert'}->{$inCodec}) {return 0;}
 		
 	# WAV -> WAV -> WAV [v] -> 0
-	if (($inCodec eq $transitCodec) &&
-		($transitCodec eq $outCodec) &&
+	if (compareCodecs($inCodec, $transitCodec) &&
+		compareCodecs($transitCodec, $outCodec) &&
 	    $transcodeTable->{'enableConvert'}->{$inCodec}) {return 0;}
 	
 	# WAV -> WAV -> WAV [ ] -> 0
-	if (($inCodec eq $transitCodec) &&
-		($transitCodec eq $outCodec) &&
+	if (compareCodecs($inCodec, $transitCodec)&&
+		compareCodecs($transitCodec, $outCodec) &&
 	    !$transcodeTable->{'enableConvert'}->{$inCodec}) {return 0;}
 	
 	# fault back.
 	
 	$inCodec= $transcodeTable->{'transitCodec'};
-	return ($inCodec eq $outCodec);
+	return (compareCodecs($inCodec, $outCodec));
 }
 
 sub isResamplingRequested{
@@ -358,6 +370,7 @@ sub isResamplingRequested{
 sub willResample{
 	my $transcodeTable=shift;
 	
+	if (!isResamplingRequested($transcodeTable)) {return 0;}
 	#be sure to call checkResample before.
 	
 	my $targetSamplerate=$transcodeTable->{'targetSamplerate'};
@@ -366,12 +379,9 @@ sub willResample{
 	Plugins::C3PO::Logger::verboseMessage("targetSamplerate: ". defined $targetSamplerate ? $targetSamplerate : 'undef');
 	Plugins::C3PO::Logger::verboseMessage("fileSamplerate: ". defined $fileSamplerate ? $fileSamplerate : 'undef');
 
-	if ((defined $targetSamplerate) &&
-		((!$fileSamplerate) || !($fileSamplerate == $targetSamplerate))){
-
-		return 1
-		
-	}
+	if (!defined $targetSamplerate) {return 0;}
+	if (!$fileSamplerate || !($fileSamplerate == $targetSamplerate)){return 1;}
+	
 	return 0;
 }
 sub isOutputCompressed{
@@ -414,7 +424,7 @@ sub splitAndDecodeCompressedInput {
 	
 	Plugins::C3PO::Logger::debugMessage('splitAndDecodeCompressedInput - $inCodec '.$inCodec);
 	
-	if ($inCodec eq 'flc' ) {
+	if (compareCodecs($inCodec, 'flc' )) {
 
 		#decode and split with flac.
 		if (useFlacToDecodeWhenSplitting($transcodeTable)){
@@ -430,7 +440,7 @@ sub splitAndDecodeCompressedInput {
 		}
 		$commandString=Plugins::C3PO::FlacHelper::decode($transcodeTable);
 
-	} elsif ($inCodec eq 'alc' ){
+	} elsif (compareCodecs($inCodec, 'alc' )){
 				
 		if (useFFMpegToSplit($transcodeTable)){
 			
@@ -500,7 +510,7 @@ sub transcodeCompressedOutput{
 
 	my $commandstring="";
 	
-	if (($outCodec eq 'flc') && useFlacToFinalEncode($transcodeTable)){
+	if (compareCodecs($outCodec, 'flc') && useFlacToFinalEncode($transcodeTable)){
 
 		$commandstring = Plugins::C3PO::FlacHelper::encode($transcodeTable);
 	
@@ -629,13 +639,13 @@ sub buildProfile{
 	my $outCodec=getOutputCodec($transcodeTable);
 
 	# pcm/wav misuse...
-	if ($inCodec eq 'pcm'){$inCodec='wav'};
+	if (compareCodecs($inCodec,'wav')){$inCodec='wav'};
 	
-	if (($inCodec eq 'aif') && (($outCodec eq 'wav') || ($outCodec eq'pcm'))){
+	if (compareCodecs($inCodec, 'aif') && compareCodecs($outCodec, 'wav')){
 		
 		{$outCodec='aif'};
 		
-	} elsif ($outCodec eq 'wav'){
+	} elsif (compareCodecs($outCodec, 'wav')) {
 	
 		$outCodec='pcm'
 	};
@@ -802,20 +812,36 @@ sub buildCommand {
 	#$transcodeTable = setOutputCodec($transcodeTable);
 	
 	my $command="";
-
-	Plugins::C3PO::Logger::debugMessage('Start buildCommand');
-
+	
+	if (isLMSInfo()) {
+		$log->info('Start buildCommand');
+	} else{
+	
+		Plugins::C3PO::Logger::debugMessage('Start buildCommand');
+	}
+	
 	$transcodeTable=normalizeCodecs($transcodeTable);
-
+	
 	if (isResamplingRequested($transcodeTable)) {
 	
 		$transcodeTable= checkResample($transcodeTable);
-		
 	}
-	Plugins::C3PO::Logger::debugMessage('willResample ? '.willResample($transcodeTable));
 	
 	#save incodec.
 	$transcodeTable->{'transitCodec'}=$transcodeTable->{'inCodec'};
+	
+	if (isLMSInfo()) {
+		$log->info('inCodec: '.$transcodeTable->{'inCodec'});
+		$log->info('transitCodec: '.$transcodeTable->{'transitCodec'});
+		$log->info('outCodec: '.$transcodeTable->{'outCodec'});
+		$log->info('Is resampling requested? '.isResamplingRequested($transcodeTable));
+		$log->info('willResample ? '.willResample($transcodeTable));
+		$log->info('Is splitting requested? '.isSplittingRequested($transcodeTable));
+	} else{
+		Plugins::C3PO::Logger::debugMessage('Is resampling requested? '.isResamplingRequested($transcodeTable));
+		Plugins::C3PO::Logger::debugMessage('willResample ? '.willResample($transcodeTable));
+		Plugins::C3PO::Logger::debugMessage('Is splitting requested? '.isSplittingRequested($transcodeTable));
+	}
 	
 	if (willResample($transcodeTable)){
 	
@@ -993,7 +1019,7 @@ sub transcode{
 	
 	my $commandstring="";
 	
-	if ($inCodec eq $outCodec){ #do nothing
+	if (compareCodecs($inCodec, $outCodec)){ #do nothing
 	
 	} elsif (isOutputCompressed($transcodeTable)){
 	
