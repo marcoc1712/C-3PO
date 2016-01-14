@@ -22,6 +22,7 @@
 # -c - client mac address (es. 00:04:20:12:b3:17) -> clientId
 # -p - preference file.
 # -l - log folder.
+# -x - server folder.
 # -i - input stream format (es. flc) -> inFormat
 # -o - output stream format (es. wav) -> outFormat
 # -t - stream time start offset (m:ss.cc es. 24:46.02) -> startTime
@@ -42,8 +43,15 @@ package main;
 use strict;
 use warnings;
 
+# IF launched by LMS @INC already contains .../slimserver complete references, 
+# CPAN,LIB and specific arch included. How it is?
+
 use FindBin qw($Bin);
 use lib $Bin;
+
+#my @inc0=copyArray(\(@INC));
+my @inc0=();
+for my $i (@INC){addToArray($i,\@inc0);}
 
 use File::Spec::Functions qw(:ALL);
 use File::Basename;
@@ -87,18 +95,21 @@ if ($file eq 'C-3PO.exe'){
 
 my $lib = File::Spec->rel2abs(catdir($C3PODir, 'lib'));
 my $cpan= File::Spec->rel2abs(catdir($C3PODir,'CPAN'));
-my $util= File::Spec->rel2abs(catdir($C3PODir,'Util'));
 
-#print '$directories is : '.$lib."\n";
-#print '$directories is : '.$cpan."\n";
-#print '$directories is : '.$util."\n";
+my @a=($C3PODir,$lib,$cpan);
+for my $i (@a){addToArray($i, \@INC);}
 
-my @i=($C3PODir,$lib,$cpan);
-
-unshift @INC, @i;
+#unshift @INC, @i;
 
 require Utils::Config;
-unshift @INC, Utils::Config::expandINC($C3PODir);
+
+$a= Utils::Config::expandINC($C3PODir);
+for my $i (@a){addToArray($i, \@INC);}
+
+#unshift @INC, Utils::Config::expandINC($C3PODir);
+
+my @inc1=();
+for my $i (@INC){addToArray($i,\@inc1);}
 
 # let standard modules load.
 #
@@ -136,13 +147,12 @@ require Utils::Log;
 require Utils::File;
 require Utils::Config;
 
-require FileHandle;
-require Getopt::Long;
-require YAML::XS;
+#In lib.
+require Module::Load;
 require File::HomeDir;
-require Data::Dump;
-require Audio::Scan;
+require Getopt::Long;
 
+our $serverFolder;
 our $logFolder;
 our $logfile;
 our $isDebug;
@@ -181,6 +191,38 @@ sub main{
 		Plugins::C3PO::Logger::verboseMessage("Now log file is $logfile");
 	
 	}
+
+	if (defined $options->{'serverFolder'}){
+		
+		$serverFolder=$options->{'serverFolder'};
+
+		my $lib = File::Spec->rel2abs(catdir($serverFolder, 'lib'));
+		my $cpan= File::Spec->rel2abs(catdir($serverFolder,'CPAN'));
+
+		my @a=($serverFolder,$lib,$cpan);
+		for my $i (@a){addToArray($i, \@INC);}
+
+		require Utils::Config;
+		$a= Utils::Config::expandINC($serverFolder);
+		for my $i (@a){addToArray($i, \@INC);}
+		
+		#in LMS CPAN or LIBrary.
+		
+		require FileHandle;
+		require YAML::XS;
+		require Data::Dump;
+		require Audio::Scan;
+	
+	}
+	
+	Plugins::C3PO::Logger::infoMessage('BIN '.$Bin);
+	Plugins::C3PO::Logger::infoMessage('C-3PO '.$C3PODir);
+	Plugins::C3PO::Logger::infoMessage('inc0'.Data::Dump::dump(@inc0));
+	Plugins::C3PO::Logger::infoMessage('inc1'.Data::Dump::dump(@inc1));
+	Plugins::C3PO::Logger::infoMessage('INC '.Data::Dump::dump(@INC));
+	Plugins::C3PO::Logger::infoMessage('DEBUGLOG '.main::DEBUGLOG);
+	Plugins::C3PO::Logger::infoMessage('INFOLOG '.main::INFOLOG);
+	Plugins::C3PO::Logger::infoMessage('loglevel '.$logLevel);
 	
 	$isDebug= $options->{debug};
 	if ($isDebug){
@@ -199,7 +241,6 @@ sub main{
 		Plugins::C3PO::Logger::debugMessage('Bin is: '.$Bin);
 		Plugins::C3PO::Logger::debugMessage('PluginDir is: '.$C3PODir);
 		Plugins::C3PO::Logger::verboseMessage('Inc is: '.Data::Dump::dump(@INC));
-		Plugins::C3PO::Logger::verboseMessage('Inc is: '.Data::Dump::dump(%INC));
 		exit 0;
 	}
 	
@@ -292,6 +333,7 @@ sub getOptions{
 			'd' => \$options->{debug},
 			'h=s' => \$options->{hello},
 			'l=s' => \$options->{logFolder},
+			'x=s' => \$options->{serverFolder},
 			'p=s' => \$options->{prefFile},
 			'c=s' => \$options->{clientId},
 			'i=s' => \$options->{inCodec},
@@ -340,5 +382,45 @@ sub getAncestor{
 
 	return File::Spec->catfile($volume, File::Spec->catdir( @dirs ), $file);
 }
+sub copyArray{
+	my $in=shift;
+	my $out=shift;
+	
+	my $found;
+	
+	for my $i (@$in){
+		
+		$found=0;
+		for my $o (@$out){
+			
+			if ($o eq $i){last;}
+		}
+		if (!$found){
+			
+			push @$out, $i;
+			
+		}
+	}
+
+	return sort @$out;
+}
+sub addToArray{
+	my $in=shift;
+	my $out=shift;
+	
+	my $found;
+
+	$found=0;
+	for my $o (@$out){
+		if ($o eq $in){
+			$found=1;
+			last;
+		}
+	}
+	if (!$found){
+		push @$out, $in;
+	}
+}
+
 1;
 

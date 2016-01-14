@@ -27,7 +27,6 @@
 
 package Plugins::C3PO::Plugin;
 
-
 use strict;
 use warnings;
 
@@ -38,11 +37,12 @@ use Data::Dump qw(dump pp);
 use File::Spec::Functions qw(:ALL);
 use File::Basename;
 
-my $pluginPath=__FILE__;
-my $C3PODir= File::Basename::dirname($pluginPath);
+my $serverFolder	= $Bin;
+my $pluginPath		=__FILE__;
+my $C3POfolder		= File::Basename::dirname($pluginPath);
 
-use lib rel2abs(catdir($C3PODir, 'lib'));
-use lib rel2abs(catdir($C3PODir,'CPAN'));
+use lib rel2abs(catdir($C3POfolder, 'lib'));
+use lib rel2abs(catdir($C3POfolder,'CPAN'));
 
 require File::HomeDir;
 
@@ -192,6 +192,9 @@ sub refreshClientPreferences{
 sub getPreferences{
 	return $preferences;
 }
+my $logFolder;
+my $pathToprefFile;
+
 my $pathToPerl;
 my $pathToC3PO_pl;
 my $pathToC3PO_exe;
@@ -199,61 +202,40 @@ my $pathToC3PO_exe;
 my $pathToHeaderRestorer_pl;
 my $pathToHeaderRestorer_exe;
 
-my $pathToprefFile;
 my $pathToFlac;
 my $pathToSox;
 my $pathToFaad;
 my $pathToFFmpeg;
 
-my $serverFolder;
-my $C3POfolder;
-my $logFolder;
+sub _initFilesLocations {
+	my $class = shift;
 
-sub initFilesLocations {
-
-	$serverFolder	= $Bin;
-	$logFolder	= Slim::Utils::OSDetect::dirsFor('log');
+	$logFolder		= Slim::Utils::OSDetect::dirsFor('log');
 	$pathToprefFile = catdir(Slim::Utils::OSDetect::dirsFor('prefs'), 'plugin', 'C3PO.prefs');
+	
+	$pathToPerl     = Slim::Utils::Misc::findbin("perl");
+	$pathToC3PO_pl	= catdir($C3POfolder, 'C-3PO.pl');
+	$pathToC3PO_exe = Slim::Utils::Misc::findbin("C-3PO");
 	
 	$pathToFlac     = Slim::Utils::Misc::findbin("flac");
 	$pathToSox      = Slim::Utils::Misc::findbin("sox");
 	$pathToFaad     = Slim::Utils::Misc::findbin("faad");
 	$pathToFFmpeg   = Slim::Utils::Misc::findbin("ffmpeg");
 	
-	$pathToPerl     = Slim::Utils::Misc::findbin("perl");
-	$pathToC3PO_exe = Slim::Utils::Misc::findbin("C-3PO");
-	$pathToC3PO_pl	= calcPathToC3PO_pl();
-	
-	$C3POfolder		= File::Basename::dirname $pathToC3PO_pl;
+
 	
 	$pathToHeaderRestorer_pl  = catdir($C3POfolder, 'HeaderRestorer.pl');
 	$pathToHeaderRestorer_exe = Slim::Utils::Misc::findbin("HeaderRestorer");
 	
 }
-sub calcPathToC3PO_pl{
 
-	my @dirs = Slim::Utils::OSDetect::dirsFor('Plugins');
-
-	for my $d (@dirs){
-		
-		my $path=catdir($d, 'C3PO', 'C-3PO.pl');
-
-		if  (!(-e $path)){next;}
-		return $path;
-	}
-
-	#last chance...
-	if (!defined $pathToC3PO_pl){
-		return catdir($C3PODir, 'C-3PO.pl');
-	}
-	return undef;
-}
 my $C3POwillStart;
 
-sub testC3PO{
+sub _testC3PO{
+	my $class = shift;
 	
-	if (!testC3POEXE()){
-	
+	if (!_testC3POEXE()){
+			
 			 $log->warn('invalid path to C-3PO : '.(defined $pathToC3PO_exe ? $pathToC3PO_exe : ""));
 		
 	}else {
@@ -264,7 +246,7 @@ sub testC3PO{
 		return 'exe';
 	}
 	
-	if (!testC3POPL()){
+	if (!_testC3POPL()){
 		
 		if (main::INFOLOG && $log->is_info) {
 			 $log->info('invalid path to perl or C-3PO.pl :');
@@ -287,7 +269,7 @@ sub testC3PO{
 	$log->warn('WARNING: C-3PO path: '.$pathToC3PO_exe);
 	return 0;
 }
-sub testC3POEXE{
+sub _testC3POEXE{
 
 	#test if C3PO.PL will start on LMS calls
 	
@@ -296,7 +278,7 @@ sub testC3POEXE{
 		return 0;
 	}
 		
-	my $command= qq("$pathToC3PO_exe" -h hello -l "$logFolder");
+	my $command= qq("$pathToC3PO_exe" -h hello -l "$logFolder" -x "$serverFolder");
 	
 	if (! main::DEBUGLOG) {
 	
@@ -327,7 +309,7 @@ sub testC3POEXE{
 	}
 	return 1;
 }
-sub testC3POPL{
+sub _testC3POPL{
 
 	#test if C3PO.PL will start on LMS calls
 	if  (!(-e $pathToPerl)){
@@ -340,7 +322,7 @@ sub testC3POPL{
 		return 0;
 	}
 
-	my $command= qq("$pathToPerl" "$pathToC3PO_pl" -h hello -l "$logFolder");
+	my $command= qq("$pathToPerl" "$pathToC3PO_pl" -h hello -l "$logFolder" -x "$serverFolder");
 	
 	if (! main::DEBUGLOG || ! $log->is_debug) {
 	
@@ -368,9 +350,6 @@ sub testC3POPL{
 			 $log->info($ret);
 	}
 	return 1;
-}
-sub getPathToPrefFile{
-	return $pathToprefFile;
 }
 
 ## required methods
@@ -426,10 +405,10 @@ sub initPlugin {
 	my $codecList=initCodecs();
 		
 	#check File location at every startup.
-	initFilesLocations();
+	$class->_initFilesLocations();
 	
 	#test if C-3PO will raise up on call.
-	$C3POwillStart=testC3PO();
+	$C3POwillStart=$class->_testC3PO();
 
 	#Store them as preferences to be retieved and used by C3PO.
 	$preferences->set('pathToPerl', $pathToPerl);
@@ -1127,7 +1106,7 @@ sub disableProfiles{
 	if (main::DEBUGLOG && $log->is_debug) {		
 		$log->debug("transcodeTable: ".dump($conv));
 	}
-	for my $profile (keys $conv){
+	for my $profile (keys %$conv){
 		
 		#flc-pcm-*-00:04:20:12:b3:17
 		#aac-aac-*-*
@@ -1267,7 +1246,7 @@ sub buildTranscoderTable{
 	my $transcoderTable= Plugins::C3PO::Shared::getTranscoderTableFromPreferences($prefs,$client);
 	
 	#add the path to the preference file itself.
-	$transcoderTable->{'pathToPrefFile'}=getPathToPrefFile();
+	$transcoderTable->{'pathToPrefFile'}=$pathToprefFile;
 	
 	return $transcoderTable;
 }

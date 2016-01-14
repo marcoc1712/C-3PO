@@ -667,6 +667,7 @@ sub useC3PO{
 	my $prefFile = $transcodeTable->{'pathToPrefFile'};
 	my $pathToC3PO_pl = $transcodeTable->{'pathToC3PO_pl'};
 	my $logFolder = $transcodeTable->{'logFolder'};
+	my $serverFolder = $transcodeTable->{'serverFolder'};
 	
 	$result->{'profile'} =  buildProfile($transcodeTable);
 	
@@ -676,14 +677,14 @@ sub useC3PO{
 	
 	if ($willStart eq 'pl'){
 		
-			$command =  qq([perl] "$pathToC3PO_pl").' -c $CLIENTID$ -p ';
+			$command =  qq([perl] "$pathToC3PO_pl").' -c $CLIENTID$ ';
 			
 	} else {
 			
-			$command =  '[C-3PO] -c $CLIENTID$ -p ';
+			$command =  '[C-3PO] -c $CLIENTID$ ';
 	}
 	
-	$command = $command.qq("$prefFile" -l "$logFolder" -i $inCodec -o $outCodec )
+	$command = $command.qq(-p "$prefFile" -l "$logFolder" -x "serverfolder" -i $inCodec -o $outCodec )
 					   .'$START$ $END$ $RESAMPLE$ $FILE$';
 	
 	if (! isLMSDebug()) {
@@ -838,9 +839,9 @@ sub buildCommand {
 		$log->info('willResample ? '.willResample($transcodeTable));
 		$log->info('Is splitting requested? '.isSplittingRequested($transcodeTable));
 	} else{
-		Plugins::C3PO::Logger::debugMessage('Is resampling requested? '.isResamplingRequested($transcodeTable));
-		Plugins::C3PO::Logger::debugMessage('willResample ? '.willResample($transcodeTable));
-		Plugins::C3PO::Logger::debugMessage('Is splitting requested? '.isSplittingRequested($transcodeTable));
+		Plugins::C3PO::Logger::infoMessage('Is resampling requested? '.isResamplingRequested($transcodeTable));
+		Plugins::C3PO::Logger::infoMessage('willResample ? '.willResample($transcodeTable));
+		Plugins::C3PO::Logger::infoMessage('Is splitting requested? '.isSplittingRequested($transcodeTable));
 	}
 	
 	if (willResample($transcodeTable)){
