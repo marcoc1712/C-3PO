@@ -416,7 +416,15 @@ PLUGIN_C3PO_STATUS_CLIENT_521
 	EN	Player is not Squeezelite-R2, assuming is compliant.
 	IT	Il player non è Squeezelite-R2, si assume sia compatibile.
 
-PLUGIN_C3PO_STATUS_901
+PLUGIN_C3PO_STATUS_601
+	EN	C-3PO transcoder is downloading, please wait. Reload page to see changes.
+	IT	C-3PO transcoder è in download, attendere qualche secondo e ricaricare la pagina per verificare l'avanzamento.
+	
+PLUGIN_C3PO_STATUS_701
+	EN	C-3PO transcoder is downloading. Using PERL instead. Reload page to see changes.
+	IT	C-3PO transcoder è in download, viene temporaneamente utilizzato PERL. Ricaricare la pagina per verificare l'avanzamento.
+	
+PLUGIN_C3PO_STATUS_903
 	EN	FFMPEG not found, fault back to FLAC.
 	IT	FFMPEG non è stato trovato, verrà utilizzato FLAC.
 

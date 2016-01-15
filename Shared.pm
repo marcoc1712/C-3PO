@@ -20,8 +20,7 @@
 package Plugins::C3PO::Shared;
 
 use strict;
-
-#use Data::Dump qw(dump);
+use warnings;
 
 my @clientPrefNamesScalar = qw(	id macaddress model modelName name 
 								maxSupportedSamplerate 

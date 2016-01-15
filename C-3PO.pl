@@ -43,15 +43,14 @@ package main;
 use strict;
 use warnings;
 
-# IF launched by LMS @INC already contains .../slimserver complete references, 
-# CPAN,LIB and specific arch included. How it is?
+my @inc0=();
+for my $i (@INC){addToArray($i,\@inc0);}
 
 use FindBin qw($Bin);
 use lib $Bin;
 
-#my @inc0=copyArray(\(@INC));
-my @inc0=();
-for my $i (@INC){addToArray($i,\@inc0);}
+my @inc1=();
+for my $i (@INC){addToArray($i,\@inc1);}
 
 use File::Spec::Functions qw(:ALL);
 use File::Basename;
@@ -108,8 +107,8 @@ for my $i (@a){addToArray($i, \@INC);}
 
 #unshift @INC, Utils::Config::expandINC($C3PODir);
 
-my @inc1=();
-for my $i (@INC){addToArray($i,\@inc1);}
+my @inc2=();
+for my $i (@INC){addToArray($i,\@inc2);}
 
 # let standard modules load.
 #
@@ -219,6 +218,7 @@ sub main{
 	Plugins::C3PO::Logger::infoMessage('C-3PO '.$C3PODir);
 	Plugins::C3PO::Logger::infoMessage('inc0'.Data::Dump::dump(@inc0));
 	Plugins::C3PO::Logger::infoMessage('inc1'.Data::Dump::dump(@inc1));
+	Plugins::C3PO::Logger::infoMessage('inc2'.Data::Dump::dump(@inc1));
 	Plugins::C3PO::Logger::infoMessage('INC '.Data::Dump::dump(@INC));
 	Plugins::C3PO::Logger::infoMessage('DEBUGLOG '.main::DEBUGLOG);
 	Plugins::C3PO::Logger::infoMessage('INFOLOG '.main::INFOLOG);

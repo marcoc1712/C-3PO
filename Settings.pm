@@ -20,6 +20,8 @@
 package Plugins::C3PO::Settings;
 
 use strict;
+use warnings;
+
 use base qw(Slim::Web::Settings);
 
 use Digest::MD5 qw(md5_hex);
@@ -28,10 +30,17 @@ use Slim::Utils::Log;
 use Slim::Utils::Prefs;
 use Data::Dump qw(dump);
 
-require Plugins::C3PO::Shared;
-
 my $prefs = preferences('plugin.C3PO');
 my $log   = logger('plugin.C3PO');
+
+my $plugin;
+
+sub new {
+	my $class = shift;
+	$plugin   = shift;
+
+	$class->SUPER::new;
+}
 
 sub name {
 	return Slim::Web::HTTP::CSRF->protectName('PLUGIN_C3PO_MODULE_NAME');
@@ -42,7 +51,11 @@ sub page {
 }
 
 sub prefs {
-	return ($prefs, Plugins::C3PO::Shared::getSharedPrefNameList());		  
+	return ($prefs, $plugin->getSharedPrefNameList());		  
+}
+sub refreshStatus{
+
+	#find a way to refresh the status lines.
 }
 
 sub handler {
@@ -54,7 +67,7 @@ sub handler {
 	
 	$params->{'logFolder'} =$prefs->get('logFolder');;
 	
-	my $status= Plugins::C3PO::Plugin::getStatus();
+	my $status= $plugin->getStatus();
 	
 	$params->{'displayStatus'}	= $status->{'display'};
 	$params->{'status'}			= $status->{'status'};
@@ -74,7 +87,7 @@ sub handler {
 		$prefs->writeAll( );
 		
 		$class->SUPER::handler( $client, $params );
-		Plugins::C3PO::Plugin::settingsChanged();
+		$plugin->settingsChanged();
 	}
 	$params->{'prefs'}->{'codecs'}=$prefCodecs; 
 	$params->{'disabledCodecs'}=getdisabledCodecs($prefCodecs);
