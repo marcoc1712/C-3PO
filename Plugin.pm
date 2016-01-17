@@ -161,7 +161,7 @@ my $C3POwillStart=0;
 my $C3POisDownloading=0;
 
 my $logFolder;
-my $pathToprefFile;
+my $pathToPrefFile;
 my $pathToPerl;
 my $pathToC3PO_pl;
 my $pathToC3PO_exe;
@@ -197,6 +197,7 @@ sub initPlugin {
 	$preferences->init({		
 		serverFolder				=> $serverFolder,
 		logFolder					=> $logFolder,
+		pathToPrefFile				=> $pathToPrefFile,
 		pathToFlac					=> $pathToFlac,
 		pathToSox					=> $pathToSox,
 		pathToFaad					=> $pathToFaad,
@@ -233,7 +234,6 @@ sub initPlugin {
 
 	#Store them as preferences to be retieved and used by C3PO.
 	$preferences->set('pathToPerl', $pathToPerl);
-	#$preferences->set('pathToC3PO', undef);
 	$preferences->set('pathToC3PO_exe', $pathToC3PO_exe);
 	$preferences->set('pathToC3PO_pl', $pathToC3PO_pl);
 	
@@ -245,6 +245,8 @@ sub initPlugin {
 	$preferences->set('serverFolder', $serverFolder);
 	$preferences->set('logFolder', $logFolder);
 	$preferences->set('C3POfolder', $C3POfolder);
+	
+	$preferences->set('pathToPrefFile', $pathToPrefFile);
 	
 	$preferences->set('pathToFlac', $pathToFlac);
 	$preferences->set('pathToSox', $pathToSox);
@@ -411,12 +413,12 @@ sub settingsChanged{
 	
 	my $prefs= getPreferences();
 	
-	if (main::INFOLOG && $log->is_info) {	
+	if (main::DEBUGLOG && $log->is_debug) {	
 			my $conv = Slim::Player::TranscodingHelper::Conversions();
 			my $caps = \%Slim::Player::TranscodingHelper::capabilities;
-			$log->info("STATUS QUO ANTE: ");
-			$log->info("LMS conversion Table:   ".dump($conv));
-			$log->info("LMS Capabilities Table: ".dump($caps));
+			$log->debug("STATUS QUO ANTE: ");
+			$log->debug("LMS conversion Table:   ".dump($conv));
+			$log->debug("LMS Capabilities Table: ".dump($caps));
 	}
 	
 	if (main::DEBUGLOG && $log->is_debug) {
@@ -440,12 +442,12 @@ sub settingsChanged{
 	
 		_playerSettingChanged($client);
 	}
-	if (main::INFOLOG && $log->is_info) {	
+	if (main::DEBUGLOG && $log->is_debug) {	
 			my $conv = Slim::Player::TranscodingHelper::Conversions();
 			my $caps = \%Slim::Player::TranscodingHelper::capabilities;
-			$log->info("RESULT: ");
-			$log->info("LMS conversion Table:   ".dump($conv));
-			$log->info("LMS Capabilities Table: ".dump($caps));
+			$log->debug("RESULT: ");
+			$log->debug("LMS conversion Table:   ".dump($conv));
+			$log->debug("LMS Capabilities Table: ".dump($caps));
 	}
 }
 sub getStatus{
@@ -552,7 +554,7 @@ sub _initFilesLocations {
 	my $class = shift;
 
 	$logFolder		= Slim::Utils::OSDetect::dirsFor('log');
-	$pathToprefFile = catdir(Slim::Utils::OSDetect::dirsFor('prefs'), 'plugin', 'C3PO.prefs');
+	$pathToPrefFile = catdir(Slim::Utils::OSDetect::dirsFor('prefs'), 'plugin', 'C3PO.prefs');
 	
 	$pathToPerl     = Slim::Utils::Misc::findbin("perl");
 	$pathToC3PO_pl	= catdir($C3POfolder, 'C-3PO.pl');
@@ -626,7 +628,7 @@ sub _testC3POEXE{
 		return 0;
 	}
 		
-	my $command= qq("$pathToC3PO_exe" -h hello -l "$logFolder" -x "$serverFolder");
+	my $command= qq("$pathToC3PO_exe" -h hello -l "$logFolder");
 	
 	if (! main::DEBUGLOG) {
 	
@@ -670,7 +672,7 @@ sub _testC3POPL{
 		return 0;
 	}
 
-	my $command= qq("$pathToPerl" "$pathToC3PO_pl" -h hello -l "$logFolder" -x "$serverFolder");
+	my $command= qq("$pathToPerl" "$pathToC3PO_pl" -h hello -l "$logFolder");
 	
 	if (! main::DEBUGLOG || ! $log->is_debug) {
 	
@@ -1367,7 +1369,7 @@ sub _buildTranscoderTable{
 	my $transcoderTable= Plugins::C3PO::Shared::getTranscoderTableFromPreferences($prefs,$client);
 	
 	#add the path to the preference file itself.
-	$transcoderTable->{'pathToPrefFile'}=$pathToprefFile;
+	#$transcoderTable->{'pathToPrefFile'}=$pathToPrefFile;
 	
 	return $transcoderTable;
 }

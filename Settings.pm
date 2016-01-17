@@ -101,7 +101,7 @@ sub handler {
 }
 sub getdisabledCodecs{
 	my $prefCodecs = shift;
-	my $capabilities= Plugins::C3PO::Plugin::getCapabilities();
+	my $capabilities= $plugin->getCapabilities();
 	my $caps = $capabilities->{'codecs'};
 	my $out={};
 	

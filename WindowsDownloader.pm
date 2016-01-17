@@ -1,32 +1,66 @@
+#!/usr/bin/perl
+#
+# This program is part of the C-3PO Plugin. 
+# See Plugin.pm for credits, license terms and others.
+#
+# Logitech Media Server Copyright 2001-2011 Logitech.
+# This Plugin Copyright 2015 Marco Curti (marcoc1712 at gmail dot com)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License,
+# version 2.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+#########################################################################
+
 package Plugins::C3PO::WindowsDownloader;
 
 # Windows specifc - check for *.exe and download from site if it not available in the Bin folder
 # It runs every time plugin is updated, becouse it delete all the folder installing the new version.
+
+use strict;
+use warnings;
 
 use File::Spec::Functions qw(:ALL);
 use Digest::MD5;
 use Archive::Zip qw(:ERROR_CODES);
 use Data::Dump qw(dump pp);
 
-use Slim::Utils::Log;
-use Slim::Utils::Prefs;
+#use Slim::Utils::Log;
+#use Slim::Utils::Prefs;
 
 sub download {
 	my $class  = shift;
 	my $plugin = shift;
-	
-	my $log= $plugin->getLog();
 	my %status=(); 
+	my $status= \%status;
+	my $log= $plugin->getLog();
+	my @files=();
+	my $files=\@files;
 	
 	my $bindir		= catdir($plugin->_pluginDataFor('basedir'), 'Bin', 'MSWin32-x86-multi-thread');
 	my $zipUrl		= $plugin->_pluginDataFor('zipUrl');
 	my $md5			= $plugin->_pluginDataFor('md5');
-	my $files       = $plugin->_pluginDataFor('file');
-
+	my $contents    = $plugin->_pluginDataFor('file');
+	
+	# if just one element is not an array.
+	if(ref($contents) eq 'ARRAY'){
+	
+		$files= $contents;
+	
+	} else{
+	
+		push @files, $contents;
+	}
+	
 	if (main::INFOLOG && $log->is_info) {
-
-			 $log->info('Files: size: '.scalar(@files).' elements: ');
-			 $log->info(dump(@files));
+			
+			$log->info('Files: size: '.scalar(@files).' elements: ');
+			$log->info(dump($files));
 	}
 
 	if (! -w $bindir) {
@@ -38,7 +72,7 @@ sub download {
 		return 0;
 	}
 
-	my $cache = preferences('server')->get('cachedir');
+	my $cache = Slim::Utils::Prefs::preferences('server')->get('cachedir');
 
 	my $data = {
 		bindir => $bindir,
@@ -72,7 +106,9 @@ sub _gotFile {
 	}
 	
 	if (! --$data->{'remaining'}) {
-	
+		
+		my %status=(); 
+		my $status= \%status;
 		$status->{'code'}=-2;
 		$status->{'message'}=("extracting");
 		
@@ -99,6 +135,8 @@ sub _downloadError {
 	my $data = $http->params('data');
 	my $plugin  = $data->{'plugin'};
 	
+	my %status=(); 
+	my $status= \%status;
 	$status->{'code'}=2;
 	$status->{'message'}=($http->url . " - " . $error);
 		
@@ -113,6 +151,9 @@ sub _extract {
 	my @files   = @{$data->{'files'}};
 	my $log		= $plugin->getLog();
 	
+	my %status=(); 
+	my $status= \%status;
+		
 	my $md5 = Digest::MD5->new;
 
 	open my $fh, '<', $zipfile;
@@ -124,6 +165,7 @@ sub _extract {
 	close $fh;
 		
 	if ($data->{'md5'} ne $md5->hexdigest) {
+	
 
 		$status->{'code'}=3;
 		$status->{'message'}=('bad md5 checksum');
@@ -137,7 +179,7 @@ sub _extract {
 	if ($arch->read($zipfile) != AZ_OK) {
 
 		$status->{'code'}=4;
-		$status->{'message'}=("error reading zip file $file");
+		$status->{'message'}=("error reading zip file $zipfile");
 		
 		$plugin->setWinExecutablesStatus($status);
 		return 0;
@@ -157,7 +199,7 @@ sub _extract {
 		if ($arch->extractMember($inZip[0], catdir($data->{'bindir'}, $file)) != AZ_OK) {
 			
 			$status->{'code'}=5;
-			$status->{'message'}=("error extracting $file from $dwl");
+			$status->{'message'}=("error extracting $file from $zipfile");
 
 			$plugin->setWinExecutablesStatus($status);
 			return 0;
