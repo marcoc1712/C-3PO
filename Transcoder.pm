@@ -32,6 +32,7 @@ sub isLMSDebug{
 };
 sub isLMSInfo{
 
+	if (isLMSDebug()) {return 1;}
 	if ($logger && $logger->{INFOLOG} && $log && $log->is_info) {return 1}
 	return 0;
 };
@@ -228,7 +229,7 @@ sub saveHeaderFile{
 	my $headbuffer;
 
 	if (
-		sysread ($fh, $headbuffer, 8192)	# read in (up to) 64k chunks, write
+		sysread ($fh, $headbuffer, 8192)	# read in (up to) 8192 bit chunks, write
 		and syswrite $head, $headbuffer	# exit if read or write fails
 	  ) {};
 	  die "Problem writing: $!\n" if $!;
@@ -267,8 +268,8 @@ sub isSplittingRequested{
 	my $transcodeTable =shift;
 	my $inCodec= $transcodeTable->{'inCodec'};
 	
-	if (!isResamplingRequested($transcodeTable) && 
-		compareCodecs($inCodec, getOutputCodec($transcodeTable))){ return 0;}
+	#if (!isResamplingRequested($transcodeTable) && 
+	#	compareCodecs($inCodec, getOutputCodec($transcodeTable))){ return 0;}
 	
 	if (!isRuntime($transcodeTable) && 
 	    $transcodeTable->{'enableSeek'}->{$inCodec}) {return 1;} 
@@ -373,6 +374,12 @@ sub willResample{
 	if (!isResamplingRequested($transcodeTable)) {return 0;}
 	#be sure to call checkResample before.
 	
+	# Keep it short and always resample if asked for.
+	#return 1;
+
+	#Always resample if any extra effects is requested.
+	if ($transcodeTable->{'extra'} && !($transcodeTable->{'extra'} eq "")) {return 1;}
+
 	my $targetSamplerate=$transcodeTable->{'targetSamplerate'};
 	my $fileSamplerate = $transcodeTable->{'fileInfo'}->{info}->{samplerate};
 	
@@ -381,6 +388,18 @@ sub willResample{
 
 	if (!defined $targetSamplerate) {return 0;}
 	if (!$fileSamplerate || !($fileSamplerate == $targetSamplerate)){return 1;}
+	
+		
+	my $targetBitDepth = $transcodeTable-{'outBitDepth'};
+	my $fileBitDepth   = $transcodeTable->{'fileInfo'}->{info}->{bits_per_sample} ? 
+							$transcodeTable->{'fileInfo'}->{info}->{bits_per_sample}/8 :
+							undef;
+	
+	Plugins::C3PO::Logger::verboseMessage("targetBitDepth: ". defined $targetBitDepth ? $targetBitDepth : 'undef');
+	Plugins::C3PO::Logger::verboseMessage("fileBitDepth: ". defined $fileBitDepth ? $fileBitDepth : 'undef');
+	
+	if (!defined $targetBitDepth) {return 0;}
+	if (!$fileBitDepth || !($fileBitDepth == $targetBitDepth)){return 1;}
 	
 	return 0;
 }
@@ -669,6 +688,7 @@ sub useC3PO{
 	my $logFolder = $transcodeTable->{'logFolder'};
 	my $serverFolder = $transcodeTable->{'serverFolder'};
 	
+	
 	$result->{'profile'} =  buildProfile($transcodeTable);
 	
 	my $command="";
@@ -683,8 +703,11 @@ sub useC3PO{
 			
 			$command =  '[C-3PO] -c $CLIENTID$ ';
 	}
+	if (isLMSInfo()) {
+		$log->info("serverfolder. ".$serverFolder);
+	}
 	
-	$command = $command.qq(-p "$prefFile" -l "$logFolder" -x "serverfolder" -i $inCodec -o $outCodec )
+	$command = $command.qq(-p "$prefFile" -l "$logFolder" -x "$serverFolder" -i $inCodec -o $outCodec )
 					   .'$START$ $END$ $RESAMPLE$ $FILE$';
 	
 	if (! isLMSDebug()) {
@@ -839,6 +862,9 @@ sub buildCommand {
 		$log->info('willResample ? '.willResample($transcodeTable));
 		$log->info('Is splitting requested? '.isSplittingRequested($transcodeTable));
 	} else{
+		Plugins::C3PO::Logger::infoMessage('inCodec: '.$transcodeTable->{'inCodec'});
+		Plugins::C3PO::Logger::infoMessage('transitCodec: '.$transcodeTable->{'transitCodec'});
+		Plugins::C3PO::Logger::infoMessage('outCodec: '.$transcodeTable->{'outCodec'});
 		Plugins::C3PO::Logger::infoMessage('Is resampling requested? '.isResamplingRequested($transcodeTable));
 		Plugins::C3PO::Logger::infoMessage('willResample ? '.willResample($transcodeTable));
 		Plugins::C3PO::Logger::infoMessage('Is splitting requested? '.isSplittingRequested($transcodeTable));
@@ -854,36 +880,47 @@ sub buildCommand {
 
 	} else {
 		
-		$transcodeTable=transcode($transcodeTable);
+		$transcodeTable=transcodeOnly($transcodeTable);
 		$transcodeTable->{'command'}=$transcodeTable->{transcode};
 	
 	}
 	$command = $transcodeTable->{'command'}||"";
-	Plugins::C3PO::Logger::debugMessage('transcode command: '.$command);
+	Plugins::C3PO::Logger::infoMessage('Transcode command: '.$command);
 	
 	if ($command eq ""){
 		
 		if (isRuntime($transcodeTable)){
-			
-			# Using Header restorer to just pass IN to OUT.
-			$transcodeTable = restoreHeader($transcodeTable);
+
+			# Using native to just pass IN to OUT.
+			$transcodeTable = native($transcodeTable);
 
 		} else {
 			
 			# Native
-			$command= "-";
-		
+			$transcodeTable->{'command'}="-";		
 		}
 	}
-	$transcodeTable->{'command'}=$command;
+	$command = $transcodeTable->{'command'}||"";
+	Plugins::C3PO::Logger::infoMessage('Safe command    : '.$command);
 	
 	if (needRestoreHeader($transcodeTable)){
 	
 		$transcodeTable = restoreHeader($transcodeTable);
-		
 	}
 	$command = $transcodeTable->{'command'}||"";
-	Plugins::C3PO::Logger::debugMessage('built command: '.$command);
+	Plugins::C3PO::Logger::infoMessage('Final command    : '.$command);
+	return $transcodeTable;
+}
+sub native{
+	my $transcodeTable = shift;
+	
+	# maybe transcoding and/or resampling was requested but is not needed
+	# and we could not issue an ampty command from C-3PO.
+	# let's have a 'dummy' transcoding.
+	
+	my $commandstring=_transcode($transcodeTable);
+	$transcodeTable->{'command'}=$commandstring;
+	
 	return $transcodeTable;
 }
 sub restoreHeader{
@@ -891,9 +928,16 @@ sub restoreHeader{
 	
 	my $willStart				 = $transcodeTable->{'C3POwillStart'};
 	my $pathToPerl				 = $transcodeTable->{'pathToPerl'};
-	my $pathToHeaderRestorer_pl	 = $transcodeTable->{'pathToHeaderRestorer_pl'};
-	my $pathToHeaderRestorer_exe = $transcodeTable->{'pathToHeaderRestorer_exe'} || "";
+	#my $pathToHeaderRestorer_pl	 = $transcodeTable->{'pathToHeaderRestorer_pl'};
+	#my $pathToHeaderRestorer_exe = $transcodeTable->{'pathToHeaderRestorer_exe'} || "";
+	
+	my $pathToHeaderRestorer_pl	 = $transcodeTable->{'pathToC3PO_pl'};
+	my $pathToHeaderRestorer_exe = $transcodeTable->{'pathToC3PO_exe'} || "";
 	my $testfile				 = $transcodeTable->{'testfile'} || "";
+
+	my $prefFile				 = $transcodeTable->{'pathToPrefFile'};
+	my $logFolder				 = $transcodeTable->{'logFolder'};
+	my $serverFolder			 = $transcodeTable->{'serverFolder'};
 
 	my $commandString= "";
 
@@ -907,10 +951,30 @@ sub restoreHeader{
 			$commandString =  qq("$pathToHeaderRestorer_exe" );
 	}
 	
-	$commandString = $commandString.
-					 qq(-d $main::logLevel -l "$main::logfile" "$testfile" | );
-									
-	$transcodeTable->{'command'}=$commandString.$transcodeTable->{'command'};
+	#$commandString = $commandString.
+	#				 qq(-d $main::logLevel -l "$main::logfile" "$testfile" | );
+	
+	$commandString = $commandString
+					 .qq(-b -p "$prefFile" -l "$logFolder" -x "$serverFolder" "$testfile");
+	
+	#Copy debug settngs.
+	if (! main::DEBUGLOG) {
+		$commandString = $commandString." --nodebuglog";
+	}
+	
+	if (! main::INFOLOG) {
+		$commandString = $commandString." --noinfolog";
+	}
+	
+	if ($transcodeTable->{'command'} && !($transcodeTable->{'command'} eq "")){
+	
+		$transcodeTable->{'command'}=$commandString." | ".$transcodeTable->{'command'};
+	
+	} else{
+	
+		$transcodeTable->{'command'}=$commandString." |";
+	}
+	
 	
 	return $transcodeTable;
 }
@@ -977,7 +1041,7 @@ sub splitAndTranscodeUncompressedOutput{
 
 	if (isTranscodingRequested($transcodeTable)) {
 
-		$transcodeTable=transcode($transcodeTable);
+		$transcodeTable=transcodeOnly($transcodeTable);
 		my $encodeString = $transcodeTable->{transcode};
 		if ($commandString eq ""){
 			$commandString= $encodeString
@@ -1010,7 +1074,7 @@ sub splitAndTranscodeCompressedOutput{
 	return $transcodeTable;
 }
 
-sub transcode{
+sub transcodeOnly{
 	my $transcodeTable = shift;
 	
 	Plugins::C3PO::Logger::verboseMessage('Start transcode');
@@ -1022,7 +1086,18 @@ sub transcode{
 	
 	if (compareCodecs($inCodec, $outCodec)){ #do nothing
 	
-	} elsif (isOutputCompressed($transcodeTable)){
+	}  else{
+		$commandstring= _transcode($transcodeTable);
+	}
+	$transcodeTable->{transcode}=$commandstring; 
+	return $transcodeTable;
+}
+sub _transcode{
+
+	my $transcodeTable = shift;
+	my $commandstring="";
+	
+	if (isOutputCompressed($transcodeTable)){
 	
 		$commandstring = transcodeCompressedOutput($transcodeTable);
 	
@@ -1034,8 +1109,7 @@ sub transcode{
 	
 		$commandstring = Plugins::C3PO::SoxHelper::transcode($transcodeTable);
 	}
-	$transcodeTable->{transcode}=$commandstring; 
-	return $transcodeTable;
+	return $commandstring;
 }
 
 sub split_{
@@ -1131,7 +1205,7 @@ sub checkResample{
 		Plugins::C3PO::Logger::debugMessage('testfile: '.$testfile);
 		$fileInfo= Audio::Scan->scan($testfile);
 		
-		Plugins::C3PO::Logger::debugMessage('AudioScan: '.Data::Dump::dump ($fileInfo));
+		Plugins::C3PO::Logger::infoMessage('AudioScan: '.Data::Dump::dump ($fileInfo));
 		
 		$transcodeTable->{'fileInfo'}=$fileInfo;
 		$fileSamplerate=$fileInfo->{info}->{samplerate};

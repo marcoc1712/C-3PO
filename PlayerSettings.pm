@@ -150,7 +150,7 @@ sub handler {
 			$prefSampleRates->{$rate} = $selected ? 'on' : undef;
 		}
 		$prefs->client($client)->set( 'sampleRates', 
-				Plugins::C3PO::Plugin::translateSampleRates($prefSampleRates));
+				$plugin->translateSampleRates($prefSampleRates));
 
 		$prefs->writeAll( );
 		$class->SUPER::handler( $client, $params );
@@ -196,7 +196,7 @@ sub handler {
 			$log->debug(dump($params->{'disabledCodecs'}));
 	}
 	
-	my $caps= Plugins::C3PO::Plugin::getCapabilities();
+	my $caps= $plugin->getCapabilities();
 	my $sampleRates = $caps->{'samplerates'};
 	
 	$params->{'orderedSampleRates'}=$sampleRates; 
