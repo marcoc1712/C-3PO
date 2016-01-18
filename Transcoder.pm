@@ -686,6 +686,7 @@ sub useC3PO{
 	my $prefFile = $transcodeTable->{'pathToPrefFile'};
 	my $pathToC3PO_pl = $transcodeTable->{'pathToC3PO_pl'};
 	my $logFolder = $transcodeTable->{'logFolder'};
+	my $serverFolder = $transcodeTable->{'serverFolder'};
 	
 	
 	$result->{'profile'} =  buildProfile($transcodeTable);
@@ -702,8 +703,11 @@ sub useC3PO{
 			
 			$command =  '[C-3PO] -c $CLIENTID$ ';
 	}
+	if (isLMSInfo()) {
+		$log->info("serverfolder. ".$serverFolder);
+	}
 	
-	$command = $command.qq(-p "$prefFile" -l "$logFolder" -i $inCodec -o $outCodec )
+	$command = $command.qq(-p "$prefFile" -l "$logFolder" -x "$serverFolder" -i $inCodec -o $outCodec )
 					   .'$START$ $END$ $RESAMPLE$ $FILE$';
 	
 	if (! isLMSDebug()) {
@@ -881,7 +885,7 @@ sub buildCommand {
 	
 	}
 	$command = $transcodeTable->{'command'}||"";
-	Plugins::C3PO::Logger::infoMessage('B command: '.$command);
+	Plugins::C3PO::Logger::infoMessage('Transcode command: '.$command);
 	
 	if ($command eq ""){
 		
@@ -897,14 +901,14 @@ sub buildCommand {
 		}
 	}
 	$command = $transcodeTable->{'command'}||"";
-	Plugins::C3PO::Logger::infoMessage('Safe command: '.$command);
+	Plugins::C3PO::Logger::infoMessage('Safe command    : '.$command);
 	
 	if (needRestoreHeader($transcodeTable)){
 	
 		$transcodeTable = restoreHeader($transcodeTable);
 	}
 	$command = $transcodeTable->{'command'}||"";
-	Plugins::C3PO::Logger::infoMessage('Final command: '.$command);
+	Plugins::C3PO::Logger::infoMessage('Final command    : '.$command);
 	return $transcodeTable;
 }
 sub native{
@@ -933,6 +937,7 @@ sub restoreHeader{
 
 	my $prefFile				 = $transcodeTable->{'pathToPrefFile'};
 	my $logFolder				 = $transcodeTable->{'logFolder'};
+	my $serverFolder			 = $transcodeTable->{'serverFolder'};
 
 	my $commandString= "";
 
@@ -950,7 +955,7 @@ sub restoreHeader{
 	#				 qq(-d $main::logLevel -l "$main::logfile" "$testfile" | );
 	
 	$commandString = $commandString
-					 .qq(-b -p "$prefFile" -l "$logFolder" "$testfile");
+					 .qq(-b -p "$prefFile" -l "$logFolder" -x "$serverFolder" "$testfile");
 	
 	#Copy debug settngs.
 	if (! main::DEBUGLOG) {

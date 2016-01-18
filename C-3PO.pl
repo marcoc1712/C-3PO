@@ -59,7 +59,6 @@ use File::Basename;
 my $C3PODir=$Bin;
 my ($volume,$directories,$file) =File::Spec->splitpath($0);
 
-
 #print '$volume is      : '.$volume."\n";
 #print '$directories is : '.$directories."\n";
 #print '$file is   : '.$file."\n";
@@ -71,7 +70,6 @@ if ($file eq 'C-3PO.exe'){
 	# We are running the compiled version in 
 	# \Bin\MSWin32-x86-multi-thread folder inside the
 	#plugin folder.
-	
 	$C3PODir = File::Spec->canonpath(getAncestor($Bin,2));
 
 } elsif ($file eq 'C-3PO'){
@@ -80,7 +78,6 @@ if ($file eq 'C-3PO.exe'){
 	#$C3PODir= File::Spec->canonpath(File::Basename::dirname(__FILE__)); #C3PO Folder
 	$C3PODir = File::Spec->canonpath(getAncestor($Bin,1));
         
-
 } elsif ($file eq 'C-3PO.pl'){
 
 	#running .pl 
@@ -95,15 +92,13 @@ if ($file eq 'C-3PO.exe'){
 
 my $lib = File::Spec->rel2abs(catdir($C3PODir, 'lib'));
 my $cpan= File::Spec->rel2abs(catdir($C3PODir,'CPAN'));
-my $include= File::Spec->rel2abs(catdir($C3PODir,'include'));
-my $winAuto= File::Spec->rel2abs(catdir($C3PODir,'include','auto'));
 
-my @a=($C3PODir,$lib,$cpan,$include,$winAuto);
+my @a=($C3PODir,$lib,$cpan);
 for my $i (@a){addToArray($i, \@INC);}
 
 require Utils::Config;
 
-$a= Utils::Config::expandINC($C3PODir);
+@a= Utils::Config::expandINC($C3PODir);
 for my $i (@a){addToArray($i, \@INC);}
 
 #unshift @INC, Utils::Config::expandINC($C3PODir);
@@ -148,13 +143,9 @@ require Utils::File;
 require Utils::Config;
 
 #in Base
-require FileHandle;
-require YAML::XS;
-require Data::Dump;
-
-#in include
-require Audio::Scan;
-
+#require FileHandle;
+#require YAML::XS;
+#require Data::Dump;
 
 #In lib.
 require Module::Load;
@@ -201,15 +192,47 @@ sub main{
 	
 	}
 
-	Plugins::C3PO::Logger::infoMessage('BIN '.$Bin);
-	Plugins::C3PO::Logger::infoMessage('C-3PO '.$C3PODir);
-	Plugins::C3PO::Logger::infoMessage('inc0'.Data::Dump::dump(@inc0));
-	Plugins::C3PO::Logger::infoMessage('inc1'.Data::Dump::dump(@inc1));
-	Plugins::C3PO::Logger::infoMessage('inc2'.Data::Dump::dump(@inc2));
-	Plugins::C3PO::Logger::infoMessage('INC '.Data::Dump::dump(@INC));
+	if (defined $options->{'serverFolder'}){
+		
+		$serverFolder=$options->{'serverFolder'};
+
+		my $lib = File::Spec->rel2abs(catdir($serverFolder, 'lib'));
+		my $cpan= File::Spec->rel2abs(catdir($serverFolder,'CPAN'));
+
+		my @a=($serverFolder,$lib,$cpan);
+		for my $i (@a){addToArray($i, \@INC);}
+
+		require Utils::Config;
+		@a= Utils::Config::expandINC($serverFolder);
+		for my $i (@a){addToArray($i, \@INC);}
+		
+		#in LMS CPAN or lib.
+		
+		require FileHandle;
+		require YAML::XS;
+		require Data::Dump;
+		require Audio::Scan;
+
+	}
 	Plugins::C3PO::Logger::infoMessage('DEBUGLOG '.main::DEBUGLOG);
 	Plugins::C3PO::Logger::infoMessage('INFOLOG '.main::INFOLOG);
 	Plugins::C3PO::Logger::infoMessage('loglevel '.$logLevel);
+	
+	Plugins::C3PO::Logger::debugMessage('BIN '.$Bin);
+	Plugins::C3PO::Logger::debugMessage('C-3PO '.$C3PODir);
+	Plugins::C3PO::Logger::debugMessage('Server '.$serverFolder);
+	Plugins::C3PO::Logger::debugMessage('inc0'.Data::Dump::dump(@inc0));
+	Plugins::C3PO::Logger::debugMessage('inc1'.Data::Dump::dump(@inc1));
+	Plugins::C3PO::Logger::debugMessage('inc2'.Data::Dump::dump(@inc2));
+	Plugins::C3PO::Logger::debugMessage('INC '.Data::Dump::dump(@INC));
+	
+	Plugins::C3PO::Logger::debugMessage('Inc: '.$INC{'Module/Load.pm'});
+	Plugins::C3PO::Logger::debugMessage('Inc: '.$INC{'File/HomeDir.pm'});
+	Plugins::C3PO::Logger::debugMessage('Inc: '.$INC{'Getopt/Long.pm'});
+	Plugins::C3PO::Logger::debugMessage('Inc: '.$INC{'FileHandle.pm'});
+	Plugins::C3PO::Logger::debugMessage('Inc: '.$INC{'Data/Dump.pm'});
+	Plugins::C3PO::Logger::debugMessage('Inc: '.$INC{'YAML/XS.pm'});
+	Plugins::C3PO::Logger::debugMessage('Inc: '.$INC{'Audio/Scan.pm'});
 	
 	$isDebug= $options->{debug};
 	if ($isDebug){
@@ -240,6 +263,13 @@ sub main{
 	if (!defined $prefs) {Plugins::C3PO::Logger::dieMessage("Invalid pref file in options")}
 	Plugins::C3PO::Logger::debugMessage ('Prefs: '.Data::Dump::dump($prefs));
 	
+	#use prefs only if not already in options.
+	if (!defined $serverFolder){
+	
+		$serverFolder=$prefs->{'serverFolder'};
+		if (!defined $serverFolder) {Plugins::C3PO::Logger::dieMessage("Missing ServerFolder")}
+		Plugins::C3PO::Logger::debugMessage ('server foder: '.$serverFolder);
+	}
 	if (!defined $options->{logFolder}){
 		
 		my $logFolder=$prefs->{'logFolder'};
@@ -346,7 +376,7 @@ sub executeCommand{
 	#some hacking on quoting and escaping for differents Os...
 	$command= Plugins::C3PO::Shared::finalizeCommand($command);
 
-	Plugins::C3PO::Logger::infoMessage(qq(executeCommand - Command is: $command));
+	Plugins::C3PO::Logger::infoMessage(qq(execute command  : $command));
 	Plugins::C3PO::Logger::verboseMessage($main::isDebug ? 'in debug' : 'production');
 	
 	if ($main::isDebug){
@@ -382,6 +412,7 @@ sub getOptions{
 			'd' => \$options->{debug},
 			'h=s' => \$options->{hello},
 			'l=s' => \$options->{logFolder},
+			'x=s' => \$options->{serverFolder},
 			'p=s' => \$options->{prefFile},
 			'c=s' => \$options->{clientId},
 			'i=s' => \$options->{inCodec},
@@ -392,6 +423,8 @@ sub getOptions{
 			'u=s' => \$options->{endSec},
 			'w=s' => \$options->{durationSec},
 			'r=s' => \$options->{forcedSamplerate},
+			'nodebuglog' => \$options->{nodebuglog}, #already detected
+			'noinfolog' => \$options->{noinfolog}, #already detected
 		);
 
 		my $file;

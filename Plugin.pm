@@ -630,12 +630,12 @@ sub _testC3POEXE{
 		
 	my $command= qq("$pathToC3PO_exe" -h hello -l "$logFolder");
 	
-	if (! main::DEBUGLOG) {
+	if (! (main::DEBUGLOG && $log->is_debug)) {
 	
 		$command = $command." --nodebuglog";
 	}
 	
-	if (! main::INFOLOG){
+	if (! (main::INFOLOG && $log->is_info)){
 	
 		$command = $command." --noinfolog";
 	}
