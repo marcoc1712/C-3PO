@@ -25,7 +25,8 @@ use warnings;
 my @clientPrefNamesScalar = qw(	id macaddress model modelName name 
 								maxSupportedSamplerate 
 								enableSeek enableStdin 
-								enableConvert enableResample);
+								enableConvert enableResample
+								showDetails);
 								
 my @clientPrefNamesHash	  = qw(	sampleRates);
 
@@ -36,7 +37,6 @@ my @sharedPrefNames		  = qw(	resampleWhen resampleTo outCodec
 								outBitDepth 
 								gain quality phase aliasing 
 								bandwidth dither extra);
-								#outChannels
 				
 my @globalPrefNames		  = qw(	codecs
                                 serverFolder logFolder C3POfolder pathToPrefFile

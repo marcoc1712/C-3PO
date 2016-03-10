@@ -284,9 +284,17 @@ PLUGIN_C3PO_USE_GLOBAL_DESC
 	EN	Use global settings (see Advanced tab, C-3PO Transcoding Helper section) for this player.
 	IT	Usa le impostazioni generali (vedi Advanced, Transcoding Helper) per questo player.
 
-PLUGIN_C3PO_USE_GLOBAL_SHOW
-	EN	Show or Hide
-	IT	Mostra o Nascondi
+PLUGIN_C3PO_SHOW_DETAILS
+	EN	Show details
+	IT	Mostra i dettagli
+	
+PLUGIN_C3PO_SHOW_DETAILS_DESC
+	EN	Show details.
+	IT	Mostra il dettaglio delle impostazioni.
+
+PLUGIN_C3PO_APPLY_BUTTON
+	EN	Apply
+	IT	Applica
 
 PLUGIN_C3PO_SAMPLE_RATE_LIST
 	EN	Supported Sample Rates

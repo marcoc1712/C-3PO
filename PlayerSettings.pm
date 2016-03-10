@@ -54,7 +54,7 @@ sub refreshStatus{
 	#find a way to refresh the status lines.
 }
 
-my %showDetails=();
+#my %showDetails=();
 
 sub handler {
 	my ($class, $client, $params, $callback, @args) = @_;
@@ -79,7 +79,7 @@ sub handler {
 	if (main::DEBUGLOG && $log->is_debug) {
 		$log->debug("Inizio Handler: ");
 		$log->debug("showDetails: ");		
-		$log->debug(dump(%showDetails));
+		$log->debug(dump($params->{'pref_showDetails'}));
 		
 		$log->debug("useGlogalSettings - prefs: ".
 		            $prefs->client($client)->get('useGlogalSettings').
@@ -101,20 +101,19 @@ sub handler {
 	$params->{'status_details'}	= $status->{'details'};
 		
 	# SaveSettings pressed #####################################################	
-
 	if ($params->{'saveSettings'}){
 	
 		# Don't copy into prefs from disabled or not showed  parameters, 
 		# it will result in a complete erasure of preferences.
 		
-		if ($showDetails{$client->id()} && $params->{'pref_resampleWhen'}){
+		if ($params->{'pref_showDetails'} && $params->{'pref_resampleWhen'}){
 
 			for my $item (@prefList){
 				_copyParamsToPrefs($client,$params,$item);
 			}
 		}
-		
 		_copyParamsToPrefs($client,$params,'useGlogalSettings');
+		_copyParamsToPrefs($client,$params,'showDetails');
 			
 		for my $codec (keys %$prefSeeks){
 			
@@ -153,6 +152,7 @@ sub handler {
 				$plugin->translateSampleRates($prefSampleRates));
 
 		$prefs->writeAll( );
+		$plugin->refreshClientPreferences($client);
 		$class->SUPER::handler( $client, $params );
 		$plugin->settingsChanged($client);
 	}
@@ -178,6 +178,7 @@ sub handler {
 	_ccopyPrefsToParams($client,$params,'model');
 	_ccopyPrefsToParams($client,$params,'name');
 	_ccopyPrefsToParams($client,$params,'maxSupportedSamplerate');
+	_ccopyPrefsToParams($client,$params,'showDetails');
 
 	$params->{'prefs'}->{'codecs'}=$prefCodecs; 
 	$params->{'prefs'}->{'enableSeek'}=$prefSeeks; 
@@ -187,7 +188,7 @@ sub handler {
 	$params->{'prefs'}->{'sampleRates'}=$prefSampleRates; 
 	
 	# copy here params that are not preference.
-	$params->{'showDetails'} = $showDetails{$client->id()};
+	#$params->{'showDetails'} = $showDetails{$client->id()};
 	
 	$params->{'disabledCodecs'}= _getdisabledCodecs($prefCodecs);
 
@@ -215,15 +216,15 @@ sub handler {
 	}
 	
 	#Show or Hide details.
-	if (!exists $showDetails{$client->id()}){
-		
-		$showDetails{$client->id()}=
-				$prefs->client($client)->get('useGlogalSettings') ? 0 : 1;
-	}
+	#if (!exists $showDetails{$client->id()}){
+	#	
+	#	$showDetails{$client->id()}=
+	#			$prefs->client($client)->get('useGlogalSettings') ? 0 : 1;
+	#}
 	#flip $showDetails
-	if ($params->{'showDetailsButton'}) {
-		$showDetails{$client->id()} = $showDetails{$client->id()} ? 0 : 1;
-	}	
+	#if ($params->{'showDetailsButton'}) {
+	#	$showDetails{$client->id()} = $showDetails{$client->id()} ? 0 : 1;
+	#}	
 	return $class->SUPER::handler($client, $params );
 }
 
@@ -306,8 +307,8 @@ sub _copyParamsToPrefs{
 
 	my $prefs=$plugin->getPreferences();
 
-	if (main::DEBUGLOG && $log->is_debug) {
-		$log->debug($item." :".
+	if (main::INFOLOG && $log->is_info) {
+		$log->info($item." :".
 			"PARAMS pref_: ".dump($params->{'pref_'.$item}).
 			" - PREFS: ".dump($prefs->client($client)->get($item)));
 	}
