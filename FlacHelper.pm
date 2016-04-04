@@ -50,7 +50,8 @@ sub transcode{
 	my $exe=$transcodeTable->{'pathToFlac'};
 	
 	my $compression	= $transcodeTable->{'outCompression'};
-		
+	my $command	= $transcodeTable->{'command'};
+	
 	Plugins::C3PO::Logger::verboseMessage('Start flac transcode');
 	
 	$compression =_getCompression($compression);
@@ -90,6 +91,10 @@ sub transcode{
 
 		return $commandString;
 		
+	} elsif ((defined $command) && (!($command eq ""))){
+
+		return '[flac] '.$commandString.' -- -';
+		
 	} else {
 
 		return '[flac] '.$commandString.'$START$ $END$ -- $FILE$';
@@ -103,4 +108,6 @@ sub _getCompression{
 	$compression = (( grep { $compression eq $_ } 0,5,8 ) ? $compression : 0);
 	return $compression;
 }
+
+
 1;

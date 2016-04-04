@@ -20,7 +20,9 @@
 package Utils::Log;
 
 use strict;	
-
+use Carp qw<longmess>;
+use Data::Dumper;
+	
 #use File::Spec::Functions qw(:ALL);
 #print ( (caller(1))[3] )."\n";
 #print "\n";
@@ -31,10 +33,11 @@ sub evalLog{
 	
 	my $level={
 		'verbose'	=> 0,
-		'debug'		=> 2,
-		'info'		=> 4,
-		'warn'		=> 6,
-		'error'		=> 8,
+		'debug'		=> 1,
+		'info'		=> 3,
+		'warn'		=> 5,
+		'error'		=> 7,
+		'trace'		=> 8,
 		'die'		=> 9,
 	};
 	
@@ -126,6 +129,17 @@ sub verboseMessage{
 	my $isDebug = shift;
 	my $logLevel = shift|| 'warn';
 	
-	writeLog($logfile, qq(DEBUG: $msg),$isDebug,$logLevel, 'verbose');
+	writeLog($logfile, qq(VERBOSE: $msg),$isDebug,$logLevel, 'verbose');
 }
+sub traceMessage{
+	my $logfile=shift;
+	my $msg=shift;
+	my $isDebug = shift;
+	my $logLevel = shift|| 'warn';
+	
+	my $trace = Dumper longmess();
+	
+	writeLog($logfile, qq(TRACE: $msg)."\n".$trace,$isDebug,$logLevel, 'trace');
+}
+
 1;

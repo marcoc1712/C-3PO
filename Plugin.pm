@@ -65,6 +65,12 @@ use Plugins::C3PO::Utils::Config;
 use Plugins::C3PO::Utils::File;
 use Plugins::C3PO::Utils::Log;
 
+use Plugins::C3PO::Formats::Format;
+use Plugins::C3PO::Formats::Wav;
+use Plugins::C3PO::Formats::Aiff;
+use Plugins::C3PO::Formats::Flac;
+use Plugins::C3PO::Formats::Alac;
+
 use Slim::Utils::Log;
 use Slim::Utils::Prefs;
 use Slim::Utils::Strings qw(string);

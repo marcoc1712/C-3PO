@@ -33,8 +33,8 @@ sub resample{
 	
 	my $isRuntime = Plugins::C3PO::Transcoder::isRuntime($transcodeTable);
 	
-	my $isTranscodingRequested = 
-		Plugins::C3PO::Transcoder::isTranscodingRequested($transcodeTable);
+	my $isTranscodingRequired = 
+		Plugins::C3PO::Transcoder::isTranscodingRequired($transcodeTable);
 	
 	my $useSoxToEncodeWhenResampling =
 		Plugins::C3PO::Transcoder::useSoxToEncodeWhenResampling($transcodeTable);
@@ -97,7 +97,7 @@ sub resample{
 	
 	$inCodec=_translateCodec($inCodec);
 	
-	if ($isTranscodingRequested &&
+	if ($isTranscodingRequired &&
 		$useSoxToEncodeWhenResampling){
 		
 		$outCodec=_translateCodec($outCodec);

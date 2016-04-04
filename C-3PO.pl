@@ -142,6 +142,12 @@ require Utils::Log;
 require Utils::File;
 require Utils::Config;
 
+require Formats::Format;
+require Formats::Wav;
+require Formats::Aiff;
+require Formats::Flac;
+require Formats::Alac;
+
 #in Base
 #require FileHandle;
 #require YAML::XS;

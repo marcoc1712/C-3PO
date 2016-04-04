@@ -72,7 +72,7 @@ sub transcode {
 	}
 	
 	if ($isRuntime){
-
+	
 		$commandString = qq("$exe" $commandString);
 	
 	} else{

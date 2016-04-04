@@ -55,6 +55,10 @@ sub errorMessage{
 	my $msg=shift;
 	Utils::Log::errorMessage($main::logfile,$msg,$main::isDebug,$main::logLevel);
 }
+sub traceMessage{
+	my $msg=shift;
+	Utils::Log::traceMessage($main::logfile,$msg,$main::isDebug,$main::logLevel);
+}
 sub dieMessage{
 	my $msg=shift;
 	Utils::Log::dieMessage($main::logfile,$msg,$main::isDebug,$main::logLevel);

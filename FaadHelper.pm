@@ -36,7 +36,7 @@ sub decode{
 	
 	#[faad] -q -w -f 1 $START$ $END$ $FILE$
 	
-	my $commandString = '-q -w -f 1';
+	my $commandString = '-q -w -f 1 ';
 	
 	if ($isRuntime){
 
