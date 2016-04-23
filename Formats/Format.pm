@@ -234,6 +234,12 @@ sub splitAndEncode {
 	Plugins::C3PO::Logger::errorMessage('$self: splitAndEncode MUST be define for any and each format');
 	die;
 }
+sub decode {
+	my $self = shift;
+	my $transcodeTable=shift;
+	Plugins::C3PO::Logger::errorMessage('$self: decode MUST be define for any and each format');
+	die;
+}
 
 ################################################################################
 # protected methods

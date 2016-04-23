@@ -80,17 +80,10 @@ sub decodeBeforeResampling{
 	my $commandString="";
 	my $outCodec = $self->getOutputCodec($transcodeTable);
 	
-	if ($self->useSoxToTranscodeWhenResampling($transcodeTable)){
-		
-		return "";
-		
-	}
-	$transcodeTable->{'transitCodec'}='flc';	
-	if (! $self->compareCodecs($outCodec,'flc')){
-		
-		$commandString=$self->transcodeToWav($transcodeTable);
-		$transcodeTable->{'transitCodec'}='wav';	
-	}
+	# called when SOX could not be used, so always decode to wav.
+	$commandString=Plugins::C3PO::FlacHelper::decode($transcodeTable);
+	$transcodeTable->{'transitCodec'}='wav';	
+
 	return $commandString;
 }
 sub splitAndEncode{
