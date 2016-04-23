@@ -261,7 +261,7 @@ PLUGIN_C3PO_DITHER_DESC
 	IT	Abilita il dithering automatico
 
 PLUGIN_C3PO_EXTRA
-	EN	Additional effects (sperimental)
+	EN	Additional effects (experimental)
 	IT	Effetti aggiuntivi (sperimentale)
 
 PLUGIN_C3PO_EXTRA_DESC

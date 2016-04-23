@@ -219,6 +219,7 @@ sub initPlugin {
 		resampleTo					=> "S",
 		outCodec					=> "wav",
 		outBitDepth					=> 3,
+		#outEncoding					=> undef,
 		#outChannels					=> 2,
 		gain						=> 3,
 		quality						=> "v",

@@ -65,11 +65,13 @@ sub resample{
 
 	my $outFormatSpec="";
 
-	# -r 19200 -3 -C 8
+	# -r 19200 -b 24 -C 8
 
 	if ($outSamplerate){$outFormatSpec= $outFormatSpec.' -r '.$outSamplerate};
 	#if ($outChannels){$outFormatSpec= $outFormatSpec.' -c '.$outChannels};
-	if ($outBitDepth){$outFormatSpec= $outFormatSpec.' -'.$outBitDepth};
+
+	if ($outBitDepth){$outFormatSpec= $outFormatSpec.' -b '.$outBitDepth*8};# short form deprecation in sox since 14.4.2
+	
 	#if ($outEncoding){$outFormatSpec= $outFormatSpec.' -'.$outEncoding};
 	#if ($outByteOrder){$outFormatSpec= $outFormatSpec.' -'.$outByteOrder};
 
