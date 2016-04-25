@@ -67,6 +67,8 @@ sub handler {
 	$plugin->refreshClientPreferences($client);
 	my $prefs=$plugin->getPreferences($client);
 	
+	$params->{'soxVersion'} =$prefs->get('soxVersion');
+	
 	my $prefCodecs = $prefs->client($client)->get('codecs');
 	my $prefSeeks  = $prefs->client($client)->get('enableSeek');
 	my $prefStdin  = $prefs->client($client)->get('enableStdin');
@@ -215,16 +217,6 @@ sub handler {
 		$log->debug(dump($params->{'disabledSampleRates'}));
 	}
 	
-	#Show or Hide details.
-	#if (!exists $showDetails{$client->id()}){
-	#	
-	#	$showDetails{$client->id()}=
-	#			$prefs->client($client)->get('useGlogalSettings') ? 0 : 1;
-	#}
-	#flip $showDetails
-	#if ($params->{'showDetailsButton'}) {
-	#	$showDetails{$client->id()} = $showDetails{$client->id()} ? 0 : 1;
-	#}	
 	return $class->SUPER::handler($client, $params );
 }
 

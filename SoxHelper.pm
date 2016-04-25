@@ -39,8 +39,10 @@ sub resample{
 	my $useSoxToEncodeWhenResampling =
 		Plugins::C3PO::Transcoder::useSoxToEncodeWhenResampling($transcodeTable);
 	
+	my $soxVersion			=$transcodeTable->{'soxVersion'};
+	
 	#my $outChannels		=$transcodeTable->{'outChannels'};
-	my $outBitDepth		=$transcodeTable->{'outBitDepth'};
+	my $outBitDepth			=$transcodeTable->{'outBitDepth'};
 	#my $outEncoding		=$transcodeTable->{'outEncoding'};
 	#my $outByteOrder	=$transcodeTable->{'outByteOrder'};
 	my $outCompression	=$transcodeTable->{'outCompression'};
@@ -49,9 +51,12 @@ sub resample{
 	my $aliasing		=$transcodeTable->{'aliasing'};
 	my $bandwidth		=$transcodeTable->{'bandwidth'};
 	my $gain			=$transcodeTable->{'gain'};
-	my $dither			=$transcodeTable->{'dither'};
+	#my $dither			=$transcodeTable->{'dither'};
+	my $ditherType		=$transcodeTable->{'ditherType'};
+	my $ditherPrecision	=$transcodeTable->{'ditherPrecision'};
 	
-	my $extra			=$transcodeTable->{'extra'};
+	my $extra_before_rate			=$transcodeTable->{'extra_before_rate'};
+	my $extra_after_rate			=$transcodeTable->{'extra_after_rate'};
 	
 	my $file			=$transcodeTable->{'options'}->{'file'};
 	
@@ -93,9 +98,52 @@ sub resample{
 
 	if ($gain){$effects= $effects.' gain -'.$gain};
 	
+	if ($extra_before_rate && !($extra_before_rate eq "")){
+	
+		$effects = $effects." ".$extra_before_rate;
+	}
+	
 	$effects=$effects.$rateString;
 	
-	if (!defined $dither){$effects= $effects.' -D'};
+	if ($extra_after_rate && !($extra_after_rate eq "")){
+	
+		$effects = $effects." ".$extra_after_rate;
+	}
+	
+	#if (!defined $dither){$effects= $effects.' -D'};
+
+	if (! $ditherType) {
+		$effects= ' -D '.$effects; # as last of the options, before the first effect (gain))
+	} elsif ($ditherType eq 1 ){
+		# $effects = $effects 
+	}elsif ($ditherType eq 2 ){
+		$effects= $effects.' dither';
+	}elsif ($ditherType eq 3 ){
+		$effects= $effects.' dither -S';
+	}elsif ($ditherType eq 4 ){
+		$effects= $effects.' dither -s';
+	}elsif ($ditherType eq 5 ){
+		$effects= $effects.' dither -f lipshitz';
+	}elsif ($ditherType eq 6 ){
+		$effects= $effects.' dither -f f-weighted';
+	}elsif ($ditherType eq 7 ){
+		$effects= $effects.' dither -f modified-e-weighted';
+	}elsif ($ditherType eq 8 ){
+		$effects= $effects.' dither -f improved-e-weighted';
+	}elsif ($ditherType eq 9 ){
+		$effects= $effects.' dither -f gesemann';
+	}elsif ($ditherType eq 'A' ){
+		$effects= $effects.' dither -f shibata';
+	}elsif ($ditherType eq 'B' ){
+		$effects= $effects.' dither -f low-shibata';
+	}elsif ($ditherType eq 'C' ){
+		$effects= $effects.' dither -f high-shibata';
+	}
+
+	if ($ditherType && $ditherPrecision && ($soxVersion > 140400)){
+	
+		$effects= $effects.' -p '.$ditherPrecision;
+	}
 	
 	$inCodec=_translateCodec($inCodec);
 	
@@ -139,12 +187,8 @@ sub resample{
 	}
 	$transcodeTable->{'transitCodec'}= _translateCodec($outCodec);
 	
-	$commandString = $commandString.qq($outCodec$outFormatSpec --buffer=$buffer -$effects);
+	$commandString = $commandString.qq($outCodec$outFormatSpec --buffer=$buffer - $effects);
 	
-	if ($extra && !($extra eq "")){
-	
-		$commandString = $commandString." ".$extra;
-	}
 	return $commandString;
 
 }

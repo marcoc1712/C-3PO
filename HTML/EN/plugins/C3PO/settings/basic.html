@@ -161,12 +161,85 @@
 	[% WRAPPER setting title="PLUGIN_C3PO_BANDWIDTH" desc="PLUGIN_C3PO_BANDWIDTH_DESC" %]
 		<input type="text" class="stdedit sliderInput_740_997" name="pref_bandwidth" id="bandwidth" value="[% prefs.bandwidth %]" size="5">
 	[% END %]
-	[% WRAPPER setting title="PLUGIN_C3PO_DITHER" desc="PLUGIN_C3PO_DITHER_DESC" %]
-		<input name="pref_dither" type="checkbox" [% IF prefs.dither %] checked [% END %]>
+	
+	[% IF 0 %]
+		[% WRAPPER setting title="PLUGIN_C3PO_DITHER" desc="PLUGIN_C3PO_DITHER_DESC" %]
+			<input name="pref_dither" type="checkbox" [% IF prefs.dither %] checked [% END %]>
+		[% END %]
+	[% END %]
+
+	[% WRAPPER setting title="PLUGIN_C3PO_DITHER_TYPE" desc="PLUGIN_C3PO_DITHER_TYPE_DESC" %]
+		<select class="stdedit" name="pref_ditherType" id="ditherType">
+			<option [% IF prefs.ditherType == "0" %]selected="selected" [% END %]value="0">
+				[% 'PLUGIN_C3PO_DITHER_TYPE_DISABLED' | string %]
+			</option>
+			<option [% IF prefs.ditherType == "1" %]selected="selected" [% END %]value="1">
+				[% 'PLUGIN_C3PO_DITHER_TYPE_AUTO' | string %]
+			</option>
+			<option [% IF prefs.ditherType == "2" %]selected="selected" [% END %]value="2">
+				[% 'PLUGIN_C3PO_DITHER_TYPE_DEFAULT' | string %]
+			</option>
+			<option [% IF prefs.ditherType == "3" %]selected="selected" [% END %]value="3">
+				[% 'PLUGIN_C3PO_DITHER_TYPE_SLOPED_TPDF' | string %]
+			</option>
+			<option [% IF prefs.ditherType == "4" %]selected="selected" [% END %]value="4">
+				[% 'PLUGIN_C3PO_DITHER_TYPE_SHAPE_NOISE' | string %]
+			</option>
+			<option [% IF prefs.ditherType == "5" %]selected="selected" [% END %]value="5">
+				[% 'PLUGIN_C3PO_DITHER_TYPE_F_LIPSHITZ' | string %]
+			</option>
+			<option [% IF prefs.ditherType == "6" %]selected="selected" [% END %]value="6">
+				[% 'PLUGIN_C3PO_DITHER_TYPE_F_F_WEIGHTED' | string %]
+			</option>
+			<option [% IF prefs.ditherType == "7" %]selected="selected" [% END %]value="7">
+				[% 'PLUGIN_C3PO_DITHER_TYPE_F_MODIFIED_E_WEIGHTED' | string %]
+			</option>
+			<option [% IF prefs.ditherType == "8" %]selected="selected" [% END %]value="8">
+				[% 'PLUGIN_C3PO_DITHER_TYPE_F_IMPROVED_E_WEIGHTED' | string %]
+			</option>
+			<option [% IF prefs.ditherType == "9" %]selected="selected" [% END %]value="9">
+				[% 'PLUGIN_C3PO_DITHER_TYPE_F_GESEMANN' | string %]
+			</option>
+			<option [% IF prefs.ditherType == "A" %]selected="selected" [% END %]value="A">
+				[% 'PLUGIN_C3PO_DITHER_TYPE_F_SHIBATA' | string %]
+			</option>
+			<option [% IF prefs.ditherType == "B" %]selected="selected" [% END %]value="B">
+				[% 'PLUGIN_C3PO_DITHER_TYPE_F_LOW_SHIBATA' | string %]
+			</option>
+			<option [% IF prefs.ditherType == "C" %]selected="selected" [% END %]value="C">
+				[% 'PLUGIN_C3PO_DITHER_TYPE_F_HIGH_SHIBATA' | string %]
+			</option>
+		</select>
+	[% END %]
+	[% IF soxVersion > 140400 %]
+		[% WRAPPER setting title="PLUGIN_C3PO_DITHER_PRECISION" desc="PLUGIN_C3PO_DITHER_PRECISION_DESC" %]
+			<select class="stdedit" name="pref_ditherPrecision" id="ditherPrecision">
+				<option [% IF prefs.ditherPrecision == 1 %]selected="selected" [% END %]value=0>
+					[% 'PLUGIN_C3PO_DITHER_PRECISION_IGNORE' | string %]
+				</option>
+
+				[% FOREACH depth IN [ 8..24 ] %] 	
+
+					<option [% IF prefs.ditherPrecision == depth %]selected="selected" [% END %]value= [% depth %]>
+						[% depth %] bit
+					</option>
+
+				[% END %]		
+			</select>
+
+		[% END %]
+	[% END %]
+	[% IF 0 %]
+		[% WRAPPER setting title="PLUGIN_C3PO_EXTRA" desc="PLUGIN_C3PO_EXTRA_DESC" %]
+			<input type="text" class="stdedit" name="pref_extra" id="extra" value="[% prefs.extra | html %]" size="50" maxlength="100">
+		[% END %]
+	[% END %]
+	[% WRAPPER setting title="PLUGIN_C3PO_EXTRA_BEFORE_RATE" desc="PLUGIN_C3PO_EXTRA_BEFORE_RATE_DESC" %]
+		<input type="text" class="stdedit" name="pref_extra_before_rate" id="extra_before_rate" value="[% prefs.extra_before_rate | html %]" size="50" maxlength="100">
 	[% END %]
 	
-	[% WRAPPER setting title="PLUGIN_C3PO_EXTRA" desc="PLUGIN_C3PO_EXTRA_DESC" %]
-		<input type="text" class="stdedit" name="pref_extra" id="extra" value="[% prefs.extra | html %]" size="50" maxlength="100">
+	[% WRAPPER setting title="PLUGIN_C3PO_EXTRA_AFTER_RATE" desc="PLUGIN_C3PO_EXTRA__AFTER_RATEDESC" %]
+		<input type="text" class="stdedit" name="pref_extra_after_rate" id="extra_after_rate" value="[% prefs.extra_after_rate | html %]" size="50" maxlength="100">
 	[% END %]
 	
 	[% WRAPPER setting title="PLUGIN_C3PO_LOG_C3PO" desc="" %]

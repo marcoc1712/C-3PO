@@ -65,7 +65,8 @@ sub handler {
 		$log->debug('Settings - handler');	
 	}
 	
-	$params->{'logFolder'} =$prefs->get('logFolder');;
+	$params->{'logFolder'} =$prefs->get('logFolder');
+	$params->{'soxVersion'} =$prefs->get('soxVersion');
 	
 	my $status= $plugin->getStatus();
 	

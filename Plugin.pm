@@ -177,6 +177,9 @@ my $pathToFlac;
 my $pathToSox;
 my $pathToFaad;
 my $pathToFFmpeg;
+
+my $soxVersion;
+
 #
 ###############################################
 ## required methods
@@ -200,7 +203,7 @@ sub initPlugin {
 	}
 	
 	# init preferences
-	$preferences->init({		
+	$preferences->init({
 		serverFolder				=> $serverFolder,
 		logFolder					=> $logFolder,
 		pathToPrefFile				=> $pathToPrefFile,
@@ -212,6 +215,7 @@ sub initPlugin {
 		pathToC3PO_exe				=> $pathToC3PO_exe,
 		C3POfolder					=> $C3POfolder,
 		pathToPerl					=> $pathToPerl,
+		soxVersion					=> $soxVersion,
 		C3POwillStart				=> $C3POwillStart,
 		pathToHeaderRestorer_pl		=>  $pathToHeaderRestorer_pl,
 		pathToHeaderRestorer_exe	=> $pathToHeaderRestorer_exe,
@@ -227,8 +231,29 @@ sub initPlugin {
 		aliasing					=> "on",
 		bandwidth					=> 907,
 		dither						=> "on",
+		ditherType					=> "X",
+		ditherPrecision				=> 25,
 		extra						=> "",
+		extra_before_rate			=> "",
+		extra_after_rate			=> "",
 	});
+	
+	# some adjustement from version 1.0 to 1.1
+	
+	if ($preferences->get('extra')){
+		$preferences->set('extra_after_rate', $preferences->get('extra'));
+		$preferences->remove( 'extra' );
+	}
+	if ($preferences->get('ditherType') eq "X" ){
+	
+		if (!$preferences->get('dither')){
+			$preferences->set('ditherType', 0);
+		} else {
+			$preferences->set('ditherType', 1);
+		}
+		$preferences->remove( 'dither' );
+	}	
+	
 	
 	#check codec list.
 	my $codecList=_initCodecs();
@@ -260,6 +285,8 @@ sub initPlugin {
 	$preferences->set('pathToFaad', $pathToFaad);
 	$preferences->set('pathToFFmpeg', $pathToFFmpeg);
 
+	$preferences->set('soxVersion', $soxVersion);
+	
 	_disableProfiles();
 
 	# Subscribe to new client events
@@ -329,6 +356,32 @@ sub refreshClientPreferences{
 				for my $item (Plugins::C3PO::Shared::getSharedPrefNameList()){
 					$preferences->client($client)->set($item, $preferences->get($item));
 				}
+				# some adjustement from version 1.0 to 1.1
+				$preferences->client($client)->remove( 'extra' );
+				$preferences->client($client)->remove( 'dither' );
+				
+		} else {
+		
+			# some adjustement from version 1.0 to 1.1
+	
+			if ($preferences->client($client)->get('extra')){
+				$preferences->client($client)->set('extra_after_rate', $preferences->client($client)->get('extra'));
+				$preferences->client($client)->remove( 'extra' );
+			}
+			
+			if (!($preferences->client($client)->get('ditherType')) || 
+			     $preferences->client($client)->get('ditherType') eq "X" ){
+
+				if (!$preferences->client($client)->get('dither')){
+					$preferences->client($client)->set('ditherType', 0);
+				} else {
+					$preferences->client($client)->set('ditherType', 1);
+				}
+				$preferences->client($client)->remove( 'dither' );
+			}
+			if (! $preferences->client($client)->get('ditherPrecision')){
+				$preferences->client($client)->get('ditherPrecision');
+			}
 		}
 	}
 	return $preferences;
@@ -571,7 +624,8 @@ sub _initFilesLocations {
 	$pathToSox      = Slim::Utils::Misc::findbin("sox");
 	$pathToFaad     = Slim::Utils::Misc::findbin("faad");
 	$pathToFFmpeg   = Slim::Utils::Misc::findbin("ffmpeg");
-
+	
+	$soxVersion		= _getSoxVersion();
 	$pathToHeaderRestorer_pl  = catdir($C3POfolder, 'HeaderRestorer.pl');
 	$pathToHeaderRestorer_exe = Slim::Utils::Misc::findbin("HeaderRestorer");	
 }
@@ -625,6 +679,54 @@ sub _testC3PO{
 	$log->warn('WARNING: C-3PO path: '.$pathToC3PO_exe);
 	
 	return 0;
+}
+sub _getSoxVersion{
+
+	if  (! $pathToSox || ! (-e $pathToSox)){
+		$log->warn('WARNING: wrong path to SOX  - '.$pathToSox);
+		return 0;
+	}
+	my $command= qq("$pathToSox" --version);
+	$command= Plugins::C3PO::Shared::finalizeCommand($command);
+	
+	my $ret= `$command`;
+	my $err=$?;
+	
+	if (!$err==0){
+		$log->warn('WARNING: '.$err.' '.$ret);
+		return undef;
+	}
+	
+	my $i = index($ret, "SoX v");
+	my $versionString= substr($ret,$i+5);
+	my @versionArray = split /[.]/, $versionString;
+	
+	if (!(scalar @versionArray) == 3) {
+		$log->warn('WARNING: invalid SOX version string: '.$versionString);
+		return undef;
+	}
+	
+	my $major=$versionArray[0];
+	my $minor=$versionArray[1];
+	my $patchlevel=$versionArray[2];
+	
+	if ($minor*1 > 99 || $patchlevel*1 > 99) {
+		$log->warn('WARNING: invalid SOX version string: '.$versionString);
+		return undef;
+	}
+	
+	my $version = $major*10000 + $minor *100 + $patchlevel;
+	
+	if ($version == 0) {
+		$log->warn('WARNING: invalid SOX version string: '.$versionString);
+		return undef;
+	}
+	
+	if (main::INFOLOG && $log->is_info) {
+		$log->info("Sox path  is: ".$pathToSox);
+		$log->info("Sox version is: ".$version);
+	}
+	return $version;
 }
 sub _testC3POEXE{
 
@@ -714,7 +816,7 @@ sub _clientCalback{
 	
 	$class->refreshClientPreferences($client);
 	my $prefs= getPreferences($client);
-
+	
 	my $id= $client->id();
 	my $macaddress= $client->macaddress();
 	my $modelName= $client->modelName();
@@ -1424,7 +1526,8 @@ sub _calcStatus{
 		$ref = _getStatusLine('012','all',$ref);
 
 	}
-	if ($prefs->get('extra') && !($prefs->get('extra') eq "") ){
+	if (($prefs->get('extra_before_rate') && !($prefs->get('extra_before_rate') eq "") ) ||
+		($prefs->get('extra_after_rate') && !($prefs->get('extra_after_rate') eq "") )) {
 		
 		$ref = _getStatusLine('905','all',$ref);
 

@@ -744,8 +744,9 @@ sub willResample{
 	#return 1;
 
 	#Always resample if any extra effects is requested.
-	if ($transcodeTable->{'extra'} && !($transcodeTable->{'extra'} eq "")) {return 1;}
-
+	if ($transcodeTable->{'extra_before_rate'} && !($transcodeTable->{'extra_before_rate'} eq "")) {return 1;}
+	if ($transcodeTable->{'extra_after_rate'} && !($transcodeTable->{'extra_after_rate'} eq "")) {return 1;}
+	
 	my $targetSamplerate=$transcodeTable->{'targetSamplerate'};
 	my $fileSamplerate = $transcodeTable->{'fileInfo'}->{info}->{samplerate};
 	

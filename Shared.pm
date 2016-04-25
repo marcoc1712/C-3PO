@@ -36,13 +36,13 @@ push @clientPrefNames, @clientPrefNamesHash;
 my @sharedPrefNames		  = qw(	resampleWhen resampleTo outCodec 
 								outBitDepth 
 								gain quality phase aliasing 
-								bandwidth dither extra);
+								bandwidth ditherType ditherPrecision extra_before_rate extra_after_rate); #extra dither
 				
 my @globalPrefNames		  = qw(	codecs
                                 serverFolder logFolder C3POfolder pathToPrefFile
 								pathToFlac pathToSox pathToFaad pathToFFmpeg
 								pathToC3PO_exe pathToC3PO_pl pathToPerl
-								C3POwillStart 
+								C3POwillStart soxVersion
 								pathToHeaderRestorer_pl pathToHeaderRestorer_exe);
 
 sub getTranscoderTableFromPreferences{

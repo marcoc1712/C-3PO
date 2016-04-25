@@ -260,13 +260,101 @@ PLUGIN_C3PO_DITHER_DESC
 	EN	Enable the automatic ditehering
 	IT	Abilita il dithering automatico
 
+PLUGIN_C3PO_DITHER_TYPE
+	EN	Dithering
+	IT	Dithering
+
+PLUGIN_C3PO_DITHER_TYPE_DESC
+	EN	Enable, Disable or select the type of dithering. Please note * options  are only for sample rates up to 48000Hz, ** are limited to 44100 Hz.
+	IT	Abilita, disabilita o seleziona il tipo di dithering. Le opzioni contrassegnate con * sono disponibili solo per sample rate fino a 48000 Hz. ** solo per 44100 Hz.
+	
+PLUGIN_C3PO_DITHER_TYPE_DISABLED
+	EN	Disabled (no dither)
+	IT	Disabilitato (nessun dither)
+	
+PLUGIN_C3PO_DITHER_TYPE_AUTO
+	EN	Automatic (Default)
+	IT	Automatico (impostazione standard)
+	
+PLUGIN_C3PO_DITHER_TYPE_DEFAULT
+	EN	triangular (TPDF) white noise.
+	IT	triangular (TPDF) white noise.
+	
+PLUGIN_C3PO_DITHER_TYPE_SLOPED_TPDF
+	EN	Sloped TPDF Dither
+	IT	Sloped TPDF Dither
+	
+PLUGIN_C3PO_DITHER_TYPE_SHAPE_NOISE
+	EN	* Standard noise shaping (using shibata filter) 
+	IT	* Noise Shaping standard (utilizza un filtro shibata)
+	
+PLUGIN_C3PO_DITHER_TYPE_F_LIPSHITZ
+	EN	** Noise shaping with Lipshitz filter
+	IT	** Noise shaping con filtro Lipshitz
+	
+PLUGIN_C3PO_DITHER_TYPE_F_F_WEIGHTED
+	EN	** Noise shaping with F-weigthed filter
+	IT	** Noise shaping con filtro F-weigthed
+	
+PLUGIN_C3PO_DITHER_TYPE_F_MODIFIED_E_WEIGHTED
+	EN	** Noise shaping with modified E-weigthed filter
+	IT	** Noise shaping con filtro E-weigthed modificato
+	
+PLUGIN_C3PO_DITHER_TYPE_F_IMPROVED_E_WEIGHTED
+	EN	** Noise shaping with improved E-weigthed filter
+	IT	** Noise shaping con filtro E-weigthed migliorato
+	
+PLUGIN_C3PO_DITHER_TYPE_F_GESEMANN
+	EN	** Noise shaping with Gesemann filter
+	IT	** Noise shaping con filtro Gesemann
+	
+PLUGIN_C3PO_DITHER_TYPE_F_SHIBATA
+	EN	** Noise shaping with Shibata filter
+	IT	** Noise shaping con filtro Shibata
+	
+PLUGIN_C3PO_DITHER_TYPE_F_LOW_SHIBATA
+	EN	** Noise shaping with Shibata Low filter
+	IT	** Noise shaping con filtro Shibata Low
+	
+PLUGIN_C3PO_DITHER_TYPE_F_HIGH_SHIBATA
+	EN	** Noise shaping with Shibata High filter
+	IT	** Noise shaping con filtro Shibata High
+	
+PLUGIN_C3PO_DITHER_PRECISION
+	EN	Target bit depth
+	IT	Profondità in bit di riferimento
+	
+PLUGIN_C3PO_DITHER_PRECISION_DESC
+	EN	Override the target precision. Please note that any value greater than 24 or the output bit deph means NO ovverride.
+	IT	Utilizza una profondità in bit (precisione) diversa da quella del formato di output. Valori superiori a 24 o alla profondità dello stream di output, vengono ignorati. 
+	
+PLUGIN_C3PO_DITHER_PRECISION_IGNORE
+	EN	Same as output.
+	IT	Stessa dell'output.
+	
 PLUGIN_C3PO_EXTRA
 	EN	Additional effects (experimental)
 	IT	Effetti aggiuntivi (sperimentale)
-
+	
 PLUGIN_C3PO_EXTRA_DESC
 	EN	Free text extension to the builded SOX command. WARNING: Could break C-3PO if the resulting command is invalid. Use with care and at your own risk.
 	IT	Estensione libera al comando di SOX costruito. ATTENZIONE può provocare malfunzionamenti, usare con cautela ed a proprio rischio.
+	
+PLUGIN_C3PO_EXTRA_BEFORE_RATE
+	EN	Additional effects BEFORE resampling
+	IT	Effetti aggiuntivi PRIMA del resampling
+
+PLUGIN_C3PO_EXTRA_BEFORE_RATE_DESC
+	EN	Free text extension to the builded SOX command inserted BEFORE the rate effect. WARNING: Could break C-3PO if the resulting command is invalid. Use with care and at your own risk.
+	IT	Estensione libera al comando di SOX costruito, inserita PRIMA dell'effetto RATE. ATTENZIONE può provocare malfunzionamenti, usare con cautela ed a proprio rischio.
+
+PLUGIN_C3PO_EXTRA_AFTER_RATE
+	EN	Additional effects AFTER resampling
+	IT	Effetti aggiuntivi DOPO il resampling
+
+PLUGIN_C3PO_EXTRA_AFTER_RATE_DESC
+	EN	Free text extension to the builded SOX command, inserted AFTER the rate effect but before Dithering. WARNING: Could break C-3PO if the resulting command is invalid. Use with care and at your own risk.
+	IT	Estensione libera al comando di SOX costruito, inserita DOPO l'effetto RATE ma prima del dithering. ATTENZIONE può provocare malfunzionamenti, usare con cautela ed a proprio rischio.
 
 PLUGIN_C3PO_PLAYER_TITLE
 	EN	PLAYER SETTINGS
