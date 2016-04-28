@@ -118,10 +118,34 @@
 		[% END %]
 	[% END %]
 	
+	[% WRAPPER setting title="PLUGIN_C3PO_HEADROOM" desc="PLUGIN_C3PO_HEADROOM_DESC" %]
+		<input name="pref_headroom" type="checkbox" [% IF prefs.headroom %] checked [% END %]>
+	[% END %]
+		
 	[% WRAPPER setting title="PLUGIN_C3PO_GAIN" desc="PLUGIN_C3PO_GAIN" %]
-		<input type="text" class="stdedit sliderInput_0_10" name="pref_gain" id="gain" value="[% prefs.gain %]" size="5">
+		<input type="text" class="stdedit sliderInput_0_16" name="pref_gain" id="gain" value="[% prefs.gain %]" size="5">
 	[% END %]
 	
+	[% WRAPPER setting title="PLUGIN_C3PO_LOUDNESS_GAIN" desc="PLUGIN_C3PO_LOUDNESS_GAIN_DESC" %]
+		<input type="text" class="stdedit sliderInput_-50_15" name="pref_loudnessGain" id="loudnessGain" value="[% prefs.loudnessGain %]" size="5">
+	[% END %]
+
+	[% WRAPPER setting title="PLUGIN_C3PO_LOUDNESS_REF" desc="PLUGIN_C3PO_LOUDNESS_REF_DESC" %]
+		<input type="text" class="stdedit sliderInput_50_75" name="pref_loudnessRef" id="loudnessRef" value="[% prefs.loudnessRef %]" size="5">
+	[% END %]
+
+	[% WRAPPER setting title="PLUGIN_C3PO_REMIX_LEFT" desc="PLUGIN_C3PO_REMIX_LEFT_DESC" %]
+		<input type="text" class="stdedit sliderInput_0_100" name="pref_remixLeft" id="remixLeft" value="[% prefs.remixLeft %]" size="5">
+	[% END %]
+
+	[% WRAPPER setting title="PLUGIN_C3PO_REMIX_RIGHT" desc="PLUGIN_C3PO_REMIX_RIGHT_DESC" %]
+		<input type="text" class="stdedit sliderInput_0_100" name="pref_remixRight" id="remixRight" value="[% prefs.remixRight %]" size="5">
+	[% END %]
+
+	[% WRAPPER setting title="PLUGIN_C3PO_FLIP_CHANNELS" desc="PLUGIN_C3PO_FLIP_CHANNELS_DESC" %]
+		<input name="pref_flipChannels" type="checkbox" [% IF prefs.flipChannels %] checked [% END %]>
+	[% END %]
+		
 	[% WRAPPER setting title="PLUGIN_C3PO_OUT_QUALITY" desc="PLUGIN_C3PO_OUT_QUALITY_DESC" %]
 		<select class="stdedit" name="pref_quality" id="quality">
 			<option [% IF prefs.quality == "q" %]selected="selected" [% END %]value="q">
@@ -170,7 +194,7 @@
 
 	[% WRAPPER setting title="PLUGIN_C3PO_DITHER_TYPE" desc="PLUGIN_C3PO_DITHER_TYPE_DESC" %]
 		<select class="stdedit" name="pref_ditherType" id="ditherType">
-			<option [% IF prefs.ditherType == "0" %]selected="selected" [% END %]value="0">
+			<option [% IF prefs.ditherType == "0" %]selected="selected" [% END %]value="-1">
 				[% 'PLUGIN_C3PO_DITHER_TYPE_DISABLED' | string %]
 			</option>
 			<option [% IF prefs.ditherType == "1" %]selected="selected" [% END %]value="1">
@@ -214,7 +238,7 @@
 	[% IF soxVersion > 140400 %]
 		[% WRAPPER setting title="PLUGIN_C3PO_DITHER_PRECISION" desc="PLUGIN_C3PO_DITHER_PRECISION_DESC" %]
 			<select class="stdedit" name="pref_ditherPrecision" id="ditherPrecision">
-				<option [% IF prefs.ditherPrecision == 1 %]selected="selected" [% END %]value=0>
+				<option [% IF prefs.ditherPrecision == 1 %]selected="selected" [% END %]value=-1>
 					[% 'PLUGIN_C3PO_DITHER_PRECISION_IGNORE' | string %]
 				</option>
 

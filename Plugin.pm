@@ -37,12 +37,29 @@ use Data::Dump qw(dump pp);
 use File::Spec::Functions qw(:ALL);
 use File::Basename;
 
-my $serverFolder	= $Bin;
-my $pluginPath		=__FILE__;
-my $C3POfolder		= File::Basename::dirname($pluginPath);
+my $serverFolder;
+my $pluginPath;
+my $C3POfolder;
 
-use lib rel2abs(catdir($C3POfolder, 'lib'));
-use lib rel2abs(catdir($C3POfolder,'CPAN'));
+#use lib rel2abs(catdir($C3POfolder, 'lib'));
+#use lib rel2abs(catdir($C3POfolder,'CPAN'));
+
+# sub and BEGIN block is needed to avoid PERL claims 
+# in Linux but not in windows.
+
+sub getLibDir {
+	my $lib = shift;
+	
+	$serverFolder	= $Bin;
+	$pluginPath		=__FILE__;
+	$C3POfolder		= File::Basename::dirname($pluginPath);
+	my $str= catdir($C3POfolder, $lib);
+	my $dir = rel2abs($str);
+	return $dir;
+
+}
+
+BEGIN{ use lib getLibDir('lib');}
 
 require File::HomeDir;
 
@@ -225,14 +242,20 @@ sub initPlugin {
 		outBitDepth					=> 3,
 		#outEncoding					=> undef,
 		#outChannels					=> 2,
+		headroom					=> "0",
 		gain						=> 3,
+		loudnessGain				=> 0,
+		loudnessRef					=> 65,
+		remixLeft					=> 100,
+		remixRight					=> 100,
+		flipChannels				=> "0",
 		quality						=> "v",
 		phase						=> "M",
-		aliasing					=> "on",
+		aliasing					=> "0",
 		bandwidth					=> 907,
 		dither						=> "on",
 		ditherType					=> "X",
-		ditherPrecision				=> 25,
+		ditherPrecision				=> 0,
 		extra						=> "",
 		extra_before_rate			=> "",
 		extra_after_rate			=> "",
@@ -247,7 +270,7 @@ sub initPlugin {
 	if ($preferences->get('ditherType') eq "X" ){
 	
 		if (!$preferences->get('dither')){
-			$preferences->set('ditherType', 0);
+			$preferences->set('ditherType', -1);
 		} else {
 			$preferences->set('ditherType', 1);
 		}
@@ -373,14 +396,23 @@ sub refreshClientPreferences{
 			     $preferences->client($client)->get('ditherType') eq "X" ){
 
 				if (!$preferences->client($client)->get('dither')){
-					$preferences->client($client)->set('ditherType', 0);
+					$preferences->client($client)->set('ditherType', -1);
 				} else {
 					$preferences->client($client)->set('ditherType', 1);
 				}
 				$preferences->client($client)->remove( 'dither' );
 			}
 			if (! $preferences->client($client)->get('ditherPrecision')){
-				$preferences->client($client)->get('ditherPrecision');
+				$preferences->client($client)->set('ditherPrecision', $preferences->get('ditherPrecision'));
+			}
+
+			if (! $preferences->client($client)->get('loudnessRef')){
+				$preferences->client($client)->set('headroom', $preferences->get('headroom'));
+				$preferences->client($client)->set('loudnessGain', $preferences->get('loudnessGain'));
+				$preferences->client($client)->set('loudnessRef', $preferences->get('loudnessRef'));
+				$preferences->client($client)->set('remixLeft', $preferences->get('remixLeft'));
+				$preferences->client($client)->set('remixRight', $preferences->get('remixRight'));
+				$preferences->client($client)->set('flipChannels', $preferences->get('flipChannels'));			
 			}
 		}
 	}

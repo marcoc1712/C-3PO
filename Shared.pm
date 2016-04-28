@@ -35,7 +35,12 @@ push @clientPrefNames, @clientPrefNamesHash;
 
 my @sharedPrefNames		  = qw(	resampleWhen resampleTo outCodec 
 								outBitDepth 
-								gain quality phase aliasing 
+								
+								headroom gain 
+								loudnessGain loudnessRef 
+								remixLeft remixRight flipChannels
+		
+								quality phase aliasing 
 								bandwidth ditherType ditherPrecision extra_before_rate extra_after_rate); #extra dither
 				
 my @globalPrefNames		  = qw(	codecs

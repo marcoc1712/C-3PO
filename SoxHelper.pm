@@ -50,7 +50,15 @@ sub resample{
 	my $phase			=$transcodeTable->{'phase'};
 	my $aliasing		=$transcodeTable->{'aliasing'};
 	my $bandwidth		=$transcodeTable->{'bandwidth'};
+	
+	my $headroom		=$transcodeTable->{'headroom'};
 	my $gain			=$transcodeTable->{'gain'};
+	my $loudnessGain	=$transcodeTable->{'loudnessGain'};
+	my $loudnessRef		=$transcodeTable->{'loudnessRef'};
+	my $remixLeft		=$transcodeTable->{'remixLeft'};
+	my $remixRight		=$transcodeTable->{'remixRight'};
+	my $flipChannels	=$transcodeTable->{'flipChannels'};
+
 	#my $dither			=$transcodeTable->{'dither'};
 	my $ditherType		=$transcodeTable->{'ditherType'};
 	my $ditherPrecision	=$transcodeTable->{'ditherPrecision'};
@@ -95,9 +103,46 @@ sub resample{
 	if ($outSamplerate){$rateString= $rateString.' '.$outSamplerate};
 	
 	my $effects="";
-
+	
+	if ($headroom){$effects= $effects.' gain -h'};
+	
 	if ($gain){$effects= $effects.' gain -'.$gain};
 	
+	if ($loudnessGain){$effects= $effects.' loudness '.$loudnessGain.' '.$loudnessRef};
+	
+	my $leftCh = 1;
+	my $rightCh = 2;
+	
+	if ($flipChannels){
+	
+		$leftCh = 2;
+		$rightCh = 1;
+	
+	}
+	
+	my $leftVol		= $remixLeft  < 100 ? $leftCh.'v'.$remixLeft/100 : "";
+	my $rightVol	= $remixRight < 100 ? $rightCh.'v'.$remixRight/100 : "";
+	
+	warn "left: ".$leftCh.' '.$leftVol.' right: '.$rightCh.' '.$rightVol."\n";
+
+	if (!($leftVol eq "") && !($rightVol eq "")){
+		
+		$effects= $effects.' remix -m '.$leftVol.' '.$rightVol;
+		
+	} elsif (!($leftVol eq "")){
+	
+		$effects= $effects.' remix -m '.$leftVol.' '.$rightCh;
+		
+	} elsif (!($rightVol eq "")){
+	
+		$effects= $effects.' remix -m '.$leftCh.' '.$rightVol;
+		
+	} elsif ($flipChannels){ #already flipped
+	
+		$effects= $effects.' remix -m '.$leftCh.' '.$rightCh;
+	}
+	#nothing to add if not flipped.
+
 	if ($extra_before_rate && !($extra_before_rate eq "")){
 	
 		$effects = $effects." ".$extra_before_rate;
@@ -112,7 +157,7 @@ sub resample{
 	
 	#if (!defined $dither){$effects= $effects.' -D'};
 
-	if (! $ditherType) {
+	if (! $ditherType || ($ditherType eq -1)) {
 		$effects= ' -D '.$effects; # as last of the options, before the first effect (gain))
 	} elsif ($ditherType eq 1 ){
 		# $effects = $effects 
@@ -140,8 +185,7 @@ sub resample{
 		$effects= $effects.' dither -f high-shibata';
 	}
 
-	if ($ditherType && $ditherPrecision && ($soxVersion > 140400)){
-	
+	if ($ditherType && $ditherPrecision && ($ditherPrecision > 0) && ($soxVersion > 140400)){
 		$effects= $effects.' -p '.$ditherPrecision;
 	}
 	

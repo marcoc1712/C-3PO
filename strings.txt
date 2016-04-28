@@ -91,11 +91,11 @@ PLUGIN_C3PO_OUT_CODEC_DESC
 	IT	Formato in uscita. I formati compressi riducono l'utilizzo di rete, al costo di un maggior carico di cpu.
 
 PLUGIN_C3PO_OUT_CODEC_WAV
-	EN	wav (uncommpressed pcm)
+	EN	wav (uncompressed pcm)
 	IT	wav (pcm non compresso)
 
 PLUGIN_C3PO_OUT_CODEC_AIFF
-	EN	aiff (uncommpressed pcm)
+	EN	aiff (uncompressed pcm)
 	IT	aiff (pcm non compresso)
 
 PLUGIN_C3PO_OUT_CODEC_FLAC_0
@@ -104,15 +104,15 @@ PLUGIN_C3PO_OUT_CODEC_FLAC_0
 	
 PLUGIN_C3PO_OUT_CODEC_FLAC_5
 	EN	Flac (medium compression)
-	IT	Flac (compresione media)
+	IT	Flac (compressione media)
 	
 PLUGIN_C3PO_OUT_CODEC_FLAC_8
 	EN	Flac (max compression)
-	IT	Flac (compresione massima)
+	IT	Flac (compressione massima)
 
 PLUGIN_C3PO_OUT_BITDEPTH
-	EN	bit-depth
-	IT	bit-depth
+	EN	Bit-depth
+	IT	Bit-depth
 	
 PLUGIN_C3PO_OUT_BITDEPTH_DESC
 	EN	output bit-depth
@@ -177,20 +177,68 @@ PLUGIN_C3PO_OUT_CHANNELS
 	IT	canali
 
 PLUGIN_C3PO_OUT_CHANNELS_DESC
-	EN	Numero di canali
+	EN	Number of channels
 	IT	Numero di canali
 
+PLUGIN_C3PO_HEADROOM
+	EN	Automatic headroom 
+	IT	Headroom automatico
+	
+PLUGIN_C3PO_HEADROOM_DESC
+	EN	Apply gain reduction in order to provide enough headroom for subsequent processing
+	IT	Applica una riduzione di guadagno sufficiente a prevenire il clipind degli eventuali effetti successivi
+
 PLUGIN_C3PO_GAIN
-	EN	Gain reduction (in dB)
-	IT	Riduzione guadagno (in dB)
+	EN	Manual gain reduction (in dB)
+	IT	Riduzione di guadagno manuale (in dB)
 	
 PLUGIN_C3PO_GAIN_DESC
 	EN	Gain reduction (in dB) to avoid clipping induced by transcoding or resampling. Some standards bodies recommend as much as 9dB headroom, but in most cases, 3dB is enough.
-	IT	Riduzione del volume (in dB) ad evitare distorsioni di clipping causate dal ricampionamento. Alcuni standard raccomandano 9 dB di headroom, ma i molti casi, 3 dB sono sufficienti.
+	IT	Riduzione del guadagno (in dB) ad evitare distorsioni di clipping causate dal ricampionamento. Alcuni standard raccomandano 9 dB di headroom, ma i molti casi, 3 dB sono sufficienti.
 
+PLUGIN_C3PO_REMIX_LEFT
+	EN	Left channel volume (%)
+	IT	Volume del canale sinistro (in %)
+	
+PLUGIN_C3PO_REMIX_LEFT_DESC
+	EN	Left channel volume (%)
+	IT	Volume del canale sinistro (in %)
+
+PLUGIN_C3PO_REMIX_RIGHT
+	EN	Right channel volume (%)
+	IT	Volume per il canale destro (in %)
+	
+PLUGIN_C3PO_REMIX_RIGHT_DESC
+	EN	Right channel volume (%)
+	IT	Volume per il canale destro (in %)
+
+PLUGIN_C3PO_FLIP_CHANNELS
+	EN	Flip channels
+	IT	Canali invertiti
+	
+PLUGIN_C3PO_FLIP_CHANNELS_DESC
+	EN	Flip channels
+	IT	Canali invertiti
+	
+PLUGIN_C3PO_LOUDNESS_GAIN
+	EN	LOUDNESS, gain (in dB) 
+	IT	LOUDNESS, guadagno (in dB) 
+	
+PLUGIN_C3PO_LOUDNESS_GAIN_DESC
+	EN	LOUDNESS, gain delta (in dB). Use 0 to avoid loudness, warning a positive value could clip.
+	IT	LOUDNESS, variazione del guadagno (in dB).0 esclude l'effetto, attenzione valori positivi possono causare clipping.
+
+PLUGIN_C3PO_LOUDNESS_REF
+	EN	LOUDNESS, reference (in dB)
+	IT	LOUDNESS, riferimento (in dB) 
+	
+PLUGIN_C3PO_LOUDNESS_REF_DESC
+	EN	LOUDNESS, reference pressure (start) in dB. The resulting corrections at each frequency point, is equal at delta between corresponding values in  equal-loudness curves  at start plus delta and start. See loudness at Wikipedia.
+	IT	LOUDNESS, pressione sonora di rierimento in dB. La correzione risutante, per ogni frequenza, è pari al delta dei corrispondenti valori delle isofoniche a start + delta e start. Vedi Wikipedia "loudness".
+	
 PLUGIN_C3PO_OUT_QUALITY
-	EN	quality
-	IT	qualità
+	EN	Quality
+	IT	Qualità
 	
 PLUGIN_C3PO_OUT_QUALITY_DESC
 	EN	Specify the resampling quality.  Higher quality uses more processing power on your server.
@@ -293,28 +341,28 @@ PLUGIN_C3PO_DITHER_TYPE_F_LIPSHITZ
 	IT	** Noise shaping con filtro Lipshitz
 	
 PLUGIN_C3PO_DITHER_TYPE_F_F_WEIGHTED
-	EN	** Noise shaping with F-weigthed filter
-	IT	** Noise shaping con filtro F-weigthed
+	EN	* Noise shaping with F-weigthed filter
+	IT	* Noise shaping con filtro F-weigthed
 	
 PLUGIN_C3PO_DITHER_TYPE_F_MODIFIED_E_WEIGHTED
-	EN	** Noise shaping with modified E-weigthed filter
-	IT	** Noise shaping con filtro E-weigthed modificato
+	EN	* Noise shaping with modified E-weigthed filter
+	IT	* Noise shaping con filtro E-weigthed modificato
 	
 PLUGIN_C3PO_DITHER_TYPE_F_IMPROVED_E_WEIGHTED
-	EN	** Noise shaping with improved E-weigthed filter
-	IT	** Noise shaping con filtro E-weigthed migliorato
+	EN	* Noise shaping with improved E-weigthed filter
+	IT	* Noise shaping con filtro E-weigthed migliorato
 	
 PLUGIN_C3PO_DITHER_TYPE_F_GESEMANN
-	EN	** Noise shaping with Gesemann filter
-	IT	** Noise shaping con filtro Gesemann
+	EN	* Noise shaping with Gesemann filter
+	IT	* Noise shaping con filtro Gesemann
 	
 PLUGIN_C3PO_DITHER_TYPE_F_SHIBATA
-	EN	** Noise shaping with Shibata filter
-	IT	** Noise shaping con filtro Shibata
+	EN	* Noise shaping with Shibata filter
+	IT	* Noise shaping con filtro Shibata
 	
 PLUGIN_C3PO_DITHER_TYPE_F_LOW_SHIBATA
-	EN	** Noise shaping with Shibata Low filter
-	IT	** Noise shaping con filtro Shibata Low
+	EN	* Noise shaping with Shibata Low filter
+	IT	* Noise shaping con filtro Shibata Low
 	
 PLUGIN_C3PO_DITHER_TYPE_F_HIGH_SHIBATA
 	EN	** Noise shaping with Shibata High filter
