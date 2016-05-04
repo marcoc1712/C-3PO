@@ -123,8 +123,6 @@ sub resample{
 	my $leftVol		= $remixLeft  < 100 ? $leftCh.'v'.$remixLeft/100 : "";
 	my $rightVol	= $remixRight < 100 ? $rightCh.'v'.$remixRight/100 : "";
 	
-	warn "left: ".$leftCh.' '.$leftVol.' right: '.$rightCh.' '.$rightVol."\n";
-
 	if (!($leftVol eq "") && !($rightVol eq "")){
 		
 		$effects= $effects.' remix -m '.$leftVol.' '.$rightVol;

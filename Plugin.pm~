@@ -37,29 +37,15 @@ use Data::Dump qw(dump pp);
 use File::Spec::Functions qw(:ALL);
 use File::Basename;
 
-my $serverFolder;
-my $pluginPath;
-my $C3POfolder;
+my $serverFolder	= $Bin;
+my $pluginPath		=__FILE__;
+my $C3POfolder		= File::Basename::dirname($pluginPath);
 
-#use lib rel2abs(catdir($C3POfolder, 'lib'));
+warn 'pluginPath: '.$pluginPath;
+warn 'C3POfolder: '.$C3POfolder;
+
+use lib rel2abs(catdir($C3POfolder, 'lib'));
 #use lib rel2abs(catdir($C3POfolder,'CPAN'));
-
-# sub and BEGIN block is needed to avoid PERL claims 
-# in Linux but not in windows.
-
-sub getLibDir {
-	my $lib = shift;
-	
-	$serverFolder	= $Bin;
-	$pluginPath		=__FILE__;
-	$C3POfolder		= File::Basename::dirname($pluginPath);
-	my $str= catdir($C3POfolder, $lib);
-	my $dir = rel2abs($str);
-	return $dir;
-
-}
-
-BEGIN{ use lib getLibDir('lib');}
 
 require File::HomeDir;
 
@@ -219,8 +205,59 @@ sub initPlugin {
 		Plugins::C3PO::PlayerSettings->new($class);
 	}
 	
-	_initPreferences();
-
+	# init preferences
+	$preferences->init({
+		serverFolder				=> $serverFolder,
+		logFolder					=> $logFolder,
+		pathToPrefFile				=> $pathToPrefFile,
+		pathToFlac					=> $pathToFlac,
+		pathToSox					=> $pathToSox,
+		pathToFaad					=> $pathToFaad,
+		pathToFFmpeg				=> $pathToFFmpeg,
+		pathToC3PO_pl				=> $pathToC3PO_pl,
+		pathToC3PO_exe				=> $pathToC3PO_exe,
+		C3POfolder					=> $C3POfolder,
+		pathToPerl					=> $pathToPerl,
+		soxVersion					=> $soxVersion,
+		C3POwillStart				=> $C3POwillStart,
+		pathToHeaderRestorer_pl		=>  $pathToHeaderRestorer_pl,
+		pathToHeaderRestorer_exe	=> $pathToHeaderRestorer_exe,
+		resampleWhen				=> "A",
+		resampleTo					=> "S",
+		outCodec					=> "wav",
+		outBitDepth					=> 3,
+		#outEncoding					=> undef,
+		#outChannels					=> 2,
+		gain						=> 3,
+		quality						=> "v",
+		phase						=> "M",
+		aliasing					=> "0",
+		bandwidth					=> 907,
+		dither						=> "on",
+		ditherType					=> "X",
+		ditherPrecision				=> 25,
+		extra						=> "",
+		extra_before_rate			=> "",
+		extra_after_rate			=> "",
+	});
+	
+	# some adjustement from version 1.0 to 1.1
+	
+	if ($preferences->get('extra')){
+		$preferences->set('extra_after_rate', $preferences->get('extra'));
+		$preferences->remove( 'extra' );
+	}
+	if ($preferences->get('ditherType') eq "X" ){
+	
+		if (!$preferences->get('dither')){
+			$preferences->set('ditherType', 0);
+		} else {
+			$preferences->set('ditherType', 1);
+		}
+		$preferences->remove( 'dither' );
+	}	
+	
+	
 	#check codec list.
 	my $codecList=_initCodecs();
 		
@@ -298,8 +335,6 @@ sub getSharedPrefNameList(){
 }
 
 sub getPreferences{
-	
-	$preferences = preferences('plugin.C3PO');
 	return $preferences;
 }
 
@@ -311,8 +346,47 @@ sub refreshClientPreferences{
 	my $class = shift;
 	my $client = shift;
 	
-	_initPreferences($client);
+	if ($client){
+		
+		#It's the first time client is connecting.
+		if (!defined($preferences->client($client)->get('resampleWhen'))){
+	
+			$preferences->client($client)->set('useGlogalSettings', 'on');
+		}
+	
+		if  ($preferences->client($client)->get('useGlogalSettings')){
 
+				for my $item (Plugins::C3PO::Shared::getSharedPrefNameList()){
+					$preferences->client($client)->set($item, $preferences->get($item));
+				}
+				# some adjustement from version 1.0 to 1.1
+				$preferences->client($client)->remove( 'extra' );
+				$preferences->client($client)->remove( 'dither' );
+				
+		} else {
+		
+			# some adjustement from version 1.0 to 1.1
+	
+			if ($preferences->client($client)->get('extra')){
+				$preferences->client($client)->set('extra_after_rate', $preferences->client($client)->get('extra'));
+				$preferences->client($client)->remove( 'extra' );
+			}
+			
+			if (!($preferences->client($client)->get('ditherType')) || 
+			     $preferences->client($client)->get('ditherType') eq "X" ){
+
+				if (!$preferences->client($client)->get('dither')){
+					$preferences->client($client)->set('ditherType', 0);
+				} else {
+					$preferences->client($client)->set('ditherType', 1);
+				}
+				$preferences->client($client)->remove( 'dither' );
+			}
+			if (! $preferences->client($client)->get('ditherPrecision')){
+				$preferences->client($client)->get('ditherPrecision');
+			}
+		}
+	}
 	return $preferences;
 }
 
@@ -399,7 +473,6 @@ sub settingsChanged{
 	my $class = shift;
 	my $unusedClient=shift;
 	# it takes so little rebuild profiles for any player...
-	
 	
 	my $prefs= getPreferences();
 	
@@ -539,262 +612,7 @@ sub setWinExecutablesStatus{
 ################################################################################
 ## Private 
 ##
-sub _initPreferences{
-	my $client	= shift;
-	
-	my $curentVersion	= _getCurrentVersion();
-	my $prefVersion;
-	
-	if ($client){
-	
-		$prefVersion = $preferences->client($client)->get('version');
-		
-	} else {
-	
-		$prefVersion = $preferences->get('version');
-	}
-	
-	if (!$prefVersion){$prefVersion = 0};
-	
-	if (main::INFOLOG && $log->is_info) {
-	
-		if ($client){
-			$log->info(" Prefs for client: ".$client." version: ".$prefVersion);
-		} else{
-			$log->info("Prefs version: ".$prefVersion);
-		}
-	}
-	if ($curentVersion > $prefVersion){
-		
-		_migratePrefs($curentVersion, $prefVersion, $client);
-		
-	} elsif ($prefVersion > $curentVersion){
-	
-		$log->warn("C-3PO version is: ".$curentVersion.", preference Version is: ".$prefVersion." Could not migrate back");
-	}
-	
-	if (! $client){
-	
-		_initServicePreferences();
-	
-	} elsif  ($preferences->client($client)->get('useGlogalSettings')){
 
-		for my $item (Plugins::C3PO::Shared::getSharedPrefNameList()){
-			$preferences->client($client)->set($item, $preferences->get($item));
-		}
-	}
-}
-
-sub _migratePrefs{
-	my $curentVersion	= shift;
-	my $prefVersion		= shift;
-	my $client			= shift;
-	
-	if (main::INFOLOG && $log->is_info) {
-	
-		if ($client){
-			$log->info("_migratePrefs for client: ".$client." from: ".$prefVersion." to: ".$curentVersion);
-		} else{
-			$log->info("_migratePrefs from: ".$prefVersion." to: ".$curentVersion);
-		}
-	}
-	
-	if ($prefVersion == 0 && !($preferences->get('outCodec'))){
-	
-		#C-3PO is running for the first time
-		_initDefaultPrefs($client);
-
-	} elsif ($prefVersion == 0){
-	
-		 #C-3PO was running prior v. 1.1.03
-		 
-		if ($client){
-		
-			if  (! $preferences->client($client)->get('useGlogalSettings')){
-
-				# some adjustement from version 1.0 to 1.1
-
-				if ($preferences->client($client)->get('extra')){
-					$preferences->client($client)->set('extra_after_rate', $preferences->client($client)->get('extra'));
-				}
-				
-				if (!($preferences->client($client)->get('ditherType')) || 
-					 $preferences->client($client)->get('ditherType') eq "X" ){
-
-					if (!$preferences->client($client)->get('dither')){
-						$preferences->client($client)->set('ditherType', -1);
-					} else {
-						$preferences->client($client)->set('ditherType', 1);
-					}
-					
-					$preferences->set('ditherPrecision', -1);
-				}
-				
-				# some adjustement for 1.1.2
-
-				if (! $preferences->client($client)->get('loudnessRef')){
-					$preferences->client($client)->set('headroom', $preferences->get('headroom'));
-					$preferences->client($client)->set('loudnessGain', $preferences->get('loudnessGain'));
-					$preferences->client($client)->set('loudnessRef', $preferences->get('loudnessRef'));
-					$preferences->client($client)->set('remixLeft', $preferences->get('remixLeft'));
-					$preferences->client($client)->set('remixRight', $preferences->get('remixRight'));
-					$preferences->client($client)->set('flipChannels', $preferences->get('flipChannels'));			
-				}
-			}
-			
-			$preferences->client($client)->remove( 'outEncoding' );
-			$preferences->client($client)->remove( 'outChannels' );
-			$preferences->client($client)->remove( 'extra' );
-			$preferences->client($client)->remove( 'dither' );
-
-		} else { #server
-		 
-			$preferences->init({				
-			   headroom					=> "1",
-			   gain						=> 0,
-			   loudnessGain				=> 0,
-			   loudnessRef					=> 65,
-			   remixLeft					=> 100,
-			   remixRight					=> 100,
-			   flipChannels				=> "0",
-			   extra_before_rate			=> "",
-			   extra_after_rate			=> "",
-		   });
-
-			# some adjustement from version 1.0 to 1.1
-
-		   if ($preferences->get('extra')){
-			   $preferences->set('extra_after_rate', $preferences->get('extra'));
-		   }
-		   if (! $preferences->get('ditherType')){
-		   
-			   if (!$preferences->get('dither')){
-				   $preferences->set('ditherType', -1);
-			   } else {
-				   $preferences->set('ditherType', 1);
-			   }
-			  $preferences->set('ditherPrecision', -1);
-		   }
-		   		   
-		   $preferences->remove( 'outEncoding' );
-		   $preferences->remove( 'outChannels' );
-		   $preferences->remove( 'extra' );
-		   $preferences->remove( 'dither' );
-
-	    } 
-		
-	} else { #here specifc advancements from versions greather than 1.1.02
-
-	}
-	
-	if ($client){
-	
-		$preferences->client($client)->set('version',$curentVersion);
-	
-	} else{
-	
-		$preferences->set('version',$curentVersion);
-	}
-	$preferences->writeAll();
-	$preferences->savenow();
-	
-	if ($client){
-	
-		$prefVersion = $preferences->client($client)->get('version');
-		
-	} else {
-	
-		$prefVersion = $preferences->get('version');
-	}
-	
-	if (main::INFOLOG && $log->is_info) {
-	
-		if ($client){
-			$log->info(" Prefs for client: ".$client." migrated to: ".$prefVersion);
-		} else{
-			$log->info("Prefs mugrated to: ".$prefVersion);
-		}
-	}
-}
-sub _initServicePreferences{
-
-	$preferences->init({
-		serverFolder				=> $serverFolder,
-		logFolder					=> $logFolder,
-		pathToPrefFile				=> $pathToPrefFile,
-		pathToFlac					=> $pathToFlac,
-		pathToSox					=> $pathToSox,
-		pathToFaad					=> $pathToFaad,
-		pathToFFmpeg				=> $pathToFFmpeg,
-		pathToC3PO_pl				=> $pathToC3PO_pl,
-		pathToC3PO_exe				=> $pathToC3PO_exe,
-		C3POfolder					=> $C3POfolder,
-		pathToPerl					=> $pathToPerl,
-		soxVersion					=> $soxVersion,
-		C3POwillStart				=> $C3POwillStart,
-		pathToHeaderRestorer_pl		=> $pathToHeaderRestorer_pl,
-		pathToHeaderRestorer_exe	=> $pathToHeaderRestorer_exe,
-	});
-}
-sub _initDefaultPrefs{
-	my $client			= shift;
-	
-	# sets default values for 'real' preferences.
-	
-	if ($client){
-	
-		$preferences->client($client)->set('useGlogalSettings', 'on');
-	
-	} else {
-	
-		$preferences->init({
-			resampleWhen				=> "A",
-			resampleTo					=> "S",
-			outCodec					=> "wav",
-			outBitDepth					=> 3,
-			#outEncoding				=> undef,
-			#outChannels				=> 2,
-			headroom					=> "1",
-			gain						=> 0,
-			loudnessGain				=> 0,
-			loudnessRef					=> 65,
-			remixLeft					=> 100,
-			remixRight					=> 100,
-			flipChannels				=> "0",
-			quality						=> "v",
-			phase						=> "I",
-			aliasing					=> "0",
-			bandwidth					=> 907,
-			#dither						=> "on",
-			ditherType					=> "1",
-			ditherPrecision				=> -1,
-			#extra						=> "",
-			extra_before_rate			=> "",
-			extra_after_rate			=> "",
-		});
-	}
-}
-
-sub _getCurrentVersion{
-	my $plugins = Slim::Utils::PluginManager->allPlugins;
-	
-	my $currentVersion;
-	
-	for my $plugin (keys %$plugins) {
-
-		if ($plugin eq 'C3PO'){
-			my $entry = $plugins->{$plugin};
-			$currentVersion = $entry->{'version'};
-			last;
-		}
-	}
-	my $version = _unstringVersion($currentVersion);
-	
-	if (main::INFOLOG && $log->is_info) {
-		$log->info("C-3PO version is: ".$version);
-	}
-	return $version;
-}
 sub _initFilesLocations {
 	my $class = shift;
 
@@ -884,23 +702,10 @@ sub _getSoxVersion{
 	
 	my $i = index($ret, "SoX v");
 	my $versionString= substr($ret,$i+5);
-	
-	my $version = _unstringVersion($versionString);
-	
-	if (main::INFOLOG && $log->is_info) {
-		$log->info("Sox path  is: ".$pathToSox);
-		$log->info("Sox version is: ".$version);
-	}
-	return $version;
-}
-
-sub _unstringVersion{
-	my $versionString = shift;
-	
 	my @versionArray = split /[.]/, $versionString;
 	
 	if (!(scalar @versionArray) == 3) {
-		$log->warn('WARNING: invalid version string: '.$versionString);
+		$log->warn('WARNING: invalid SOX version string: '.$versionString);
 		return undef;
 	}
 	
@@ -909,17 +714,21 @@ sub _unstringVersion{
 	my $patchlevel=$versionArray[2];
 	
 	if ($minor*1 > 99 || $patchlevel*1 > 99) {
-		$log->warn('WARNING: invalid version string: '.$versionString);
+		$log->warn('WARNING: invalid SOX version string: '.$versionString);
 		return undef;
 	}
 	
 	my $version = $major*10000 + $minor *100 + $patchlevel;
 	
 	if ($version == 0) {
-		$log->warn('WARNING: invalid version string: '.$versionString);
+		$log->warn('WARNING: invalid SOX version string: '.$versionString);
 		return undef;
 	}
 	
+	if (main::INFOLOG && $log->is_info) {
+		$log->info("Sox path  is: ".$pathToSox);
+		$log->info("Sox version is: ".$version);
+	}
 	return $version;
 }
 sub _testC3POEXE{
@@ -1608,7 +1417,6 @@ sub _enableProfile{
 	}
 	$serverPreferences->set('disabledformats', \@out);
 	$serverPreferences->writeAll();
-	$serverPreferences->savenow();
 }
 sub _disableProfile{
 	my $profile = shift;
@@ -1624,7 +1432,6 @@ sub _disableProfile{
 		push @disabled, $profile;
 		$serverPreferences->set('disabledformats', \@disabled);
 		$serverPreferences->writeAll();
-		$serverPreferences->savenow();
 	}
 }
 sub _setupTranscoder{

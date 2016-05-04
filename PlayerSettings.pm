@@ -153,7 +153,9 @@ sub handler {
 		$prefs->client($client)->set( 'sampleRates', 
 				$plugin->translateSampleRates($prefSampleRates));
 
-		$prefs->writeAll( );
+		$prefs->writeAll();
+		$prefs->savenow();
+		
 		$plugin->refreshClientPreferences($client);
 		$class->SUPER::handler( $client, $params );
 		$plugin->settingsChanged($client);

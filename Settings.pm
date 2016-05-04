@@ -85,7 +85,8 @@ sub handler {
 			$prefCodecs->{$codec} = $selected ? 'on' : undef;
 		}
 		$prefs->set('codecs', $prefCodecs);
-		$prefs->writeAll( );
+		$prefs->writeAll();
+		$prefs->savenow();
 		
 		$class->SUPER::handler( $client, $params );
 		$plugin->settingsChanged();

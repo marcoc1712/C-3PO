@@ -54,6 +54,8 @@ sub getTranscoderTableFromPreferences{
 	my $preferences= shift; #The Preferene instance here.
 	my $client=shift; #The Client instance here.
 	
+	$preferences->all();
+	
 	my $clientString= buildClientString($client->id());
 	my $prefs= prefsToHash($preferences,$client);
 	
