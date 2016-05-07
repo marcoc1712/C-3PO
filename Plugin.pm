@@ -400,7 +400,6 @@ sub settingsChanged{
 	my $unusedClient=shift;
 	# it takes so little rebuild profiles for any player...
 	
-	
 	my $prefs= getPreferences();
 	
 	if (main::DEBUGLOG && $log->is_debug) {	
@@ -429,8 +428,9 @@ sub settingsChanged{
 	my @clientList = Slim::Player::Client::clients();
 
 	for my $client (@clientList){
-	
+		
 		_playerSettingChanged($client);
+		
 	}
 	if (main::DEBUGLOG && $log->is_debug) {	
 			my $conv = Slim::Player::TranscodingHelper::Conversions();
@@ -559,7 +559,7 @@ sub _initPreferences{
 	if (main::INFOLOG && $log->is_info) {
 	
 		if ($client){
-			$log->info(" Prefs for client: ".$client." version: ".$prefVersion);
+			$log->info(" Prefs version: ".$prefVersion);
 		} else{
 			$log->info("Prefs version: ".$prefVersion);
 		}
@@ -1490,12 +1490,13 @@ sub _refreshClientCodecs{
 sub _playerSettingChanged{
 	my $client = shift;
 	
-	my $prefs= getPreferences($client);
+	#refresh preferences.
+	refreshClientPreferences($client);
 				
 	#refresh the codec list.
 	$class->initClientCodecs($client);
 
-	#refresh preferences.
+	#refresh transcoderTable.
 	_setupTranscoder($client);
 }
 sub _disableProfiles{

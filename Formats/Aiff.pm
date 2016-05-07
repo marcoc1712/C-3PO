@@ -61,7 +61,7 @@ sub splitBeforeResampling {
 		#Always encode to FLAC (0 compresion).
 		$commandString=$self->_splitUsingFlac($transcodeTable);
 	}
-	Plugins::C3PO::Logger::infoMessage('command: '.$commandString);
+	Plugins::C3PO::Logger::debugMessage('command: '.$commandString);
 	return $commandString;
 }
 sub decodeBeforeResampling{
@@ -78,7 +78,7 @@ sub splitAndEncode{
 	my $outCodec=$self->getOutputCodec($transcodeTable);
 	my $commandString="";
 	
-	Plugins::C3PO::Logger::infoMessage('splitAndEncode to $outCodec');
+	Plugins::C3PO::Logger::debugMessage('splitAndEncode to $outCodec');
 	
 	if ($self->compareCodecs($outCodec, 'flc')){
 		
@@ -95,7 +95,7 @@ sub splitAndEncode{
 		#a further step (normally using sox).)
 		$commandString=$self->_splitUsingFlac($transcodeTable);
 	}
-	Plugins::C3PO::Logger::infoMessage('command: '.$commandString);
+	Plugins::C3PO::Logger::debugMessage('command: '.$commandString);
 	return $commandString;
 
 }
@@ -132,7 +132,7 @@ sub transcodeToFlac{
 	if ($self->isLMSInfo()) {
 		$self->getLog()->info('command '.$transcodeTable->{'command'});
 	} else{
-		Plugins::C3PO::Logger::infoMessage('command '.$transcodeTable->{'command'});
+		Plugins::C3PO::Logger::debugMessage('command '.$transcodeTable->{'command'});
 	}
 	
 	my $commandstring=Plugins::C3PO::FlacHelper::encode($transcodeTable);

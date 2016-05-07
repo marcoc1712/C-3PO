@@ -185,7 +185,7 @@ sub transcode {
 	my $commandString="";
 	my $outCodec = $self->getOutputCodec($transcodeTable);
 	
-	Plugins::C3PO::Logger::infoMessage("transcode to $outCodec");
+	Plugins::C3PO::Logger::debugMessage("transcode to $outCodec");
 	
 	if ($self->compareCodecs($outCodec,'wav')){
 		

@@ -86,10 +86,11 @@ sub handler {
 		}
 		$prefs->set('codecs', $prefCodecs);
 		$prefs->writeAll();
-		$prefs->savenow();
 		
 		$class->SUPER::handler( $client, $params );
 		$plugin->settingsChanged();
+
+		$prefs->savenow();
 	}
 	$params->{'prefs'}->{'codecs'}=$prefCodecs; 
 	$params->{'disabledCodecs'}=getdisabledCodecs($prefCodecs);

@@ -220,9 +220,9 @@ sub main{
 		require Audio::Scan;
 
 	}
-	Plugins::C3PO::Logger::infoMessage('DEBUGLOG '.main::DEBUGLOG);
-	Plugins::C3PO::Logger::infoMessage('INFOLOG '.main::INFOLOG);
-	Plugins::C3PO::Logger::infoMessage('loglevel '.$logLevel);
+	Plugins::C3PO::Logger::debugMessage('DEBUGLOG '.main::DEBUGLOG);
+	Plugins::C3PO::Logger::debugMessage('INFOLOG '.main::INFOLOG);
+	Plugins::C3PO::Logger::debugMessage('loglevel '.$logLevel);
 	
 	Plugins::C3PO::Logger::debugMessage('BIN '.$Bin);
 	Plugins::C3PO::Logger::debugMessage('C-3PO '.$C3PODir);
@@ -297,12 +297,10 @@ sub main{
 		my $buffer;
 		
 		if ($infile){
-			
-			Plugins::C3PO::Logger::infoMessage('HeaderRestorer - header file :'.$infile);
+			Plugins::C3PO::Logger::infoMessage('Running as HeaderRestorer - header file :'.$infile);
 			
 		} else{
-		
-			Plugins::C3PO::Logger::infoMessage('Dummy Transcoder (no header file)');
+			Plugins::C3PO::Logger::infoMessage('Running as Dummy Transcoder (no header file)');
 		}
 		
 		if ($infile){
@@ -331,13 +329,13 @@ sub main{
 					"HeaderRestorer: Unable to remove $infile: $!");
 			}
 		}
-		Plugins::C3PO::Logger::infoMessage(
+		Plugins::C3PO::Logger::debugMessage(
 				"HeaderRestorer: start copy from STDIN");
 		while (
 			sysread (STDIN, $buffer, 65536)	# read in (up to) 64k chunks, write
 			and syswrite STDOUT, $buffer	# exit if read or write fails
 			) {
-				Plugins::C3PO::Logger::infoMessage(
+				Plugins::C3PO::Logger::debugMessage(
 				"HeaderRestorer: copied 64Kb chunk");
 		}
 		if ($!){		

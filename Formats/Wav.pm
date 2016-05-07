@@ -61,7 +61,7 @@ sub splitBeforeResampling {
 		#Always encode to FLAC (0 compresion).
 		$commandString=$self->_splitUsingFlac($transcodeTable);
 	}
-	Plugins::C3PO::Logger::infoMessage('command: '.$commandString);
+	Plugins::C3PO::Logger::debugMessage('command: '.$commandString);
 	return $commandString;
 }
 sub decodeBeforeResampling{
@@ -95,7 +95,7 @@ sub splitAndEncode{
 		#a further step (normally using sox).)
 		$commandString=$self->_splitUsingFlac($transcodeTable);
 	}
-	Plugins::C3PO::Logger::infoMessage('command: '.$commandString);
+	Plugins::C3PO::Logger::debugMessage('command: '.$commandString);
 	return $commandString;
 
 }
