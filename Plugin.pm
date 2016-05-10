@@ -559,7 +559,7 @@ sub _initPreferences{
 	if (main::INFOLOG && $log->is_info) {
 	
 		if ($client){
-			$log->info(" Prefs version: ".$prefVersion);
+			$log->info("Prefs version: ".$prefVersion);
 		} else{
 			$log->info("Prefs version: ".$prefVersion);
 		}
@@ -599,7 +599,8 @@ sub _migratePrefs{
 		}
 	}
 	
-	if ($prefVersion == 0 && !($preferences->get('outCodec'))){
+	if ((!$client && $prefVersion == 0 && !($preferences->get('outCodec'))) ||
+		($client && $prefVersion == 0 && !($preferences->client($client)->get('outCodec')))){
 	
 		#C-3PO is running for the first time
 		_initDefaultPrefs($client);
