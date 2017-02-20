@@ -137,7 +137,7 @@ sub testC3POEXE{
 	$command= Plugins::C3PO::Shared::finalizeCommand($command);
 	
 	
-	if (main::INFOLOG && $log->is_info) {
+	if (main::DEBUGLOG && $log->is_debug) {
 			 $log->info("command: ".$command);
 	}
 	

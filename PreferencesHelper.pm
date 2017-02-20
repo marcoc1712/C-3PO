@@ -86,7 +86,6 @@ sub _init{
 	if ($client){
 	
 		$prefVersion = $self->{preferences}->client($client)->get('version');
-		$log->info("client Prefs version: ".$prefVersion);
 		
 	} else {
 	
@@ -95,8 +94,8 @@ sub _init{
 	
 	if (!$prefVersion){$prefVersion = 0};
 	
-	if (main::INFOLOG && $log->is_info) {
-		$log->info("Prefs version: ".$prefVersion);
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug("Prefs version: ".$prefVersion);
 	}
 	
 	if ($curentVersion > $prefVersion){
@@ -437,9 +436,10 @@ sub _getCurrentVersion{
 	}
 	my $version = Plugins::C3PO::Shared::unstringVersion($currentVersion,$log);
 
-	if (main::INFOLOG && $log->is_info) {
-		$log->info("C-3PO version is: ".$version);
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug("C-3PO version is: ".$version);
 	}
+	
 	return $version;
 }
 1;

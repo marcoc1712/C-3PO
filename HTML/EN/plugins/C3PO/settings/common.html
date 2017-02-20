@@ -56,7 +56,7 @@
 [% END %]
 [% IF !isSoxDsdCapable %]
 	[% WRAPPER setting title="PLUGIN_C3PO_OUT_BITDEPTH" desc="PLUGIN_C3PO_OUT_BITDEPTH_DESC" %]
-		[% PROCESS 'plugins\C3PO\settings\bitDepth.html' %]
+		[% PROCESS 'plugins/C3PO/settings/bitDepth.html' %]
 	[% END %]
 [% END %]
 [% IF 0 %]
@@ -212,23 +212,23 @@
 	[% WRAPPER setting title="PLUGIN_C3PO_PCM_TITLE" %] [% END %]
 
 	[% WRAPPER setting title="PLUGIN_C3PO_OUT_BITDEPTH-" desc="PLUGIN_C3PO_OUT_BITDEPTH_DSD-" %]
-		[% PROCESS 'plugins\C3PO\settings\bitDepth.html' %]
+		[% PROCESS 'plugins/C3PO/settings/bitDepth.html' %]
 	[% END %]
 	[% WRAPPER setting title="PLUGIN_C3PO_DITHER_TYPE-" desc="PLUGIN_C3PO_DITHER_TYPE_DESC" %]
-		[% PROCESS 'plugins\C3PO\settings\ditherType.html' %]
+		[% PROCESS 'plugins/C3PO/settings/ditherType.html' %]
 	[% END %]
 	[% IF soxVersion > 140400 %]
 		[% WRAPPER setting title="PLUGIN_C3PO_DITHER_PRECISION-" desc="PLUGIN_C3PO_DITHER_PRECISION_DESC" %]
-			[% PROCESS 'plugins\C3PO\settings\ditherPrecision.html' %]
+			[% PROCESS 'plugins/C3PO/settings/ditherPrecision.html' %]
 		[% END %]
 	[% END %]
 [% ELSE %]
 	[% WRAPPER setting title="PLUGIN_C3PO_DITHER_TYPE" desc="PLUGIN_C3PO_DITHER_TYPE_DESC" %]
-		[% PROCESS 'plugins\C3PO\settings\ditherType.html' %]
+		[% PROCESS 'plugins/C3PO/settings/ditherType.html' %]
 	[% END %]
 	[% IF soxVersion > 140400 %]
 		[% WRAPPER setting title="PLUGIN_C3PO_DITHER_PRECISION" desc="PLUGIN_C3PO_DITHER_PRECISION_DESC" %]
-			[% PROCESS 'plugins\C3PO\settings\ditherPrecision.html' %]
+			[% PROCESS 'plugins/C3PO/settings/ditherPrecision.html' %]
 		[% END %]
 	[% END %]
 [% END %]
@@ -310,13 +310,15 @@
 				[% "PLUGIN_C3PO_DSD_IN_LOWPASS_ORDER_2" | string %]
 			</option>
 		</select>
-		<input name="pref_dsdLowpass1Active" type="checkbox" 
-			[% IF prefs.dsdLowpass1Active %] checked [% END %]
-			[% IF  (needsClient &&  prefs.useGlogalSettings) ||
-					(needsClient && !prefs.codecsCli.dsf && !prefs.codecsCli.dff) ||
-					(!needsClient && !prefs.codecs.dsf && ! prefs.codecs.dff)
-			%] disabled [% END %]
-		<label for="pref_dsdLowpass1Active" >[% "PLUGIN_C3PO_DSD_IN_LOWPASS_CB" | string %] &nbsp;&nbsp; </label>
+		[% IF 0 %]
+			<input name="pref_dsdLowpass1Active" type="checkbox" 
+				[% IF prefs.dsdLowpass1Active %] checked [% END %]
+				[% IF  (needsClient &&  prefs.useGlogalSettings) ||
+						(needsClient && !prefs.codecsCli.dsf && !prefs.codecsCli.dff) ||
+						(!needsClient && !prefs.codecs.dsf && ! prefs.codecs.dff)
+				%] disabled [% END %]
+			<label for="pref_dsdLowpass1Active" >[% "PLUGIN_C3PO_DSD_IN_LOWPASS_CB" | string %] &nbsp;&nbsp; </label>
+		[% END %]	
 	[% END %]
 	[% WRAPPER setting title="PLUGIN_C3PO_DSD_IN_LOWPASS_STEP_2" %]
 		<label for="pref_dsdLowpass2value" >[% "PLUGIN_C3PO_DSD_IN_LOWPASS_SLIDER" | string %] &nbsp;&nbsp; </label>

@@ -198,8 +198,16 @@ sub transcode {
 	} elsif ($self->compareCodecs($outCodec,'flc')){
 		
 		$commandString=$self->transcodeToFlac($transcodeTable);
-	}
-	else {
+		
+	}elsif ($self->compareCodecs($outCodec,'dsf')){
+		
+		$commandString=$self->transcodeToDsf($transcodeTable);
+	
+	}elsif ($self->compareCodecs($outCodec,'dff')){
+		
+		$commandString=$self->transcodeToDff($transcodeTable);
+	
+	}else {
 		Plugins::C3PO::Logger::errorMessage('invalid output codec: '.$outCodec);
 		die;
 	}
@@ -225,7 +233,7 @@ sub splitBeforeResampling {
 sub decodeBeforeResampling{
 	my $self = shift;
 	my $transcodeTable=shift;
-	Plugins::C3PO::Logger::errorMessage('$self: decode MUST be define for any and each format');
+	Plugins::C3PO::Logger::errorMessage('$self: decodeBeforeResampling MUST be define for any and each format');
 	die;
 }
 sub splitAndEncode {
@@ -336,6 +344,18 @@ sub transcodeToFlac{
 	my $self = shift;
 	my $transcodeTable=shift;
 	Plugins::C3PO::Logger::errorMessage('$self: transcodeToFlac MUST be define for any and each format');
+	die;
+}
+sub transcodeToDsf{
+	my $self = shift;
+	my $transcodeTable=shift;
+	Plugins::C3PO::Logger::errorMessage('$self: transcodeToDsf MUST be define for any and each format');
+	die;
+}
+sub transcodeToDff{
+	my $self = shift;
+	my $transcodeTable=shift;
+	Plugins::C3PO::Logger::errorMessage('$self: transcodeToDff MUST be define for any and each format');
 	die;
 }
 

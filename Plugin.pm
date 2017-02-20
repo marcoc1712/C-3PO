@@ -139,7 +139,7 @@ sub initPlugin {
 		$log->info('initPlugin');
 	}
 	
-	$EnvironmentHelper = Plugins::C3PO::EnvironmentHelper->new(\%logger, $C3POfolder, $serverFolder);
+	$EnvironmentHelper = Plugins::C3PO::EnvironmentHelper->new(\%logger, $C3POfolder, $serverFolder);	
 	my $preferences = $class->getPreferences();
 
 	$preferences->set('serverFolder', $EnvironmentHelper->serverFolder());

@@ -56,13 +56,13 @@ sub initTranscoder{
 		}
 		$transcodeTable->{'inCodec'}=$codec;
 
-		if (ceckC3PO($transcodeTable)){
+		if (_ceckC3PO($transcodeTable)){
 			
 			if (isLMSDebug()) {
 				$log->debug("Use C3PO for $codec");
 			}
 
-			$cmd=useC3PO($transcodeTable);
+			$cmd=_useC3PO($transcodeTable);
 			#Data::Dump::dump ($cmd);
 
 		} else {
@@ -71,7 +71,7 @@ sub initTranscoder{
 				$log->debug("Use Server for $codec");
 			}
 			
-			$cmd=useServer($transcodeTable);
+			$cmd=_useServer($transcodeTable);
 			#Data::Dump::dump ($cmd);
 		}
 		
@@ -87,8 +87,10 @@ sub initTranscoder{
 	}
 	return $commandTable;
 }
-
-sub ceckC3PO{
+################################################################################
+# Private
+#
+sub _ceckC3PO{
 	my $transcodeTable= shift;
 	my $willStart=$transcodeTable->{'C3POwillStart'};
 	my $codec = $transcodeTable->{'inCodec'};
@@ -107,25 +109,25 @@ sub ceckC3PO{
 	
 	
 	if (isLMSDebug()) {
-		$log->debug('is Native :'.isNative($transcodeTable));
-		$log->debug('isResamplingRequested :'.isResamplingRequested($transcodeTable));
+		$log->debug('is Native :'._isNative($transcodeTable));
+		$log->debug('isResamplingRequested :'._isResamplingRequested($transcodeTable));
 		$log->debug('resampling to :'.$transcodeTable->{'resampleTo'});
 	} else{
-		Plugins::C3PO::Logger::debugMessage('is Native :'.isNative($transcodeTable));
-		Plugins::C3PO::Logger::debugMessage('isResamplingRequested :'.isResamplingRequested($transcodeTable));
+		Plugins::C3PO::Logger::debugMessage('is Native :'._isNative($transcodeTable));
+		Plugins::C3PO::Logger::debugMessage('isResamplingRequested :'._isResamplingRequested($transcodeTable));
 		Plugins::C3PO::Logger::debugMessage('resampling to :'.$transcodeTable->{'resampleTo'});
 	}
 	
 	# there is nothing to do, native.
-	if (isNative($transcodeTable)) {return 0;}
-	if (! isResamplingRequested($transcodeTable)){return 0;}
+	if (_isNative($transcodeTable)) {return 0;}
+	if (! _isResamplingRequested($transcodeTable)){return 0;}
 	if ($transcodeTable->{'resampleTo'} eq 'X') {return 0;}
 	
 	# SCOMMENTARE QUANTO SEGUE PER POTERLO UTILIZZARE IN WINDOWS!!!!
 	
 	# In windows STDIN does not works inside C3PO, so it's disabled.
 	if (main::ISWINDOWS &&
-	    enableStdin($transcodeTable) &&
+	    _isStdInEnabled($transcodeTable) &&
 	   (($transcodeTable->{'resampleWhen'} eq 'E') || 
 	     ($transcodeTable->{'resampleTo'} eq 'S'))){
     		 
@@ -134,11 +136,11 @@ sub ceckC3PO{
 	return 1;
 
 }
-sub buildProfile{
+sub _buildProfile{
 	my $transcodeTable = shift;
 	
 	if (isLMSDebug()) {
-		$log->debug('Start buildProfile');
+		$log->debug('Start _buildProfile');
 	}
 		
 	my $macaddress= $transcodeTable->{'macaddress'};
@@ -161,11 +163,11 @@ sub buildProfile{
 	return $inCodec.'-'.$outCodec.'-*-'.$macaddress;
 }
 
-sub useC3PO{
+sub _useC3PO{
 	my $transcodeTable= shift;
 
 	if (isLMSDebug()) {
-		$log->debug('Start useC3PO');
+		$log->debug('Start _useC3PO');
 	}
 
 	my $result={};
@@ -179,7 +181,7 @@ sub useC3PO{
 	my $serverFolder = $transcodeTable->{'serverFolder'};
 	
 	
-	$result->{'profile'} =  buildProfile($transcodeTable);
+	$result->{'profile'} =  _buildProfile($transcodeTable);
 	
 	my $command="";
 	
@@ -224,9 +226,9 @@ sub useC3PO{
 	#Enable stdIn pipes (Quboz) but disable seek (cue sheets)
 	# In windows I does not works insiede C3PO, so it's disabled.)
 	
-	if(enableStdin($transcodeTable) && !main::ISWINDOWS){
+	if(_isStdInEnabled($transcodeTable) && !main::ISWINDOWS){
 
-	#if(enableStdin($transcodeTable)){
+	#if(_isStdInEnabled($transcodeTable)){
 	
 		#Disabling "I" and enabling "T" and "U"  LMS will use R capabilities and 
 		# pass the Qobuz link to C3PO, but it does not works, needs the quboz plugin pipe 
@@ -236,7 +238,7 @@ sub useC3PO{
 		#$capabilities->{T}='START=-s %s';
 		#$capabilities->{U}='END=-w %w';
 		
-	} elsif (enableSeek($transcodeTable))  {
+	} elsif (_isSeekEnabled($transcodeTable))  {
 
 		$capabilities->{T}='START=-s %s';
 		$capabilities->{U}='END=-w %w';
@@ -246,18 +248,18 @@ sub useC3PO{
 	
 	return $result;
 }
-sub useServer {
+sub _useServer {
 	my $transcodeTable= shift;
 
 	if (isLMSDebug()) {
-		$log->debug('Start useServer');
+		$log->debug('Start _useServer');
 	}
 	
 	my $result={};
 
-	$result->{'profile'} =  buildProfile($transcodeTable);
+	$result->{'profile'} =  _buildProfile($transcodeTable);
 
-	if (isNative($transcodeTable)) {
+	if (_isNative($transcodeTable)) {
 	
 		$transcodeTable->{'capabilities'}={
 				I => 'noArgs',
@@ -284,9 +286,9 @@ sub useServer {
 			D => 'RESAMPLE=-r %d' };
 
 		my $inCodec=$transcodeTable->{'inCodec'};
-		my $format= getFormat($inCodec);
+		my $format= _getFormat($inCodec);
 
-		if(enableStdin($transcodeTable)){
+		if(_isStdInEnabled($transcodeTable)){
 
 			# cue files will always play from the beginning of first track.
 			$capabilities->{I}= 'noArgs';
@@ -295,17 +297,17 @@ sub useServer {
 			#$capabilities->{T}='START=--skip=%t';
 			#$capabilities->{U}='END=--until=%v';
 
-		}elsif (enableSeek($transcodeTable) && $format->useFFMpegToSplit($transcodeTable)){
+		}elsif (_isSeekEnabled($transcodeTable) && $format->useFFMpegToSplit($transcodeTable)){
 
 			$capabilities->{T}='START=-ss %s';
 			$capabilities->{U}='END=-t %w';
 
-		} elsif (enableSeek($transcodeTable) && $format->useFAADToSplit($transcodeTable)){
+		} elsif (_isSeekEnabled($transcodeTable) && $format->useFAADToSplit($transcodeTable)){
 
 			$capabilities->{T}='START=-j %s';
 			$capabilities->{U}='END=-e %u';
 
-		} elsif (enableSeek($transcodeTable)){ #use flac
+		} elsif (_isSeekEnabled($transcodeTable)){ #use flac
 
 			$capabilities->{T}='START=--skip=%t';
 			$capabilities->{U}='END=--until=%v';
@@ -321,18 +323,18 @@ sub useServer {
 	
 	return $result;
 }
-sub isNative{
+sub _isNative{
 
 	my $transcodeTable =shift;
 	my $inCodec = $transcodeTable->{'inCodec'};
 	
 	if (! $transcodeTable->{'enableConvert'}->{$inCodec} &&
-		! isResamplingRequested($transcodeTable)) {return 1;}
+		! _isResamplingRequested($transcodeTable)) {return 1;}
 		
 	return 0;
 }
 ################################################################
-# C-3PO entry point.
+# C-3PO executable entry point.
 ################################################################
 
 sub buildCommand {
@@ -347,11 +349,11 @@ sub buildCommand {
 		Plugins::C3PO::Logger::debugMessage('Start buildCommand');
 	}
 	
-	$transcodeTable=normalizeCodecs($transcodeTable);
+	$transcodeTable=_normalizeCodecs($transcodeTable);
 	
-	if (isResamplingRequested($transcodeTable)) {
+	if (_isResamplingRequested($transcodeTable)) {
 	
-		$transcodeTable= checkResample($transcodeTable);
+		$transcodeTable= _checkResample($transcodeTable);
 	}
 	
 	#save incodec.
@@ -361,29 +363,29 @@ sub buildCommand {
 		$log->debug('inCodec: '.$transcodeTable->{'inCodec'});
 		$log->debug('transitCodec: '.$transcodeTable->{'transitCodec'});
 		$log->debug('outCodec: '.$transcodeTable->{'outCodec'});
-		$log->debug('Is resampling requested? '.isResamplingRequested($transcodeTable));
-		$log->debug('willResample ? '.willResample($transcodeTable));
-		$log->debug('Is splitting requested? '.isSplittingRequested($transcodeTable));
+		$log->debug('Is resampling requested? '._isResamplingRequested($transcodeTable));
+		$log->debug('willResample ? '._willResample($transcodeTable));
+		$log->debug('Is splitting requested? '._isSplittingRequested($transcodeTable));
 	} else{
 		Plugins::C3PO::Logger::debugMessage('inCodec: '.$transcodeTable->{'inCodec'});
 		Plugins::C3PO::Logger::debugMessage('transitCodec: '.$transcodeTable->{'transitCodec'});
 		Plugins::C3PO::Logger::debugMessage('outCodec: '.$transcodeTable->{'outCodec'});
-		Plugins::C3PO::Logger::debugMessage('Is resampling requested? '.isResamplingRequested($transcodeTable));
-		Plugins::C3PO::Logger::debugMessage('willResample ? '.willResample($transcodeTable));
-		Plugins::C3PO::Logger::debugMessage('Is splitting requested? '.isSplittingRequested($transcodeTable));
+		Plugins::C3PO::Logger::debugMessage('Is resampling requested? '._isResamplingRequested($transcodeTable));
+		Plugins::C3PO::Logger::debugMessage('willResample ? '._willResample($transcodeTable));
+		Plugins::C3PO::Logger::debugMessage('Is splitting requested? '._isSplittingRequested($transcodeTable));
 	}
 
-	if (willResample($transcodeTable)){
+	if (_willResample($transcodeTable)){
 	
-		$transcodeTable=splitResampleAndTranscode($transcodeTable);
+		$transcodeTable=_splitResampleAndTranscode($transcodeTable);
 	
-	} elsif (isSplittingRequested($transcodeTable)){
+	} elsif (_isSplittingRequested($transcodeTable)){
 		
-		$transcodeTable=splitAndTranscode($transcodeTable);
+		$transcodeTable=_splitAndTranscode($transcodeTable);
 
 	} else {
 		
-		$transcodeTable=transcodeOnly($transcodeTable);
+		$transcodeTable=_transcodeOnly($transcodeTable);
 		$transcodeTable->{'command'}=$transcodeTable->{transcode};
 	
 	}
@@ -400,7 +402,7 @@ sub buildCommand {
 		if (isRuntime($transcodeTable)){
 
 			# Using native to just pass IN to OUT via a dummy transcoder.
-			$transcodeTable = native($transcodeTable);
+			$transcodeTable = _native($transcodeTable);
 
 		} else {
 			
@@ -411,9 +413,9 @@ sub buildCommand {
 	$command = $transcodeTable->{'command'}||"";
 	Plugins::C3PO::Logger::debugMessage('Safe command    : '.$command);
 	
-	if (needRestoreHeader($transcodeTable)){
+	if (_needRestoreHeader($transcodeTable)){
 	
-		$transcodeTable = restoreHeader($transcodeTable);
+		$transcodeTable = _restoreHeader($transcodeTable);
 	}
 	$command = $transcodeTable->{'command'}||"";
 	Plugins::C3PO::Logger::debugMessage('Final command    : '.$command);
@@ -424,7 +426,7 @@ sub buildCommand {
 # C-3PO sub cases
 ###############################################################################
 
-sub splitResampleAndTranscode{
+sub _splitResampleAndTranscode{
 	my $transcodeTable = shift;
 	
 	if (isLMSDebug()) {
@@ -433,7 +435,7 @@ sub splitResampleAndTranscode{
 		Plugins::C3PO::Logger::debugMessage('Start splitTranscodeAndResample');
 	}
 	my $inCodec=$transcodeTable->{'inCodec'};
-	my $format= getFormat($inCodec);
+	my $format= _getFormat($inCodec);
 	
 	my $sox=$format->useSoxToTranscodeWhenResampling($transcodeTable);
 	
@@ -445,7 +447,7 @@ sub splitResampleAndTranscode{
 	
 	my $commandString;
 	
-	if (isSplittingRequested($transcodeTable)){
+	if (_isSplittingRequested($transcodeTable)){
 		
 		if (isLMSDebug()) {
 			$log->debug('isSplittingRequested : 1')
@@ -456,7 +458,7 @@ sub splitResampleAndTranscode{
 		#no compression applied, we need to resample firts.
 		$commandString=$format->splitBeforeResampling($transcodeTable);
 			
-	} elsif (isAStdInPipe($transcodeTable)){
+	} elsif (_isAStdInPipe($transcodeTable)){
 		
 		if (isLMSDebug()) {
 			$log->debug('isAStdInPipe : 1')
@@ -511,19 +513,19 @@ sub splitResampleAndTranscode{
 	$transcodeTable->{'command'}=$commandString;
 	return $transcodeTable;
 }
-sub splitAndTranscode{
+sub _splitAndTranscode{
 	my $transcodeTable = shift;
 	
 	if (isLMSInfo()) {
-		$log->info('Start splitAndTranscode')
+		$log->info('Start _splitAndTranscode')
 	} else{
-		Plugins::C3PO::Logger::debugMessage('Start splitAndTranscode');
+		Plugins::C3PO::Logger::debugMessage('Start _splitAndTranscode');
 	}
 
 	my $inCodec=$transcodeTable->{'inCodec'};
 	$transcodeTable->{'transitCodec'}=$inCodec;
 	
-	my $format= getFormat($inCodec);
+	my $format= _getFormat($inCodec);
 	
 	my $commandString="";
 	$transcodeTable->{'command'}=$commandString;
@@ -531,7 +533,7 @@ sub splitAndTranscode{
 	# SOx is not going to be called fo resampling, so we need to perform all
 	# the transcoding in the split fase or immediatly after.
 	
-	if (isSplittingRequested($transcodeTable)){
+	if (_isSplittingRequested($transcodeTable)){
 		
 		#Split and encode to final codec when possible,
 		$commandString=$format->splitAndEncode($transcodeTable);	
@@ -547,7 +549,7 @@ sub splitAndTranscode{
 	if (isTranscodingRequired($transcodeTable)) {
 	
 		my $codec=$transcodeTable->{'transitCodec'};
-		$format= getFormat($codec);
+		$format= _getFormat($codec);
 		my $transcodeString = $format->transcode($transcodeTable);
 		
 		if (! ($transcodeString eq "")){
@@ -558,7 +560,7 @@ sub splitAndTranscode{
 	
 	return $transcodeTable;
 }
-sub transcodeOnly{
+sub _transcodeOnly{
 	my $transcodeTable = shift;
 	
 	if (isLMSInfo()) {
@@ -569,7 +571,7 @@ sub transcodeOnly{
 
 	my $inCodec=$transcodeTable->{'inCodec'};
 	
-	my $format= getFormat($inCodec);
+	my $format= _getFormat($inCodec);
 	my $commandstring="";
 	
 	if (isTranscodingRequired($transcodeTable)){
@@ -579,13 +581,13 @@ sub transcodeOnly{
 	$transcodeTable->{transcode}=$commandstring; 
 	return $transcodeTable;
 }
-sub native{
+sub _native{
 	my $transcodeTable = shift;
 	
 	if (isLMSInfo()) {
-		$log->info('Start native')
+		$log->info('Start _native')
 	} else{
-		Plugins::C3PO::Logger::debugMessage('Start native');
+		Plugins::C3PO::Logger::debugMessage('Start _native');
 	}
 	
 	# maybe transcoding and/or resampling was requested but is not needed
@@ -594,9 +596,10 @@ sub native{
 	
 	my $inCodec=$transcodeTable->{'transitCodec'};
 	
-	my $format= getFormat($inCodec);
+	my $format= _getFormat($inCodec);
 	my $commandstring="";
 	
+	#delegate to real formats.
 	if (isTranscodingRequired($transcodeTable)){
 		$commandstring= $format->native($transcodeTable);
 	}
@@ -609,7 +612,7 @@ sub native{
 # Repair some LMS misuse
 ###############################################################################
 
-sub normalizeCodecs{
+sub _normalizeCodecs{
 	my $transcodeTable =shift;
 
 	my $inCodec= $transcodeTable->{'inCodec'};
@@ -646,13 +649,13 @@ sub compareCodecs{
 # Codec independent - Helper routines.
 ################################################################################
 
-sub checkResample{
+sub _checkResample{
 	my $transcodeTable = shift;
 	
-	Plugins::C3PO::Logger::debugMessage('Start checkResample');
+	Plugins::C3PO::Logger::debugMessage('Start _checkResample');
 	
 	my $samplerates=$transcodeTable->{'sampleRates'};
-	my $maxsamplerate = getMaxSamplerate($samplerates,$transcodeTable->{'maxSupportedSamplerate'});
+	my $maxsamplerate = _getMaxSamplerate($samplerates,$transcodeTable->{'maxSupportedSamplerate'});
 	my $forcedSamplerate= $transcodeTable->{'options'}->{'forcedSamplerate'};
 	my $resampleWhen= $transcodeTable->{'resampleWhen'};
 	my $resampleTo= $transcodeTable->{'resampleTo'};
@@ -668,9 +671,9 @@ sub checkResample{
 	if (isRuntime($transcodeTable) && defined $willStart && $willStart){
 	
 		my $testfile=$file;
-		if (isAStdInPipe($transcodeTable)){
+		if (_isAStdInPipe($transcodeTable)){
 			
-			$testfile= getTestFile($transcodeTable);
+			$testfile= _getTestFile($transcodeTable);
 			Plugins::C3PO::Logger::debugMessage('testfile: '.$testfile);
 			$transcodeTable->{'testfile'}=$testfile;
 		}
@@ -686,12 +689,12 @@ sub checkResample{
 			
 		if ($fileSamplerate){
 			
-			$isSupported= isSamplerateSupported(
+			$isSupported= _isSamplerateSupported(
 									$fileSamplerate,
 			   						$samplerates);
 			
 			$maxSyncrounusSamplerate=
-				getMaxSyncrounusSampleRate($fileSamplerate,
+				_getMaxSyncrounusSampleRate($fileSamplerate,
 										   $samplerates);
 										   
 			Plugins::C3PO::Logger::debugMessage('samplerate is '.($isSupported ? '' : 'not ').'supported');
@@ -737,11 +740,11 @@ sub checkResample{
 	return $transcodeTable;
 	
 }
-sub willResample{
+sub _willResample{
 	my $transcodeTable=shift;
 	
-	if (!isResamplingRequested($transcodeTable)) {return 0;}
-	#be sure to call checkResample before.
+	if (!_isResamplingRequested($transcodeTable)) {return 0;}
+	#be sure to call _checkResample before.
 	
 	# Keep it short and always resample if asked for.
 	#return 1;
@@ -781,7 +784,7 @@ sub willResample{
 	
 	return 0;
 }
-sub getMaxSamplerate{
+sub _getMaxSamplerate{
 	my $samplerates= shift;
 	my $playerMax = shift;
 
@@ -799,7 +802,7 @@ sub getMaxSamplerate{
 	#Data::Dump::dump ($max);
 	return (($max>0) ? $max : $playerMax);
 }
-sub getTestFile{
+sub _getTestFile{
 	my $transcodeTable =shift;
 	
 	my $fileName = "header.".$transcodeTable->{'inCodec'};
@@ -807,12 +810,12 @@ sub getTestFile{
 		
 	Plugins::C3PO::Logger::debugMessage('out file : '.$outfile);
 	
-	saveHeaderFile(\*STDIN, $outfile);
+	_saveHeaderFile(\*STDIN, $outfile);
 	
 	Plugins::C3PO::Logger::debugMessage('returning : '.$outfile);
 	return $outfile;
 }
-sub isSamplerateSupported{
+sub _isSamplerateSupported{
 	my $fileSamplerate = shift;
 	my $samplerates = shift;
 	
@@ -828,7 +831,7 @@ sub isSamplerateSupported{
 	
 	return 0;
 }
-sub getMaxSyncrounusSampleRate{
+sub _getMaxSyncrounusSampleRate{
 	my $fileSamplerate=shift;
 	my $samplerates=shift;
 	
@@ -882,7 +885,7 @@ sub getMaxSyncrounusSampleRate{
 	#Data::Dump::dump($max);
 	return ($max > 0 ? $max : undef);
 }
-sub saveHeaderFile{
+sub _saveHeaderFile{
 	my $fh = shift;
 	my $testHeaderFile = shift;
 	
@@ -906,7 +909,7 @@ sub saveHeaderFile{
 	return 1
 }
 
-sub restoreHeader{
+sub _restoreHeader{
 	my $transcodeTable = shift;
 	
 	my $willStart				 = $transcodeTable->{'C3POwillStart'};
@@ -957,28 +960,28 @@ sub restoreHeader{
 
 	return $transcodeTable;
 }
-sub enableStdin{
-
+sub _isStdInEnabled{
 	my $transcodeTable =shift;
+	
 	my $inCodec= $transcodeTable->{'inCodec'};
 	
 	my $enable = $transcodeTable->{'enableStdin'}->{$inCodec} ? 1 : 0;
-	Plugins::C3PO::Logger::debugMessage("codec: $inCodec - enableStdin: $enable");
+	Plugins::C3PO::Logger::debugMessage("codec: $inCodec - isStdInEnabled: $enable");
 	
 	return $enable;
 }
-sub enableSeek{
-
+sub _isSeekEnabled{
 	my $transcodeTable =shift;
+	
 	my $inCodec= $transcodeTable->{'inCodec'};
 	
 	my $enable = $transcodeTable->{'enableSeek'}->{$inCodec} ? 1 : 0;
-	Plugins::C3PO::Logger::debugMessage("codec: $inCodec - enableSeek: $enable");
+	Plugins::C3PO::Logger::debugMessage("codec: $inCodec - _isSeekEnabled: $enable");
 	
 	return $enable;
 }
 
-sub needRestoreHeader{
+sub _needRestoreHeader{
 	my $transcodeTable =shift;
 	
 	my $testFile=$transcodeTable->{'testfile'};
@@ -991,11 +994,13 @@ sub needRestoreHeader{
 # TO BE MOVED in a NEW transcoder class.
 #####################################################################
 
+# should be _isLMSDebug
 sub isLMSDebug{
 	
 	if ($logger && $logger->{DEBUGLOG} && $log && $log->is_debug) {return 1}
 	return 0;
 }
+# should be _isLMSInfo
 sub isLMSInfo{
 
 	if (isLMSDebug()) {return 1;}
@@ -1008,7 +1013,7 @@ sub isRuntime{
 	return (defined $transcodeTable->{'options'}->{clientId} ? 1 : 0)
 }
 
-sub isSplittingRequested{
+sub _isSplittingRequested{
 	my $transcodeTable =shift;
 	my $inCodec= $transcodeTable->{'inCodec'};
 
@@ -1023,7 +1028,7 @@ sub isSplittingRequested{
 	
 	return 0;
 }
-sub isAStdInPipe {
+sub _isAStdInPipe {
 	my $transcodeTable =shift;
 	my $inCodec= $transcodeTable->{'inCodec'};
 	
@@ -1041,7 +1046,7 @@ sub isAStdInPipe {
 	return 0;
 }
 
-sub isResamplingRequested{
+sub _isResamplingRequested{
 	my $transcodeTable =shift;
 	
 	my $inCodec= $transcodeTable->{'inCodec'};
@@ -1118,14 +1123,14 @@ sub useSoxToEncodeWhenResampling {
 
 	my $inCodec=$transcodeTable->{'transitCodec'};
 	
-	my $format= getFormat($inCodec);
+	my $format= _getFormat($inCodec);
 	return $format->useSoxToEncodeWhenResampling($transcodeTable);
 }
 ###############################################################################
 # Get procedure details depending on the input format.
 ###############################################################################
 	
-sub getFormat{
+sub _getFormat{
 	my $inCodec = shift;
 	
 	my $format;
