@@ -1,0 +1,23 @@
+<select class="stdedit" name="pref_outBitDepth" id="outBitDepth"
+	[% IF needsClient &&  prefs.useGlogalSettings %] disabled [% END %] >
+	<option [% IF prefs.outBitDepth == 1 %]selected="selected" [% END %]value=1>
+		[% 'PLUGIN_C3PO_OUT_BITDEPTH_1' | string %]
+	</option>
+	<option [% IF prefs.outBitDepth == 2 %]selected="selected" [% END %]value=2>
+		[% 'PLUGIN_C3PO_OUT_BITDEPTH_2' | string %]
+	</option>
+	<option [% IF prefs.outBitDepth == 3 %]selected="selected" [% END %]value=3>
+		[% 'PLUGIN_C3PO_OUT_BITDEPTH_3' | string %]
+	</option>
+	<option [% IF prefs.outBitDepth == 4 %]selected="selected" [% END %]value=4>
+		[% 'PLUGIN_C3PO_OUT_BITDEPTH_4' | string %]
+	</option>
+	<option [% IF prefs.outBitDepth == 8 %]selected="selected" [% END %]value=8>
+		[% 'PLUGIN_C3PO_OUT_BITDEPTH_8' | string %]
+	</option>
+	[% IF 0 && isSoxDsdCapable && (!needsClient || prefs.useGlogalSettings || prefs.codecsCli.dsf || prefs.codecsCli.dff) %]
+		<option [% IF prefs.outBitDepth == 0 %]selected="selected" [% END %]value=0>
+			[% 'PLUGIN_C3PO_OUT_BITSTREAM' | string %]
+		</option>
+	[% END %]
+</select>

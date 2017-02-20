@@ -1,18 +1,54 @@
+PLUGIN_C3PO_ADVANCED_OPTIONS
+	EN	ADVANCED OPTIONS
+	IT	OPZIONI AVANZATE
+	
+PLUGIN_C3PO_ADVANCED_OPTIONS_DESC
+	EN	Use with caution at your own risk.
+	IT	Usare con cautela ed a prorpio rischio.
+
+PLUGIN_C3PO_UNLIMITED_DSD_RATES
+	EN	Unlimited dsd resolutions
+	IT	Risoluzione DSD illimitata
+
+PLUGIN_C3PO_UNLIMITED_DSD_RATES_DESC
+	EN	Allow dsd resolutions to be greater than "Max sample rate"/88200. CAUTION: could produce noise dangerous for you and your speakers
+	IT	Non limitare la risoluzione DSD in uscita al "Massimo sample rate supportato"/88200. ATTENZIONE può generare rumore dannoso per te e per i diffusori.
+
 PLUGIN_C3PO_TITLE
 	EN	GENERAL SETTINGS
 	IT	IMPOSTAZIONI GENERALI
 
+PLUGIN_C3PO_TITLE_DESC
+	EN	General Settings (default values). See also per player settings.
+	IT	Impostazioni generali (valori standard). Verificare le impostazioni per singolo lettore.
+
+PLUGIN_C3PO_ENABLE_TITLE
+	EN	Default Enable C-3PO for new players
+	IT	Abilita C-3PO per i player aggiunti. 
+	
+PLUGIN_C3PO_ENABLE_DESC
+	EN	Enable C-3PO. Default choice for new player.
+	IT	Abilita C-3PO, default per i nuovi players. 
+
+PLUGIN_C3PO_PLAYER_ENABLE_TITLE
+	EN	Enable C-3PO for this player.
+	IT	Abilita C-3PO per questo player. 
+	
+PLUGIN_C3PO_PLAYER_ENABLE_DESC
+	EN	Enable C-3PO for this player.
+	IT	Abilita C-3PO per questo player. 
+	
 PLUGIN_C3PO_CODEC_SELECTION_TITLE
-	EN	Supported formats.
-	IT	Formati supportati.
+	EN	Supported input formats.
+	IT	Formati supportati in ingresso.
 	
 PLUGIN_C3PO_CODEC_SELECTION_DESC
-	EN	List of formats (aka codecs) supported. If some options appear disabled means that C-3PO does not support those formats. In particular, 'dsf' and 'dff' are handled similarly by the plugin DSDPlay, while generally 'lossy' formats are not supported. PCM is WAV
-	IT	Elenco dei formati (o codec) supportati. Se alcune opzioni appaiono disabilitate significa che C-3PO non supporta quei formati. In particolare, 'dsf' e 'dff' vengono gestiti in modo analogo mediante il plugin DSDPlay, mentre in generale non sono gestiti i formati 'lossy'. PCM è WAV.
+	EN	List of input formats (aka codecs).  'Lossy' formats are not supported. PCM is WAV
+	IT	Elenco dei formati (o codec) supportati in ingresso. I formati 'lossy' non sono gestiti. PCM è WAV.
 
 PLUGIN_C3PO_CODEC_SELECTION_PLAYER_DESC
-	EN	List of formats (aka codecs) supported. General setting, see Advanced settings.
-	IT	Elenco dei formati (o codec) supportati. Impostazione generale, vedi impostazioni avanzate.
+	EN	List of input formats (aka codecs) supported by the Player. Greyed formats could - and should - be handled outside C-3PO.
+	IT	Elenco dei formati (o codec) supportati in ingresso. I formati disbilitati, possono essere gestiti al di fuori di C-3PO.
 
 PLUGIN_C3PO_ENABLE_SEEK_TITLE
 	EN	Enable seek (cue sheet)
@@ -23,12 +59,8 @@ PLUGIN_C3PO_USECUESHEETS
 	IT	Abilita l'uso dei cue sheets
 
 PLUGIN_C3PO_USECUESHEETS_DESC
-	EN	Enable .cue sheets (disable if you need Qubuz or other StdIn)
+	EN	Enable .cue sheets (uncheck if you need Qubuz or other StdIn services)
 	IT	Abilita l'uso di cue sheets (Incompatibile con Qubuz ed altri servizi)
-
-PLUGIN_C3PO_TITLE_DESC
-	EN	General Settings. See also per player settings.
-	IT	Impostazioni generali. Verificare anche le impostazioni per singolo lettore.
 
 PLUGIN_C3PO_TITLE_GOTO_PLAYERS
 	EN	Players
@@ -99,25 +131,41 @@ PLUGIN_C3PO_OUT_CODEC_AIFF
 	IT	aiff (pcm non compresso)
 
 PLUGIN_C3PO_OUT_CODEC_FLAC_0
-	EN	Flac (not compressed)
-	IT	Flac (non compresso)
+	EN	flac (not compressed)
+	IT	flac (non compresso)
 	
 PLUGIN_C3PO_OUT_CODEC_FLAC_5
-	EN	Flac (medium compression)
-	IT	Flac (compressione media)
+	EN	flac (medium compression)
+	IT	flac (compressione media)
 	
 PLUGIN_C3PO_OUT_CODEC_FLAC_8
-	EN	Flac (max compression)
-	IT	Flac (compressione massima)
+	EN	flac (max compression)
+	IT	flac (compressione massima)
+
+PLUGIN_C3PO_OUT_CODEC_DSF
+	EN	dsf (dsd stream file)
+	IT	dsf (dsd stream file)
+	
+PLUGIN_C3PO_OUT_CODEC_DFF
+	EN	dff (dsd Interchange File Format)
+	IT	dff (dsd Interchange File Format)
+	
+PLUGIN_C3PO_OUT_BITDEPTH-
+	EN	- Output Bit-depth
+	IT	- Bit-depth in uscita
+	
+PLUGIN_C3PO_OUT_BITDEPTH_DESC-
+	EN	output bit-depth (PCM only, DSD is always bit stream)
+	IT	bit-depth dello stream in uscita (solo PCM. DSD è sempre e solo bitstram)
 
 PLUGIN_C3PO_OUT_BITDEPTH
-	EN	Bit-depth
-	IT	Bit-depth
+	EN	Output Bit-depth
+	IT	Bit-depth in uscita
 	
 PLUGIN_C3PO_OUT_BITDEPTH_DESC
 	EN	output bit-depth
 	IT	bit-depth dello stream in uscita
-	
+
 PLUGIN_C3PO_OUT_BITDEPTH_1
 	EN	1 Byte, 8 bit
 	IT	1 Byte, 8 bit
@@ -221,20 +269,20 @@ PLUGIN_C3PO_FLIP_CHANNELS_DESC
 	IT	Canali invertiti
 	
 PLUGIN_C3PO_LOUDNESS_GAIN
-	EN	LOUDNESS, gain (in dB) 
-	IT	LOUDNESS, guadagno (in dB) 
+	EN	Loudness: gain (in dB) 
+	IT	Loudness: guadagno (in dB) 
 	
 PLUGIN_C3PO_LOUDNESS_GAIN_DESC
-	EN	LOUDNESS, gain delta (in dB). Use 0 to avoid loudness, warning a positive value could clip.
-	IT	LOUDNESS, variazione del guadagno (in dB).0 esclude l'effetto, attenzione valori positivi possono causare clipping.
+	EN	Loudness: gain delta (in dB). Use 0 to avoid loudness, warning a positive value could clip.
+	IT	Loudness: variazione del guadagno (in dB).0 esclude l'effetto, attenzione valori positivi possono causare clipping.
 
 PLUGIN_C3PO_LOUDNESS_REF
-	EN	LOUDNESS, reference (in dB)
-	IT	LOUDNESS, riferimento (in dB) 
+	EN	Loudness: reference (in dB)
+	IT	Loudness: riferimento (in dB) 
 	
 PLUGIN_C3PO_LOUDNESS_REF_DESC
-	EN	LOUDNESS, reference pressure (start) in dB. The resulting corrections at each frequency point, is equal at delta between corresponding values in  equal-loudness curves  at start plus delta and start. See loudness at Wikipedia.
-	IT	LOUDNESS, pressione sonora di rierimento in dB. La correzione risutante, per ogni frequenza, è pari al delta dei corrispondenti valori delle isofoniche a start + delta e start. Vedi Wikipedia "loudness".
+	EN	Loudness: reference pressure (start) in dB. The resulting corrections at each frequency point, is equal at delta between corresponding values in  equal-loudness curves  at start plus delta and start. See loudness at Wikipedia.
+	IT	Loudness: pressione sonora di rierimento in dB. La correzione risutante, per ogni frequenza, è pari al delta dei corrispondenti valori delle isofoniche a start + delta e start. Vedi Wikipedia "loudness".
 	
 PLUGIN_C3PO_OUT_QUALITY
 	EN	Quality
@@ -285,12 +333,36 @@ PLUGIN_C3PO_OUT_PHASE_L
 	IT	Lineare
 	
 PLUGIN_C3PO_ALIASING
-	EN	Aliasing
-	IT	Aliasing
+	EN	Aliasing above the pass-band
+	IT	Aliasing oltre il limite di banda
 	
 PLUGIN_C3PO_ALIASING_DESC
 	EN	Allow aliasing/imaging above the pass-band.
 	IT	Ammette aliasing a frequenze superiori del limite di banda
+	
+PLUGIN_C3PO_SMALLROLLOFF
+	EN	Allow small roloff
+	IT	Ammette piccola attenuazione
+	
+PLUGIN_C3PO_SMALLROLLOFF_DESC
+	EN	Allow small roloff (0.01 dB) at passband
+	IT	Ammette piccola attenuazione (0.01 dB) alla banda passante
+	
+PLUGIN_C3PO_NOIOPT
+	EN	No small integer optimisations
+	IT	Non ottimizza 'Small Integers'
+	
+PLUGIN_C3PO_NOIOPT_DESC
+	EN	NO small integer optimisations
+	IT	Non ottimizza 'Small Integers'
+
+PLUGIN_C3PO_HI_PRECISION_CLOCK
+	EN	Use hi precision clock
+	IT	Usa orologio di precisione
+	
+PLUGIN_C3PO_HI_PRECISION_CLOCK_DESC
+	EN	Increase irrational ratio accuracy
+	IT	Aumenta l'accuratezza nel rapporto tra numeri irrazionali
 
 PLUGIN_C3PO_BANDWIDTH
 	EN	Minimal band-width
@@ -299,10 +371,42 @@ PLUGIN_C3PO_BANDWIDTH
 PLUGIN_C3PO_BANDWIDTH_DESC
 	EN	Allows the band-width to be set to any value in the range 740?997, note that band-width values greater than 990 are not recommended for normal use.
 	IT	Valore in millesimi della banda passante, da un minimo di 740 ad un massimo di 997. Da notare che valori superiori al 990 sono sconsiglai per l'uso normale.
+
+PLUGIN_C3PO_EXTRA
+	EN	Additional effects (experimental)
+	IT	Effetti aggiuntivi (sperimentale)
+	
+PLUGIN_C3PO_EXTRA_DESC
+	EN	Free text extension to the builded SOX command. WARNING: Could break C-3PO if the resulting command is invalid. Use with care and at your own risk.
+	IT	Estensione libera al comando di SOX costruito. ATTENZIONE può provocare malfunzionamenti, usare con cautela ed a proprio rischio.
+	
+PLUGIN_C3PO_EXTRA_BEFORE_RATE
+	EN	Additional effects BEFORE resampling
+	IT	Effetti aggiuntivi PRIMA del resampling
+
+PLUGIN_C3PO_EXTRA_BEFORE_RATE_DESC
+	EN	Free text extension to the builded SOX command inserted BEFORE the rate effect. WARNING: Could break C-3PO if the resulting command is invalid. Use with care and at your own risk.
+	IT	Estensione libera al comando di SOX costruito, inserita PRIMA dell'effetto RATE. ATTENZIONE può provocare malfunzionamenti, usare con cautela ed a proprio rischio.
+
+PLUGIN_C3PO_EXTRA_AFTER_RATE
+	EN	Additional effects AFTER resampling
+	IT	Effetti aggiuntivi DOPO il resampling
+
+PLUGIN_C3PO_EXTRA_AFTER_RATE_DESC
+	EN	Free text extension to the builded SOX command, inserted AFTER the rate effect but before Dithering. WARNING: Could break C-3PO if the resulting command is invalid. Use with care and at your own risk.
+	IT	Estensione libera al comando di SOX costruito, inserita DOPO l'effetto RATE ma prima del dithering. ATTENZIONE può provocare malfunzionamenti, usare con cautela ed a proprio rischio.
+
+PLUGIN_C3PO_PCM_TITLE
+	EN	PCM out
+	IT	PCM out
+
+PLUGIN_C3PO_PCM_TITLE_DESC
+	EN	PCM output only settings.
+	IT	Impostazioni valide solo per uscita in PCM 
 	
 PLUGIN_C3PO_DITHER
-	EN	Dithering
-	IT	Dithering
+	EN	- Dithering
+	IT	- Dithering
 	
 PLUGIN_C3PO_DITHER_DESC
 	EN	Enable the automatic ditehering
@@ -311,7 +415,11 @@ PLUGIN_C3PO_DITHER_DESC
 PLUGIN_C3PO_DITHER_TYPE
 	EN	Dithering
 	IT	Dithering
-
+	
+PLUGIN_C3PO_DITHER_TYPE-
+	EN	- Dithering
+	IT	- Dithering
+	
 PLUGIN_C3PO_DITHER_TYPE_DESC
 	EN	Enable, Disable or select the type of dithering. Please note * options  are only for sample rates up to 48000Hz, ** are limited to 44100 Hz.
 	IT	Abilita, disabilita o seleziona il tipo di dithering. Le opzioni contrassegnate con * sono disponibili solo per sample rate fino a 48000 Hz. ** solo per 44100 Hz.
@@ -369,8 +477,12 @@ PLUGIN_C3PO_DITHER_TYPE_F_HIGH_SHIBATA
 	IT	** Noise shaping con filtro Shibata High
 	
 PLUGIN_C3PO_DITHER_PRECISION
-	EN	Target bit depth
-	IT	Profondità in bit di riferimento
+	EN	Dithering target bit depth
+	IT	Profondità in bit del Dithering
+
+PLUGIN_C3PO_DITHER_PRECISION-
+	EN	- Dithering target bit depth
+	IT	- Profondità in bit alla quale è applicato il dithering
 	
 PLUGIN_C3PO_DITHER_PRECISION_DESC
 	EN	Override the target precision. Please note that any value greater than 24 or the output bit deph means NO ovverride.
@@ -379,31 +491,115 @@ PLUGIN_C3PO_DITHER_PRECISION_DESC
 PLUGIN_C3PO_DITHER_PRECISION_IGNORE
 	EN	Same as output.
 	IT	Stessa dell'output.
+
+PLUGIN_C3PO_DSD_TITLE
+	EN	DSD out
+	IT	DSD out
+
+PLUGIN_C3PO_DSD_TITLE_DESC
+	EN	DSD output only settings.
+	IT	Impostazioni valide solo per uscita in DSD 
+
+PLUGIN_C3PO_SDM_FILTER_TYPE
+	EN	- sdm filter
+	IT	- filtro sdm
+
+PLUGIN_C3PO_SDM_FILTER_TYPE_DESC
+	EN	select the filter to apply in the sigma delta modulator effect
+	IT	seleziona il filto da applicare durante la fase di odulazione sigma- delta.
 	
-PLUGIN_C3PO_EXTRA
-	EN	Additional effects (experimental)
-	IT	Effetti aggiuntivi (sperimentale)
+PLUGIN_C3PO_SDM_FILTER_TYPE_DISABLED
+	EN	Disabled (no sdm)
+	IT	Disabilitato (nessuna modulazione)
 	
-PLUGIN_C3PO_EXTRA_DESC
-	EN	Free text extension to the builded SOX command. WARNING: Could break C-3PO if the resulting command is invalid. Use with care and at your own risk.
-	IT	Estensione libera al comando di SOX costruito. ATTENZIONE può provocare malfunzionamenti, usare con cautela ed a proprio rischio.
+PLUGIN_C3PO_SDM_FILTER_TYPE_AUTO
+	EN	Automatic (Default)
+	IT	Automatico (impostazione standard)
+
+PLUGIN_C3PO_SDM_TYPE_SDM_4
+	EN	sdm-4
+	IT	sdm-4
+
+PLUGIN_C3PO_SDM_TYPE_SDM_5
+	EN	sdm-5
+	IT	sdm-5
 	
-PLUGIN_C3PO_EXTRA_BEFORE_RATE
-	EN	Additional effects BEFORE resampling
-	IT	Effetti aggiuntivi PRIMA del resampling
+PLUGIN_C3PO_SDM_TYPE_SDM_6
+	EN	sdm-6
+	IT	sdm-6
+	
+PLUGIN_C3PO_SDM_TYPE_SDM_7
+	EN	sdm-7
+	IT	sdm-7
+	
+PLUGIN_C3PO_SDM_TYPE_SDM_8
+	EN	sdm-8
+	IT	sdm-8
+	
+PLUGIN_C3PO_SDM_TYPE_CLANS_4
+	EN	clans-4
+	IT	clans-4
 
-PLUGIN_C3PO_EXTRA_BEFORE_RATE_DESC
-	EN	Free text extension to the builded SOX command inserted BEFORE the rate effect. WARNING: Could break C-3PO if the resulting command is invalid. Use with care and at your own risk.
-	IT	Estensione libera al comando di SOX costruito, inserita PRIMA dell'effetto RATE. ATTENZIONE può provocare malfunzionamenti, usare con cautela ed a proprio rischio.
+PLUGIN_C3PO_SDM_TYPE_CLANS_5
+	EN	clans-5
+	IT	clans-5
+	
+PLUGIN_C3PO_SDM_TYPE_CLANS_6
+	EN	clans-6
+	IT	clans-6
+	
+PLUGIN_C3PO_SDM_TYPE_CLANS_7
+	EN	clans-7
+	IT	clans-7
+	
+PLUGIN_C3PO_SDM_TYPE_CLANS_8
+	EN	clans-8
+	IT	clans-8
 
-PLUGIN_C3PO_EXTRA_AFTER_RATE
-	EN	Additional effects AFTER resampling
-	IT	Effetti aggiuntivi DOPO il resampling
+PLUGIN_C3PO_DSD_IN_TITLE
+	EN	DSD input Lowpass filter.
+	IT	FIltro passa basso per DSD
+	
+PLUGIN_C3PO_DSD_IN_TITLE_DESC
+	EN	when resampling or converting to PCM, DSD HF input noise must be filtered out
+	IT	filtro passabasso applicato quando si converte o ricampiona uno stream DSD
 
-PLUGIN_C3PO_EXTRA_AFTER_RATE_DESC
-	EN	Free text extension to the builded SOX command, inserted AFTER the rate effect but before Dithering. WARNING: Could break C-3PO if the resulting command is invalid. Use with care and at your own risk.
-	IT	Estensione libera al comando di SOX costruito, inserita DOPO l'effetto RATE ma prima del dithering. ATTENZIONE può provocare malfunzionamenti, usare con cautela ed a proprio rischio.
+PLUGIN_C3PO_DSD_IN_LOWPASS_STEP_1
+	EN	- Step 1
+	IT	- Passo 1
 
+PLUGIN_C3PO_DSD_IN_LOWPASS_STEP_2
+	EN	- Step 2
+	IT	- Passo 2
+
+PLUGIN_C3PO_DSD_IN_LOWPASS_STEP_3
+	EN	- Step 3
+	IT	- Passo 3
+
+PLUGIN_C3PO_DSD_IN_LOWPASS_STEP_4
+	EN	- Step 4
+	IT	- Passo 4
+	
+PLUGIN_C3PO_DSD_IN_LOWPASS_CB
+	EN	active
+	IT	attivo
+	
+PLUGIN_C3PO_DSD_IN_LOWPASS_ORDER
+	EN	order
+	IT	ordine
+	
+PLUGIN_C3PO_DSD_IN_LOWPASS_ORDER_1
+	EN	1st
+	IT	1°
+
+PLUGIN_C3PO_DSD_IN_LOWPASS_ORDER_2
+	EN	2nd
+	IT	2°
+	
+PLUGIN_C3PO_DSD_IN_LOWPASS_SLIDER
+	EN	KHz
+	IT	KHz
+	
 PLUGIN_C3PO_PLAYER_TITLE
 	EN	PLAYER SETTINGS
 	IT	IMPOSTAZIONI LETTORE
@@ -432,24 +628,32 @@ PLUGIN_C3PO_APPLY_BUTTON
 	EN	Apply
 	IT	Applica
 
-PLUGIN_C3PO_SAMPLE_RATE_LIST
-	EN	Supported Sample Rates
-	IT	Sample rate supportati
+PLUGIN_C3PO_PCM_SAMPLE_RATE_LIST
+	EN	Supported Sample Rates (PCM)
+	IT	Sample rate supportati (PCM)
 	
-PLUGIN_C3PO_SAMPLE_RATE_LIST_DESC
-	EN	List of sample rate supported by the player, can not exceed the settled maximum value.
-	IT	Elenco dei sample rate supportati dal lettore, non possono eccedere il valore massimo impostato.
+PLUGIN_C3PO_PCM_SAMPLE_RATE_LIST_DESC
+	EN	List of PCM sample rate supported by the player, can not exceed the settled maximum value.
+	IT	Elenco dei sample rate supportati dal lettore in PCM, non possono eccedere il valore massimo impostato.
+
+PLUGIN_C3PO_DSD_SAMPLE_RATE_LIST
+	EN	Supported DSD resolutions (rate = 44100*)
+	IT	risoluzioni DSD supportate (rate = 44100*)
+	
+PLUGIN_C3PO_DSD_SAMPLE_RATE_LIST_DESC
+	EN	List of DSD resolutions supported by the player real sample rete is 44100* Hz, can not exceed the settled maximum value.
+	IT	Elenco delle risoluzioni DSD supportate dal lettore, il sample rate reale è 44100* Hz. Non possono eccedere il valore massimo impostato.
 
 PLUGIN_C3PO_ENABLE_SEEK_DESC
 	EN	Enable seek capabilities ("T" and "U"), necessary for cue sheet usage but incompatible with "I" stream format, used by many on line services (i.e. Qobuz).
 	IT	Abilita la capacità di ricerca ("T" e "U"), indispensabile per l'uso dei cue sheets ma incompatibile con la modalità "I", necessaria per molti servizi on line (es. Qobuz).
 
 PLUGIN_C3PO_ENABLE_STDIN_TITLE
-	EN	Enable input fron standard Input (i.e. Qobuz, CDPlay)
+	EN	Enable 'stdin' (i.e. Qobuz)
 	IT	Abilita 'stdIn' (es. Qobuz).
 	
 PLUGIN_C3PO_ENABLE_STDIN_DESC
-	EN	Enable input fron standard Input capability ("I"), used by many on line services (i.e. Qobuz), but incompatible with ("T" and "U"), necessary for cue sheet usage.
+	EN	Enable input from standard Input capability ("I"), used by many on line services (i.e. Qobuz), but incompatible with ("T" and "U"), necessary for cue sheet usage.
 	IT	Abilita l'ingresso da 'standard Input' ("I"), necessario per molti servizi on line (es. Qobuz), ma incompatibile con le capacità di ricerca ("T" and "U")indispensabile per l'uso dei cue sheets.
 
 PLUGIN_C3PO_CONVERT_TITLE
@@ -576,11 +780,27 @@ PLUGIN_C3PO_STATUS_CLIENT_904
 	EN	FLAC is always decoded before resampling.
 	IT	FLAC viene comunque decodificato prima del ricampionamento.
 
-PLUGIN_C3PO_STATUS_905
+PLUGIN_C3PO_STATUS_SERVER_905
+	EN	Extra effects in SOX command.
+	IT	Effetti aggiuntivi nel comando SOX.
+	
+PLUGIN_C3PO_STATUS_CLIENT_905
 	EN	Extra effects in SOX command.
 	IT	Effetti aggiuntivi nel comando SOX.
 
 PLUGIN_C3PO_STATUS_CLIENT_921
 	EN	Using Daphile as player, assuming is Squeezelite-R2 compliant.
 	IT	Utilizzo di Daphile come player, si assume sia compatibile con Squeezelite-R2.
+
+PLUGIN_C3PO_STATUS_ALL_951
+	EN	SOX version is outdated, Replace it with a newer version to enable more transcoding capibilities.
+	IT	La versione di SOX in uso non è aggiornata, sostituirla con una più recente per abilitare ulteriori funzionalità.
+
+PLUGIN_C3PO_STATUS_CLIENT_952
+	EN	Your player can play the DSD format, the SOX version in use not. See the instructions here: www.tobedefined.com on getting a modified version of SOX.
+	IT	Il tuo player può riprodurre il formato DSD, la versione di SOX in uso no. Vedi le istruioni qui: www.tobedefined.com su come ottenere una versione modificata di SOX.
+
+PLUGIN_C3PO_STATUS_SERVER_952
+	EN	The SOX version in use does not handle DSD formats. See instructions here: www.tobedefined.com on getting a modified version.
+	IT	La versione di SOX in uso non gestisce i formati DSD. Vedi le istruzioni qui: www.tobedefined.com su come ottenere una versione modificata.
 

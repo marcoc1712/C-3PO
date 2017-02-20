@@ -30,15 +30,17 @@ use Slim::Utils::Log;
 use Slim::Utils::Prefs;
 use Data::Dump qw(dump);
 
-my $prefs = preferences('plugin.C3PO');
-my $log   = logger('plugin.C3PO');
-
+my $log;
+my $logger;
 my $plugin;
 
 sub new {
 	my $class = shift;
 	$plugin   = shift;
-
+	
+	$logger= $plugin->getLogger();
+	if ($logger && $logger->{'log'}) {$log=$logger->{'log'};}
+	
 	$class->SUPER::new;
 }
 
@@ -51,7 +53,7 @@ sub page {
 }
 
 sub prefs {
-	return ($prefs, $plugin->getSharedPrefNameList());		  
+	return ($plugin->getPreferences(), $plugin->getSharedPrefNameList());		  
 }
 sub refreshStatus{
 
@@ -65,8 +67,11 @@ sub handler {
 		$log->debug('Settings - handler');	
 	}
 	
+	my $prefs = $plugin->getPreferences();
+	
 	$params->{'logFolder'} =$prefs->get('logFolder');
 	$params->{'soxVersion'} =$prefs->get('soxVersion');
+	$params->{'isSoxDsdCapable'} =$prefs->get('isSoxDsdCapable');
 	
 	my $status= $plugin->getStatus();
 	
@@ -93,37 +98,14 @@ sub handler {
 		$prefs->savenow();
 	}
 	$params->{'prefs'}->{'codecs'}=$prefCodecs; 
-	$params->{'disabledCodecs'}=getdisabledCodecs($prefCodecs);
+	$params->{'supportedCodecs'}= $plugin->getSupportedCodecs();
 
 	if (main::DEBUGLOG && $log->is_debug) {
-			$log->debug(
-				dump("preference CODECS: ").
-				dump($prefs->get('codecs')));	
+			$log->debug(dump("preference CODECS: ").
+						dump($prefs->get('codecs')));
+			$log->debug(dump("supported CODECS: ").
+						dump($plugin->getSupportedCodecs()));	
 	}
 	return $class->SUPER::handler( $client, $params );
-}
-sub getdisabledCodecs{
-	my $prefCodecs = shift;
-	my $capabilities= $plugin->getCapabilities();
-	my $caps = $capabilities->{'codecs'};
-	my $out={};
-	
-	if (main::DEBUGLOG && $log->is_debug) {
-	
-		$log->debug(dump("capabilities: ").
-					dump($capabilities));
-	}
-	
-	for my $codec (keys %$prefCodecs){
-		
-		if (!($caps->{$codec}->{'supported'})){
-			$out->{$codec} = 1; 
-		}
-	}
-	if (main::DEBUGLOG && $log->is_debug) {
-		$log->debug(dump("disabled CODECS: ".$out).
-					dump($out));	
-	}
-	return $out;
 }
 1;

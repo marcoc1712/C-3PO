@@ -32,8 +32,10 @@ my $log;
 sub initTranscoder{
 	my $transcodeTable= shift;
 	$logger= shift;
-	
+
 	if ($logger && $logger->{'log'}) {$log=$logger->{'log'};}
+	
+	#TODO: unificare i sistemi di log da una unica classe.
 	
 	if (isLMSDebug()) {
 		$log->debug('Start initTranscoder');
@@ -85,6 +87,7 @@ sub initTranscoder{
 	}
 	return $commandTable;
 }
+
 sub ceckC3PO{
 	my $transcodeTable= shift;
 	my $willStart=$transcodeTable->{'C3POwillStart'};
@@ -118,12 +121,14 @@ sub ceckC3PO{
 	if (! isResamplingRequested($transcodeTable)){return 0;}
 	if ($transcodeTable->{'resampleTo'} eq 'X') {return 0;}
 	
+	# SCOMMENTARE QUANTO SEGUE PER POTERLO UTILIZZARE IN WINDOWS!!!!
+	
 	# In windows STDIN does not works inside C3PO, so it's disabled.
 	if (main::ISWINDOWS &&
 	    enableStdin($transcodeTable) &&
-	    (($transcodeTable->{'resampleWhen'} eq 'E') || 
+	   (($transcodeTable->{'resampleWhen'} eq 'E') || 
 	     ($transcodeTable->{'resampleTo'} eq 'S'))){
-		 
+    		 
 		return 0;
 	}
 	return 1;
@@ -202,7 +207,7 @@ sub useC3PO{
 	if (! isLMSInfo()) {
 		$command = $command." --noinfolog";
 	}
-		
+	
 	$result->{'command'}= $command;
 	
 	my $capabilities = { 
@@ -220,12 +225,13 @@ sub useC3PO{
 	# In windows I does not works insiede C3PO, so it's disabled.)
 	
 	if(enableStdin($transcodeTable) && !main::ISWINDOWS){
+
+	#if(enableStdin($transcodeTable)){
 	
-	#if(enableStdin($transcodeTable)){}
-		#Disabling this and enabling the followings LMS will use R capabilities and 
+		#Disabling "I" and enabling "T" and "U"  LMS will use R capabilities and 
 		# pass the Qobuz link to C3PO, but it does not works, needs the quboz plugin pipe 
 		# to be activated via I.
-		#
+		
 		$capabilities->{I}= 'noArgs';  
 		#$capabilities->{T}='START=-s %s';
 		#$capabilities->{U}='END=-w %w';
@@ -885,17 +891,19 @@ sub saveHeaderFile{
 	binmode ($head);
 
 	my $headbuffer;
-
+	Plugins::C3PO::Logger::infoMessage('start reading from STDIN');
+	
 	if (
 		sysread ($fh, $headbuffer, 8192)	# read in (up to) 8192 bit chunks, write
 		and syswrite $head, $headbuffer	# exit if read or write fails
-	  ) {};
-	  die "Problem writing: $!\n" if $!;
-
+	) {};
+	die "Problem writing: $!\n" if $!;
+	
 	flush $head;
 	close $head;
 	
-	return 1;
+	Plugins::C3PO::Logger::infoMessage('header file created');
+	return 1
 }
 
 sub restoreHeader{
@@ -946,8 +954,7 @@ sub restoreHeader{
 	
 		$transcodeTable->{'command'}=$commandString." |";
 	}
-	
-	
+
 	return $transcodeTable;
 }
 sub enableStdin{
@@ -1140,7 +1147,21 @@ sub getFormat{
 	} elsif ($inCodec eq 'alc'){
 
 		$format = Plugins::C3PO::Formats::Alac->new($logger, $log);
+	
+	} elsif ($inCodec eq 'dsf'){
+
+		$format = Plugins::C3PO::Formats::Dsf->new($logger, $log);
+	
+	}elsif ($inCodec eq 'dff'){
+
+		$format = Plugins::C3PO::Formats::Dff->new($logger, $log);
+		
+	} else{
+	
+		Plugins::C3PO::Logger::errorMessage("unknown format: ".$inCodec);
+		return undef;
 	}
+	Plugins::C3PO::Logger::debugMessage("in codec: ".$inCodec);
 	Plugins::C3PO::Logger::debugMessage("using format: ".$format->toString());
 	return $format;
 }

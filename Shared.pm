@@ -33,21 +33,33 @@ my @clientPrefNamesHash	  = qw(	sampleRates);
 my @clientPrefNames= @clientPrefNamesScalar;
 push @clientPrefNames, @clientPrefNamesHash;
 
-my @sharedPrefNames		  = qw(	resampleWhen resampleTo outCodec 
+my @sharedPrefNames		  = qw(	enable unlimitedDsdRate
+								resampleWhen resampleTo outCodec 
 								outBitDepth 
 								
 								headroom gain 
 								loudnessGain loudnessRef 
 								remixLeft remixRight flipChannels
 		
-								quality phase aliasing 
-								bandwidth ditherType ditherPrecision extra_before_rate extra_after_rate); #extra dither
+								quality phase aliasing noIOpt highPrecisionClock 
+								smallRollOff bandwidth  
+								extra_before_rate extra_after_rate
+								
+								ditherType ditherPrecision
+								
+								sdmFilterType
+								dsdLowpass1Value dsdLowpass1Order dsdLowpass1Active
+								dsdLowpass2Value dsdLowpass2Order dsdLowpass2Active	
+								dsdLowpass3Value dsdLowpass3Order dsdLowpass3Active
+								dsdLowpass4Value dsdLowpass4Order dsdLowpass4Active	
+								
+								);
 				
-my @globalPrefNames		  = qw(	codecs
+my @globalPrefNames		  = qw(	codecs 
                                 serverFolder logFolder C3POfolder pathToPrefFile
 								pathToFlac pathToSox pathToFaad pathToFFmpeg
 								pathToC3PO_exe pathToC3PO_pl pathToPerl
-								C3POwillStart soxVersion
+								C3POwillStart soxVersion isSoxDsdCapable
 								pathToHeaderRestorer_pl pathToHeaderRestorer_exe);
 
 sub getTranscoderTableFromPreferences{
@@ -264,5 +276,34 @@ sub finalizeCommand{
 		}
 	}
 	return $command;
+}
+sub unstringVersion{
+	my $versionString = shift;
+	my $log = shift;
+	
+	my @versionArray = split /[.]/, $versionString;
+	
+	if (!(scalar @versionArray) == 3) {
+		$log->warn('WARNING: invalid version string: '.$versionString);
+		return undef;
+	}
+	
+	my $major=$versionArray[0];
+	my $minor=$versionArray[1];
+	my $patchlevel=$versionArray[2];
+	
+	if ($minor*1 > 99 || $patchlevel*1 > 99) {
+		$log->warn('WARNING: invalid version string: '.$versionString);
+		return undef;
+	}
+	
+	my $version = $major*10000 + $minor *100 + $patchlevel;
+	
+	if ($version == 0) {
+		$log->warn('WARNING: invalid version string: '.$versionString);
+		return undef;
+	}
+	
+	return $version;
 }
 1;

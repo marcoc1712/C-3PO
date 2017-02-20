@@ -1,0 +1,14 @@
+<select class="stdedit" name="pref_ditherPrecision" id="ditherPrecision"
+	[% IF prefs.useGlogalSettings %] disabled [% END %]>
+	<option [% IF prefs.ditherPrecision == 1 %]selected="selected" [% END %]value=-1>
+		[% 'PLUGIN_C3PO_DITHER_PRECISION_IGNORE' | string %]
+	</option>
+
+	[% FOREACH depth IN [ 8..24 ] %] 	
+
+		<option [% IF prefs.ditherPrecision == depth %]selected="selected" [% END %]value= [% depth %]>
+			[% depth %] bit
+		</option>
+
+	[% END %]		
+</select>

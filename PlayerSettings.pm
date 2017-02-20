@@ -28,14 +28,18 @@ use Slim::Utils::Log;
 use Slim::Utils::Prefs;
 use Data::Dump qw(dump);
 
-my $log   = logger('plugin.C3PO');
+my $log;
+my $logger;
 
 my $plugin;
 
 sub new {
 	my $class = shift;
 	$plugin   = shift;
-
+	
+	$logger= $plugin->getLogger();
+	if ($logger && $logger->{'log'}) {$log=$logger->{'log'};}
+	
 	$class->SUPER::new;
 }
 sub name {
@@ -51,10 +55,8 @@ sub page {
 }
 sub refreshStatus{
 
-	#find a way to refresh the status lines.
+	#find a way to refresh only the status lines.
 }
-
-#my %showDetails=();
 
 sub handler {
 	my ($class, $client, $params, $callback, @args) = @_;
@@ -64,19 +66,22 @@ sub handler {
 	
 	my @prefList=$plugin->getSharedPrefNameList();
 	
-	$plugin->refreshClientPreferences($client);
 	my $prefs=$plugin->getPreferences($client);
 	
 	$params->{'soxVersion'} =$prefs->get('soxVersion');
+	$params->{'isSoxDsdCapable'} =$prefs->get('isSoxDsdCapable');
 	
-	my $prefCodecs = $prefs->client($client)->get('codecs');
-	my $prefSeeks  = $prefs->client($client)->get('enableSeek');
-	my $prefStdin  = $prefs->client($client)->get('enableStdin');
+	my $codecsCli    = $prefs->client($client)->get('codecsCli');
+	my $prefCodecs   = $prefs->client($client)->get('codecs');
+	my $prefSeeks    = $prefs->client($client)->get('enableSeek');
+	my $prefStdin    = $prefs->client($client)->get('enableStdin');
 	my $prefConvert  = $prefs->client($client)->get('enableConvert');
 	my $prefResample = $prefs->client($client)->get('enableResample');
 	
 	my $prefSampleRates = $plugin->translateSampleRates(
 							$prefs->client($client)->get('sampleRates'));
+	my $prefDsdRates = $plugin->translateDsdRates(
+							$prefs->client($client)->get('dsdRates'));
 
 	if (main::DEBUGLOG && $log->is_debug) {
 		$log->debug("Inizio Handler: ");
@@ -152,13 +157,22 @@ sub handler {
 		}
 		$prefs->client($client)->set( 'sampleRates', 
 				$plugin->translateSampleRates($prefSampleRates));
+				
+		for my $rate (keys %$prefDsdRates){
+			
+			my $selected = $params->{'pref_dsdRates'.$rate};
+			$prefDsdRates->{$rate} = $selected ? 'on' : undef;
+		}
+		$prefs->client($client)->set( 'dsdRates', 
+				$plugin->translateDsdRates($prefDsdRates));
 
 		$prefs->writeAll();
 		$prefs->savenow();
 		
-		$plugin->refreshClientPreferences($client);
+		$plugin->getPreferences($client);
 		$class->SUPER::handler( $client, $params );
 		$plugin->settingsChanged($client);
+		$prefs->savenow();
 	}
 	# END SaveSettings ########################################################
 	
@@ -169,54 +183,64 @@ sub handler {
 	
 	for my $item (@prefList){
 	
-		_ccopyPrefsToParams($client,$params,$item);
+		_copyPrefsToParams($client,$params,$item);
 	}
 	
 	# copy here prefs not in prefList
 	
-	_ccopyPrefsToParams($client,$params,'useGlogalSettings');
+	_copyPrefsToParams($client,$params,'useGlogalSettings');
 	
-	_ccopyPrefsToParams($client,$params,'id');
-	_ccopyPrefsToParams($client,$params,'macaddress');
-	_ccopyPrefsToParams($client,$params,'modelName');
-	_ccopyPrefsToParams($client,$params,'model');
-	_ccopyPrefsToParams($client,$params,'name');
-	_ccopyPrefsToParams($client,$params,'maxSupportedSamplerate');
-	_ccopyPrefsToParams($client,$params,'showDetails');
+	_copyPrefsToParams($client,$params,'id');
+	_copyPrefsToParams($client,$params,'macaddress');
+	_copyPrefsToParams($client,$params,'modelName');
+	_copyPrefsToParams($client,$params,'model');
+	_copyPrefsToParams($client,$params,'name');
+	_copyPrefsToParams($client,$params,'maxSupportedSamplerate');
+	_copyPrefsToParams($client,$params,'showDetails');
 
+	$params->{'prefs'}->{'codecsCli'}=$codecsCli; 
 	$params->{'prefs'}->{'codecs'}=$prefCodecs; 
 	$params->{'prefs'}->{'enableSeek'}=$prefSeeks; 
 	$params->{'prefs'}->{'enableStdin'}=$prefStdin; 
 	$params->{'prefs'}->{'enableConvert'}=$prefConvert; 
 	$params->{'prefs'}->{'enableResample'}=$prefResample; 
 	$params->{'prefs'}->{'sampleRates'}=$prefSampleRates; 
+	$params->{'prefs'}->{'dsdRates'}=$prefDsdRates; 
 	
 	# copy here params that are not preference.
 	#$params->{'showDetails'} = $showDetails{$client->id()};
 	
-	$params->{'disabledCodecs'}= _getdisabledCodecs($prefCodecs);
+	$params->{'disabledCodecs'}= _getdisabledCodecs($client, $prefCodecs);
 
 	if (main::DEBUGLOG && $log->is_debug) {
 			$log->debug(dump("disabledCodecs CODECS: "));
 			$log->debug(dump($params->{'disabledCodecs'}));
 	}
 	
-	my $caps= $plugin->getCapabilities();
-	my $sampleRates = $caps->{'samplerates'};
+	my $sampleRates = $plugin-> getSampleRates();
+	my $dsdRates = $plugin-> getDsdRates();
 	
-	$params->{'orderedSampleRates'}=$sampleRates; 
+	$params->{'OrderedPcmSampleRates'}=$sampleRates; 
+	$params->{'OrderedDsdRates'}=$dsdRates; 
 	
 	if (main::DEBUGLOG && $log->is_debug) {
-		$log->debug(dump("orderedSampleRates: "));	
-		$log->debug(dump($params->{'orderedSampleRates'}));
+		$log->debug(dump("OrderedPcmSampleRates: "));	
+		$log->debug(dump($params->{'OrderedPcmSampleRates'}));
+		$log->debug(dump("OrderedDsdRates: "));	
+		$log->debug(dump($params->{'OrderedDsdRates'}));
 	}
 	
 	$params->{'disabledSampleRates'}=
 		_getdisabledSampleRates($client,$prefSampleRates);		
+		
+	$params->{'disabledDsdRates'}=
+		_getdisabledDsdRates($client,$prefDsdRates);
 			
 	if (main::DEBUGLOG && $log->is_debug) {
 		$log->debug(dump("disabledSampleRates: "));		
 		$log->debug(dump($params->{'disabledSampleRates'}));
+		$log->debug(dump("disabledDsdRates: "));		
+		$log->debug(dump($params->{'disabledDsdRates'}));
 	}
 	
 	return $class->SUPER::handler($client, $params );
@@ -229,28 +253,17 @@ sub _getdisabledSampleRates{
 	my $client=shift;
 	my $prefSampleRates = shift;
 	
-	my $maxSupportedSamplerate= $client->maxSupportedSamplerate();
-	my $caps= $plugin->getCapabilities();
-	my $sampleRates = $caps->{'samplerates'};
+	my $maxSupportedSamplerate= $plugin->getMaxSupportedSampleRate($client);
 	
-	my $out={};
-	
+	my $sampleRates = $plugin-> getSampleRates();
+
 	if (main::DEBUGLOG && $log->is_debug) {
-		$log->debug(dump("disabled samplerates: ".$sampleRates).
+		$log->debug(dump("samplerates: ".$sampleRates).
 					dump($sampleRates));
 	}
-
-	for my $rate (keys %$prefSampleRates){
-		
-		if (!($sampleRates->{$rate})){
-		
-			$out->{$rate} = 1; 
-			
-		} elsif ($sampleRates->{$rate} > $maxSupportedSamplerate){
-		
-			$out->{$rate} = 1;
-		}
-	}
+	
+	my $out = _getDisabledRates($prefSampleRates,$sampleRates,$maxSupportedSamplerate);
+	
 	if (main::DEBUGLOG && $log->is_debug) {
 		
 		$log->debug(dump("disabled samplerates: ".$out).
@@ -258,28 +271,97 @@ sub _getdisabledSampleRates{
 	}	
 	return $out;
 }
+sub _getdisabledDsdRates{
+	my $client=shift;
+	my $prefDsdRates = shift;
+
+	my $maxSupportedDsdRate= $plugin->getMaxSupportedDsdRate($client);
+	my $dsdrates = $plugin-> getDsdRates();
+
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug(dump("dsd rates: ".$dsdrates).
+					dump($dsdrates));
+	}
+
+	my $out = _getDisabledRates($prefDsdRates,$dsdrates,$maxSupportedDsdRate);
+	
+	if (main::DEBUGLOG && $log->is_debug) {
+		
+		$log->debug(dump("disabled dsd rates: ".$out).
+					dump($out));	
+	}	
+	return $out;
+}
+sub _getDisabledRates{
+	my $prefRates = shift;
+	my $capsRates = shift;
+	my $maxSupportedRate = shift || 0;
+	
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug("max rate: ".$maxSupportedRate);	
+		$log->debug(dump("prefs rates: ").
+					dump($prefRates));	
+		$log->debug(dump("caps rates: ").
+					dump($prefRates));	
+	}
+	my $out={};
+	
+	for my $rate (keys %$prefRates){
+		
+		if (!($capsRates->{$rate})){
+		
+			$out->{$rate} = 1; 
+			
+		} elsif ($capsRates->{$rate} > $maxSupportedRate){
+		
+			$out->{$rate} = 1;
+		}
+	}	
+	return $out;
+}
 sub _getdisabledCodecs{
-	my $prefCodecs = shift;
+	my $client= shift;
+	my $inCodecs = shift;
 
 	my $C3POprefs	= $plugin->getPreferences();
 	my $codecs		= $C3POprefs->get('codecs');
+	#my $codecCli	= $C3POprefs->client($client)->get('codecsCli');
+
+	if (main::DEBUGLOG && $log->is_debug) {
+	
+		$log->debug(dump("in    Codecs: ").dump($inCodecs));
+		$log->debug(dump("Prefs Codecs: ").dump($codecs));	
+		#$log->debug(dump("Cli   Codecs: ").dump($codecCli));	
+	}
 	
 	my $out={};
-
-	for my $codec (keys %$prefCodecs){
+	#if (!$codecs || !$codecCli) {}
+	if (!$codecs){
+		return $inCodecs;
+	}
+	for my $codec (keys %$inCodecs){
 		
-		if (!($codecs->{$codec})){
-			$out->{$codec} = 1; 
+		if (main::DEBUGLOG && $log->is_debug) {
+			$log->debug(dump("in    Codec: ").dump($codec));
+			$log->debug(dump("Prefs Codec: ").dump($codecs->{$codec}));	
+			#$log->debug(dump("Cli   Codec: ").dump($codecCli->{$codec}));	
 		}
+
+		#if ( !$codecs->{$codec} || !$codecCli->{$codec}) {}
+		if ( !$codecs->{$codec}) {
+		
+			$out->{$codec} = 1; 
+
+		} 
 	}
 	if (main::DEBUGLOG && $log->is_debug) {
-		$log->debug(dump("disabled CODECS: ".$out).
+		$log->debug(dump("disabled CODECS: ").
 					dump($out));	
 	}
 	
 	return $out;
 }
-sub _ccopyPrefsToParams{
+sub _copyPrefsToParams{
 	my $client = shift;
 	my $params = shift;
 	my $item = shift;

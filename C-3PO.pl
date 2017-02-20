@@ -291,58 +291,73 @@ sub main{
 	
 	if (defined $options->{headerRestorer}){ 
 		
-		#running as header restorer
-		
+		#running as header restorer or dummy transcoder.
 		my $infile = $options->{file};
 		my $buffer;
 		
-		if ($infile){
-			Plugins::C3PO::Logger::infoMessage('Running as HeaderRestorer - header file :'.$infile);
-			
-		} else{
-			Plugins::C3PO::Logger::infoMessage('Running as Dummy Transcoder (no header file)');
-		}
 		
 		if ($infile){
+		
+			Plugins::C3PO::Logger::infoMessage('Running as header restorer - header file :'.$infile);
 
 			my $in = FileHandle->new();
 
-			if (!$in->open("< $infile")){
-
-				 Plugins::C3PO::Logger::errorMessage("HeaderRestorer: Not able to open the file for reading");
-			}
-
+			$in->open("< $infile") or die "HeaderRestorer: Not able to open the file for reading $!" ;
+			
+			Plugins::C3PO::Logger::infoMessage("$infile opened");
+			
 			binmode ($in);
-
+			
+			Plugins::C3PO::Logger::infoMessage("HeaderRestorer: start copy from $infile");
+				
 			while (
 				sysread ($in, $buffer, 65536)	# read in (up to) 64k chunks, write
 				and syswrite STDOUT, $buffer	# exit if read or write fails
-			  ) {};
+			  ) {
+				Plugins::C3PO::Logger::debugMessage(
+					"HeaderRestorer: copied 64Kb chunk from $infile");
+			}
 			if ($!){
 				Plugins::C3PO::Logger::errorMessage(
 					"HeaderRestorer: Problem writing header from file:  $!");
-			}
+			} else{
+		
+			Plugins::C3PO::Logger::infoMessage(
+				"HeaderRestorer: end copy from $infile");
+			}	
 			close ($in);
+			
 			unlink $infile;
 			if ($!){
 				Plugins::C3PO::Logger::errorMessage(
 					"HeaderRestorer: Unable to remove $infile: $!");
-			}
+			} else{
+		
+			Plugins::C3PO::Logger::infoMessage(
+				"HeaderRestorer: $infile removed");
+			}	
+		} else{
+			Plugins::C3PO::Logger::infoMessage('Running as Dummy Transcoder (no header file)');
 		}
-		Plugins::C3PO::Logger::debugMessage(
-				"HeaderRestorer: start copy from STDIN");
+		
+		Plugins::C3PO::Logger::infoMessage(
+				"Start copy from STDIN");
 		while (
 			sysread (STDIN, $buffer, 65536)	# read in (up to) 64k chunks, write
 			and syswrite STDOUT, $buffer	# exit if read or write fails
 			) {
 				Plugins::C3PO::Logger::debugMessage(
-				"HeaderRestorer: copied 64Kb chunk");
+				"copied 64Kb chunk from STDIN");
 		}
 		if ($!){		
 
 			Plugins::C3PO::Logger::errorMessage(
-				"HeaderRestorer/Dummy Transcoder: Problem writing body from STDIN: $!");
-		}
+				"Problem writing body from STDIN: $!");
+		} else{
+		
+			Plugins::C3PO::Logger::infoMessage(
+				"end copy from STDIN");
+		}		
 		flush STDOUT;
 	
 	} else{

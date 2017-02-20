@@ -36,9 +36,12 @@ use Data::Dump qw(dump pp);
 sub download {
 	my $class  = shift;
 	my $plugin = shift;
+	
 	my %status=(); 
 	my $status= \%status;
-	my $log= $plugin->getLog();
+	my $logger= $plugin->getLogger();
+	my $log;
+	if ($logger && $logger->{'log'}) {$log=$logger->{'log'};}
 	my @files=();
 	my $files=\@files;
 	
@@ -97,7 +100,9 @@ sub _gotFile {
 	
 	my $data	= $http->params('data');
 	my $plugin  = $data->{'plugin'};
-	my $log		= $plugin->getLog();
+	my $logger= $plugin->getLogger();
+	my $log;
+	if ($logger && $logger->{'log'}) {$log=$logger->{'log'};}
 	
 	if (main::INFOLOG && $log->is_info) {
 
@@ -149,7 +154,9 @@ sub _extract {
 	my $zipfile	= $data->{'zip'};
 	my $plugin  = $data->{'plugin'};
 	my @files   = @{$data->{'files'}};
-	my $log		= $plugin->getLog();
+	my $logger= $plugin->getLogger();
+	my $log;
+	if ($logger && $logger->{'log'}) {$log=$logger->{'log'};}
 	
 	my %status=(); 
 	my $status= \%status;
