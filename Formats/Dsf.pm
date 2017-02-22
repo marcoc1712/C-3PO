@@ -106,8 +106,18 @@ sub splitAndEncode{
 sub transcodeToWav{
 	my $self = shift;
 	my $transcodeTable=shift;
-
-	return "";
+	
+	my $commandstring;
+	
+	if ($self->_useFFMpegToTranscode($transcodeTable)){
+		
+		$commandstring = Plugins::C3PO::FfmpegHelper::transcode($transcodeTable);
+		
+	} else {
+	
+		$commandstring = Plugins::C3PO::SoxHelper::transcode($transcodeTable);
+	}
+	return $commandstring;
 }
 sub transcodeToAiff{
 	my $self = shift;

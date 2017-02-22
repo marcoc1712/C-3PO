@@ -24,8 +24,8 @@
 package Plugins::C3PO::SoxHelper;
 
 use strict;
-my $stdBuffer = 8192; #44100/16
-my $buffer= $stdBuffer;
+#my $stdBuffer = 8192; #44100/16
+#my $buffer= $stdBuffer;
 
 sub resample{
 	my $transcodeTable = shift;
@@ -39,8 +39,30 @@ sub resample{
 	my $useSoxToEncodeWhenResampling =
 		Plugins::C3PO::Transcoder::useSoxToEncodeWhenResampling($transcodeTable);
 	
+	my $inCodec				=$transcodeTable->{'transitCodec'};
+	my $outCodec			=Plugins::C3PO::Transcoder::getOutputCodec($transcodeTable);
+	
+	my $exe					=$transcodeTable->{'pathToSox'};
 	my $soxVersion			=$transcodeTable->{'soxVersion'};
 	my $isSoxDsdCapable		=$transcodeTable->{'isSoxDsdCapable'};
+	
+	my $command				=$transcodeTable->{'command'};
+	
+	$inCodec=_translateCodec($inCodec);
+	
+	if ($isTranscodingRequired &&
+		$useSoxToEncodeWhenResampling){
+		
+		$outCodec=_translateCodec($outCodec);
+		
+	} else{
+	
+		$outCodec=$inCodec;
+	}
+	
+	############################################################################
+	
+
 
 	my $outBitDepth			=$transcodeTable->{'outBitDepth'};
 	my $outCompression		=$transcodeTable->{'outCompression'};
@@ -72,62 +94,43 @@ sub resample{
 
 	my $sdmFilterType		=$transcodeTable->{'sdmFilterType'};
 
-	my $dsdLowpass1Value	=22;
-	my $dsdLowpass1Order	=2;
 	my $dsdLowpass1Active	=1;
+	my $dsdLowpass1Value	=$transcodeTable->{'dsdLowpass1Value'} || 50;
+	my $dsdLowpass1Order	=$transcodeTable->{'dsdLowpass1Order'} || 2;
+	#my $dsdLowpass1Active	=$transcodeTable->{'dsdLowpass1Active'};
 
-	my $dsdLowpass2Value	=33;
-	my $dsdLowpass2Order	=2;
-	my $dsdLowpass2Active	=0;
+	my $dsdLowpass2Value	=$transcodeTable->{'dsdLowpass2Value'};
+	my $dsdLowpass2Order	=$transcodeTable->{'dsdLowpass2Order'};
+	my $dsdLowpass2Active	=$transcodeTable->{'dsdLowpass2Active'};
 
-	my $dsdLowpass3Value	=44;
-	my $dsdLowpass3Order	=2;
-	my $dsdLowpass3Active	=0;
-	
-	my $dsdLowpass4Value	=48;
-	my $dsdLowpass4Order	=2;
-	my $dsdLowpass4Active	=0;
+	my $dsdLowpass3Value	=$transcodeTable->{'dsdLowpass3Value'};
+	my $dsdLowpass3Order	=$transcodeTable->{'dsdLowpass3Order'};
+	my $dsdLowpass3Active	=$transcodeTable->{'dsdLowpass3Active'};
 
-	#my $dsdLowpass4Value	=$transcodeTable->('dsdLowpass4Value');
-	#my $dsdLowpass4Order	=$transcodeTable->('dsdLowpass4Order');
-	#my $dsdLowpass4Active	=$transcodeTable->('dsdLowpass4Active');
-	
-	#my $dsdLowpass1Value	=$transcodeTable->('dsdLowpass1Value');
-	#my $dsdLowpass1Order	=$transcodeTable->('dsdLowpass1Order');
-	#my $dsdLowpass1Active	=$transcodeTable->('dsdLowpass1Active');
-
-	#my $dsdLowpass2Value	=$transcodeTable->('dsdLowpass2Value');
-	#my $dsdLowpass2Order	=$transcodeTable->('dsdLowpass2Order');
-	#my $dsdLowpass2Active	=$transcodeTable->('dsdLowpass2Active');
-
-	#my $dsdLowpass3Value	=$transcodeTable->('dsdLowpass3Value');
-	#my $dsdLowpass3Order	=$transcodeTable->('dsdLowpass3Order');
-	#my $dsdLowpass3Active	=$transcodeTable->('dsdLowpass3Active');
-
-	#my $dsdLowpass4Value	=$transcodeTable->('dsdLowpass4Value');
-	#my $dsdLowpass4Order	=$transcodeTable->('dsdLowpass4Order');
-	#my $dsdLowpass4Active	=$transcodeTable->('dsdLowpass4Active');
+	my $dsdLowpass4Value	=$transcodeTable->{'dsdLowpass4Value'};
+	my $dsdLowpass4Order	=$transcodeTable->{'dsdLowpass4Order'};
+	my $dsdLowpass4Active	=$transcodeTable->{'dsdLowpass4Active'};
 
 	my $file				=$transcodeTable->{'options'}->{'file'};
 	
-	my $inCodec				=$transcodeTable->{'transitCodec'};
-	my $outCodec			=Plugins::C3PO::Transcoder::getOutputCodec($transcodeTable);
-	
-	my $exe					=$transcodeTable->{'pathToSox'};
-	my $command				=$transcodeTable->{'command'};
-
 	Plugins::C3PO::Logger::verboseMessage('Start sox resample');
 
 	my $outFormatSpec="";
 
-	# -r 19200 -b 24 -C 8
+	# -b 24 -C 8
 
-	if ($outSamplerate){$outFormatSpec= $outFormatSpec.' -r '.$outSamplerate};
+	if (($outCodec eq "dsf") || ($outCodec eq "dff")){
+		
+		$outFormatSpec = ' -b 1';
 	
-	if ($outBitDepth){$outFormatSpec= $outFormatSpec.' -b '.$outBitDepth*8};# short form deprecation in sox since 14.4.2
+	} elsif ($outBitDepth){
+		
+		$outFormatSpec= ' -b '.$outBitDepth*8;
+	}
 	
 	if ($outCompression){$outFormatSpec= $outFormatSpec.' -C '.$outCompression};
 	
+	#if ($outSamplerate){$outFormatSpec= $outFormatSpec.' -r '.$outSamplerate};
 	#if ($outChannels){$outFormatSpec= $outFormatSpec.' -c '.$outChannels};
 	#if ($outEncoding){$outFormatSpec= $outFormatSpec.' -'.$outEncoding};
 	#if ($outByteOrder){$outFormatSpec= $outFormatSpec.' -'.$outByteOrder};
@@ -137,16 +140,16 @@ sub resample{
 	my $lowpass="";
 	
 	if ($dsdLowpass1Active){
-		$lowpass = $lowpass.' -'.$dsdLowpass1Order.' '.$dsdLowpass1Value*1000;
+		$lowpass = $lowpass.'lowpass -'.$dsdLowpass1Order.' '.$dsdLowpass1Value*1000;
 	}
 	if ($dsdLowpass2Active){
-		$lowpass = $lowpass.' -'.$dsdLowpass2Order.' '.$dsdLowpass2Value*1000;
+		$lowpass = $lowpass.' lowpass -'.$dsdLowpass2Order.' '.$dsdLowpass2Value*1000;
 	}
 	if ($dsdLowpass3Active){
-		$lowpass = $lowpass.' -'.$dsdLowpass3Order.' '.$dsdLowpass3Value*1000;
+		$lowpass = $lowpass.' lowpass -'.$dsdLowpass3Order.' '.$dsdLowpass3Value*1000;
 	}
 	if ($dsdLowpass4Active){
-		$lowpass = $lowpass.' -'.$dsdLowpass4Order.' '.$dsdLowpass4Value*1000;
+		$lowpass = $lowpass.' lowpass -'.$dsdLowpass4Order.' '.$dsdLowpass4Value*1000;
 	}
 	
 	my 	$rateString= ' rate';
@@ -249,31 +252,19 @@ sub resample{
 	
 	my $sdm='';;
 	
-	if (!$sdmFilterType){
-		
-		$sdm = $sdm.' sdm' #auto
-		
-	} elsif ($sdmFilterType == -1 ){
+	if (!$sdmFilterType || ($sdmFilterType == -1) ){
 		
 		$sdm = $sdm.''; #no sdm 
+		
+	} elsif ($sdmFilterType eq 'auto'){
+		
+		$sdm = $sdm.' sdm'; #auto
 		
 	} else {
 	
 		$sdm = $sdm.' sdm -f '.$sdmFilterType;
 	}
-	############################################################################
-	$inCodec=_translateCodec($inCodec);
-	
-	if ($isTranscodingRequired &&
-		$useSoxToEncodeWhenResampling){
-		
-		$outCodec=_translateCodec($outCodec);
-		
-	} else{
-	
-		$outCodec=$inCodec;
-	}
-	
+
 	my $commandString;
 	
 	if ($isRuntime){
@@ -306,39 +297,67 @@ sub resample{
 	
 	############################################################################
 	
-	if (($inCodec eq "dsf" || $inCodec eq "dff") && 
-	    $effects && !($lowpass eq "")){
-
-			$effects= $lowpass.' '.$effects;
+	my $chain="";
+	
+	if (($inCodec eq "dsf") || ($inCodec eq "dff")) {
+	
+		if ($lowpass && !($lowpass eq "")){
 		
-	}
+			$chain	= $lowpass;
+		}
+		
+		if ($effects && !($effects eq "")){
+	
+			$chain = $chain.' '.$effects;
+		}
+		
+		if ($extra_before_rate && !($extra_before_rate eq "")){
+	
+			$chain = $chain.' '.$extra_before_rate;
+		}
+		
+		$chain=$chain.$rateString;
+		
+		if ($extra_after_rate && !($extra_after_rate eq "")){
+	
+			$chain = $chain." ".$extra_after_rate;
+		}
 
-	if ($extra_before_rate && !($extra_before_rate eq "")){
+	} else {
+		if ($effects && !($effects eq "")){
 	
-		$effects = $effects.' '.$extra_before_rate;
-	}
+			$chain = $effects;
+		}
+		
+		if ($extra_before_rate && !($extra_before_rate eq "")){
 	
-	$effects=$effects.$rateString;
+			$chain = $chain.' '.$extra_before_rate;
+		}
 	
-	if ($extra_after_rate && !($extra_after_rate eq "")){
+		$chain=$chain.$rateString;
+		
+		if ($extra_after_rate && !($extra_after_rate eq "")){
 	
-		$effects = $effects." ".$extra_after_rate;
-	}
+			$chain = $chain." ".$extra_after_rate;
+		}
+		
+	}  
 	
-	if (!($outCodec eq "dsf" || $outCodec eq "dff") &&
-		($dither && !($dither eq ""))){
+	if ((($outCodec eq "dsf") || ($outCodec eq "dff")) &&
+		($sdm && !($sdm eq ""))){
+		
+		$chain= $chain.' '.$sdm;
+		
+	} elsif (!($outCodec eq "dsf") && !($outCodec eq "dff") &&
+			 $dither && !($dither eq "")){
 	
-		$effects= $effects.' '.$dither;
+		$chain= $chain.' '.$dither;
 	
-	} elsif (($outCodec eq "dsf" || $outCodec eq "dff") &&
-			 ($sdm && !($sdm eq ""))){
-	
-		$effects= $effects.' '.$sdm;
-	}
-	
+	} 
 	############################################################################
 	
-	$commandString = $commandString.qq($outCodec$outFormatSpec --buffer=$buffer - $effects);
+	#$commandString = $commandString.qq($outCodec$outFormatSpec --buffer=$buffer - $chain);
+	$commandString = $commandString.qq($outCodec$outFormatSpec - $chain);
 	
 	return $commandString;
 
@@ -401,4 +420,5 @@ sub _translateCodec{
 	if ($codec eq 'flac') {return 'flc';}
 	return $codec;
 }
+
 1;

@@ -23,7 +23,7 @@ use strict;
 use warnings;
 
 my @clientPrefNamesScalar = qw(	id macaddress model modelName name 
-								maxSupportedSamplerate 
+								maxSupportedSamplerate maxSupportedDsdrate
 								enableSeek enableStdin 
 								enableConvert enableResample
 								showDetails);
@@ -33,7 +33,7 @@ my @clientPrefNamesHash	  = qw(	sampleRates);
 my @clientPrefNames= @clientPrefNamesScalar;
 push @clientPrefNames, @clientPrefNamesHash;
 
-my @sharedPrefNames		  = qw(	enable unlimitedDsdRate
+my @sharedPrefNames		  = qw(	enable 
 								resampleWhen resampleTo outCodec 
 								outBitDepth 
 								
@@ -55,7 +55,7 @@ my @sharedPrefNames		  = qw(	enable unlimitedDsdRate
 								
 								);
 				
-my @globalPrefNames		  = qw(	codecs 
+my @globalPrefNames		  = qw(	unlimitedDsdRate codecs 
                                 serverFolder logFolder C3POfolder pathToPrefFile
 								pathToFlac pathToSox pathToFaad pathToFFmpeg
 								pathToC3PO_exe pathToC3PO_pl pathToPerl
@@ -127,9 +127,9 @@ sub buildTranscoderTable{
 		$transcodeTable->{$i}=$prefs->{$clientString}->{$i};
 
 	}
-	my $samplerate = $prefs->{$clientString}->{'sampleRates'};
+	my $samplerates = $prefs->{$clientString}->{'sampleRates'};
 	
-	for my $krate (keys %$samplerate){
+	for my $krate (keys %$samplerates){
 	
 		my $rate = $prefs->{$clientString}->{'sampleRates'}->{$krate};
 		
@@ -144,6 +144,25 @@ sub buildTranscoderTable{
 		} else {
 		
 			$transcodeTable->{'sampleRates'}->{$krate}=undef;
+		}
+	}
+	my $dsdrates = $prefs->{$clientString}->{'dsdRates'};
+	
+	for my $krate (keys %$dsdrates){
+	
+		my $rate = $prefs->{$clientString}->{'dsdRates'}->{$krate};
+		
+		if (defined $rate and ($rate)){
+		
+			$transcodeTable->{'dsdRates'}->{$krate}=1;
+		
+		} elsif (defined $rate and $rate eq '0' ){
+		
+			$transcodeTable->{'dsdRates'}->{$krate}=0;
+			
+		} else {
+		
+			$transcodeTable->{'dsdRates'}->{$krate}=undef;
 		}
 	}
 	

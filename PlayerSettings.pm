@@ -61,11 +61,13 @@ sub refreshStatus{
 sub handler {
 	my ($class, $client, $params, $callback, @args) = @_;
 	
+	#refresh capabilities, to see chamge sin the global options.
+	
 	#refresh the codec list.
 	my $clientCodecList=$plugin->initClientCodecs($client);
 	
 	my @prefList=$plugin->getSharedPrefNameList();
-	
+
 	my $prefs=$plugin->getPreferences($client);
 	
 	$params->{'soxVersion'} =$prefs->get('soxVersion');
@@ -165,7 +167,7 @@ sub handler {
 		}
 		$prefs->client($client)->set( 'dsdRates', 
 				$plugin->translateDsdRates($prefDsdRates));
-
+						
 		$prefs->writeAll();
 		$prefs->savenow();
 		
@@ -383,8 +385,8 @@ sub _copyParamsToPrefs{
 
 	my $prefs=$plugin->getPreferences();
 
-	if (main::INFOLOG && $log->is_info) {
-		$log->info($item." :".
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug($item." :".
 			"PARAMS pref_: ".dump($params->{'pref_'.$item}).
 			" - PREFS: ".dump($prefs->client($client)->get($item)));
 	}

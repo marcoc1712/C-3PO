@@ -147,6 +147,8 @@ require Formats::Wav;
 require Formats::Aiff;
 require Formats::Flac;
 require Formats::Alac;
+require Formats::Dff;
+require Formats::Dsf;
 
 #in Base
 #require FileHandle;

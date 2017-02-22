@@ -92,8 +92,12 @@ sub initTranscoder{
 #
 sub _ceckC3PO{
 	my $transcodeTable= shift;
-	my $willStart=$transcodeTable->{'C3POwillStart'};
+	my $willStart=$transcodeTable->{'C3POwillStart'}||0;
 	my $codec = $transcodeTable->{'inCodec'};
+	
+	if (isLMSDebug()) {
+		$log->debug('$willStart '.$willStart);
+	}
 	
 	if (!((defined $willStart) &&
 		  (($willStart eq 'pl') ||($willStart eq 'exe')))){
@@ -218,10 +222,11 @@ sub _useC3PO{
 	#	F => 'FILE=-f %f', 
 	#	R => 'FILE=-f %F', 
 		F => 'noArgs', 
-		R => 'noArgs', 
+		R => 'noArgs',
 	#	T => 'START=-s %s', 
 	#	U => 'END=-w %w', 
-		D => 'RESAMPLE=-r %d' };
+		D => 'RESAMPLE=-r %d'
+	};
 	
 	#Enable stdIn pipes (Quboz) but disable seek (cue sheets)
 	# In windows I does not works insiede C3PO, so it's disabled.)
@@ -654,8 +659,20 @@ sub _checkResample{
 	
 	Plugins::C3PO::Logger::debugMessage('Start _checkResample');
 	
+	my $inCodec= $transcodeTable->{'inCodec'};
+	my $outCodec= $transcodeTable->{'outCodec'};
+	
+	my $isDsdInput = ($inCodec eq 'dsf'  || $inCodec eq 'dff') ? 1 : 0;
+	my $isDsdOutput = ($outCodec eq 'dsf'  || $outCodec eq 'dff') ? 1 : 0;
+
 	my $samplerates=$transcodeTable->{'sampleRates'};
-	my $maxsamplerate = _getMaxSamplerate($samplerates,$transcodeTable->{'maxSupportedSamplerate'});
+	my $maxsamplerate = _getMaxRate($samplerates,$transcodeTable->{'maxSupportedSamplerate'});
+	my $dsdrates=$transcodeTable->{'dsdrates'};
+	my $maxDsdrate = _getMaxRate($dsdrates,$transcodeTable->{'maxSupportedDsdrate'});
+
+	Plugins::C3PO::Logger::infoMessage('maxDsdrate :'.$maxDsdrate);
+	Plugins::C3PO::Logger::infoMessage('dsdrate :'.Data::Dump::dump($dsdrates));
+
 	my $forcedSamplerate= $transcodeTable->{'options'}->{'forcedSamplerate'};
 	my $resampleWhen= $transcodeTable->{'resampleWhen'};
 	my $resampleTo= $transcodeTable->{'resampleTo'};
@@ -663,11 +680,13 @@ sub _checkResample{
 	my $file = $transcodeTable->{'options'}->{'file'};
 	my $fileInfo;
 	my $fileSamplerate;
+	
+	my $filedsdRate;
 	my $isSupported;
-	my $maxSyncrounusSamplerate;
+	my $maxSyncrounusRate;
 	
 	my $willStart=$transcodeTable->{'C3POwillStart'};
-
+	
 	if (isRuntime($transcodeTable) && defined $willStart && $willStart){
 	
 		my $testfile=$file;
@@ -677,65 +696,101 @@ sub _checkResample{
 			Plugins::C3PO::Logger::debugMessage('testfile: '.$testfile);
 			$transcodeTable->{'testfile'}=$testfile;
 		}
-		Plugins::C3PO::Logger::debugMessage('testfile: '.$testfile);
+		Plugins::C3PO::Logger::infoMessage('testfile: '.$testfile);
 		$fileInfo= Audio::Scan->scan($testfile);
 		
-		Plugins::C3PO::Logger::debugMessage('AudioScan: '.Data::Dump::dump ($fileInfo));
+		Plugins::C3PO::Logger::infoMessage('AudioScan: '.Data::Dump::dump ($fileInfo));
 		
 		$transcodeTable->{'fileInfo'}=$fileInfo;
 		$fileSamplerate=$fileInfo->{info}->{samplerate};
 		
-		Plugins::C3PO::Logger::debugMessage('file samplerate: '.$fileSamplerate);
-			
+		my $bitsPerSample=$fileInfo->{info}->{bits_per_sample};
+		my $isFilesDsd = ($bitsPerSample && ($bitsPerSample == 1)) ? 1 :0;
+		
+		Plugins::C3PO::Logger::infoMessage('file samplerate: '.$fileSamplerate);
+		Plugins::C3PO::Logger::infoMessage('bits Per Sample: '.$bitsPerSample);
+		
+		if (($isDsdInput && !$isFilesDsd) || (!$isDsdInput && $isFilesDsd)){
+		
+			Plugins::C3PO::Logger::WarningMessage("Inputtype is: ".$inCodec. 
+				" bit per sample is: ".$bitsPerSample );
+
+		} elsif ($isDsdInput) {
+		
+			$filedsdRate = $fileSamplerate/44100;
+
+			Plugins::C3PO::Logger::infoMessage('isDsdIm: '.$isDsdInput);
+			Plugins::C3PO::Logger::infoMessage('file dsdrate: '.$filedsdRate);
+		
+		}
 		if ($fileSamplerate){
 			
 			$isSupported= _isSamplerateSupported(
 									$fileSamplerate,
-			   						$samplerates);
+									$samplerates,
+									$isDsdOutput,
+									$filedsdRate,
+									$dsdrates);
 			
-			$maxSyncrounusSamplerate=
-				_getMaxSyncrounusSampleRate($fileSamplerate,
-										   $samplerates);
+			$maxSyncrounusRate=
+				_getMaxSyncrounusRate($fileSamplerate,
+										$samplerates,
+										$isDsdOutput,
+										$filedsdRate,
+										$dsdrates);
 										   
 			Plugins::C3PO::Logger::debugMessage('samplerate is '.($isSupported ? '' : 'not ').'supported');
-			Plugins::C3PO::Logger::debugMessage('Max syncrounus sample rate : '.$maxSyncrounusSamplerate);
+			Plugins::C3PO::Logger::debugMessage('Max syncrounus sample rate : '.$maxSyncrounusRate);
 		}
 	}
 	my $targetSamplerate;
 	my $resamplestring="";
 	
+	$maxDsdrate = $maxDsdrate*44100;
+		
+	Plugins::C3PO::Logger::infoMessage('is runtime :                 '.(isRuntime($transcodeTable)));
+	Plugins::C3PO::Logger::infoMessage('forced Samplerate :          '.$forcedSamplerate);
+	Plugins::C3PO::Logger::infoMessage('resampleWhen :               '.$resampleWhen);
+	Plugins::C3PO::Logger::infoMessage('file samplerate:              '.$fileSamplerate);
+	Plugins::C3PO::Logger::infoMessage('resampleTo :                 '.$resampleTo);
+	Plugins::C3PO::Logger::infoMessage('Max syncrounus sample rate : '.$maxSyncrounusRate);
+	Plugins::C3PO::Logger::infoMessage('isDsdOutput :                '.$isDsdOutput);
+	Plugins::C3PO::Logger::infoMessage('maxDsdrate :                 '.$maxDsdrate);
+	Plugins::C3PO::Logger::infoMessage('maxsamplerate :              '.$maxsamplerate);
+
 	if (!isRuntime($transcodeTable)){
-	
-		$targetSamplerate=$maxsamplerate;
+		
+		$targetSamplerate=$isDsdOutput ? $maxDsdrate : $maxsamplerate;
 		
 	} elsif (defined $forcedSamplerate && $forcedSamplerate>0){
 
-		$targetSamplerate=$forcedSamplerate;
+		#$targetSamplerate=$forcedSamplerate;
+		$targetSamplerate= $isDsdOutput ? $maxDsdrate : $maxsamplerate;
 
 	} elsif ($resampleWhen eq'N'){ #do nothing
 
 	} elsif (!$fileSamplerate){
 	
-		$targetSamplerate=$maxsamplerate;
+		$targetSamplerate= $isDsdOutput ? $maxDsdrate : $maxsamplerate;;
 	
 	} elsif (($resampleWhen eq'E')&& ($isSupported)){ #do nothing
 	
 	} elsif ($resampleTo eq'X'){
 		
-		$targetSamplerate=$maxsamplerate;
+		$targetSamplerate = $isDsdOutput ? $maxDsdrate : $maxsamplerate;;
 	
-	} elsif (defined $maxSyncrounusSamplerate){
+	} elsif (defined $maxSyncrounusRate){
 	
-		$targetSamplerate=$maxSyncrounusSamplerate;
+		$targetSamplerate=$maxSyncrounusRate;
 		
 	} else {
 		
-		$targetSamplerate=$maxsamplerate;
+		$targetSamplerate= $isDsdOutput ? $maxDsdrate : $maxsamplerate;
 	}
 	
 	$transcodeTable->{'targetSamplerate'}=$targetSamplerate;
 	
-	Plugins::C3PO::Logger::debugMessage('Target Sample rate : '.$targetSamplerate);
+	Plugins::C3PO::Logger::infoMessage('Target Sample rate :          '.$targetSamplerate);
 	
 	return $transcodeTable;
 	
@@ -784,18 +839,17 @@ sub _willResample{
 	
 	return 0;
 }
-sub _getMaxSamplerate{
-	my $samplerates= shift;
+sub _getMaxRate{
+	my $rates= shift;
 	my $playerMax = shift;
 
 	my $max=0;
-	#Data::Dump::dump ($samplerates);
-	#Data::Dump::dump ($playerMax);
-	for my $rs (keys %$samplerates){
+
+	for my $rs (keys %$rates){
 		
 		my $rate = $rs/1;
 		
-		if (($rate>$max) && $samplerates->{$rs}){
+		if (($rate>$max) && $rates->{$rs}){
 			$max = $rate;
 		}
 	} 
@@ -818,31 +872,82 @@ sub _getTestFile{
 sub _isSamplerateSupported{
 	my $fileSamplerate = shift;
 	my $samplerates = shift;
+	my $isDsd = shift;
+	my $filedsdRate = shift;
+    my $dsdrates = shift;
 	
-	if (!defined $fileSamplerate || $fileSamplerate==0){
+	if ($isDsd){
+		if (!defined $fileSamplerate || $fileSamplerate==0){
 		
-		return undef;
-	}
+			return undef;
+		}
 
-	for my $rate (keys %$samplerates){
+		for my $rate (keys %$samplerates){
+
+			if ($samplerates->{$rate} && $fileSamplerate==$rate) {return 1;}
+		}
+	} else{
 	
-		if ($samplerates->{$rate} && $fileSamplerate==$rate) {return 1;}
+		if (!defined $filedsdRate || $filedsdRate==0){
+		
+			return undef;
+		}
+
+		for my $rate (keys %$dsdrates){
+
+			if ($dsdrates->{$rate} && $filedsdRate==$rate) {return 1;}
+		}
 	}
-	
 	return 0;
 }
-sub _getMaxSyncrounusSampleRate{
+sub _getMaxSyncrounusRate{
 	my $fileSamplerate=shift;
 	my $samplerates=shift;
+	my $isDsd = shift;
+	my $filedsdRate = shift;
+    my $dsdrates = shift;
 	
 	Plugins::C3PO::Logger::debugMessage('fileSamplerate : '.$fileSamplerate);
 	Plugins::C3PO::Logger::debugMessage('Samplerates : '.Data::Dump::dump($samplerates));
+	Plugins::C3PO::Logger::debugMessage('is dsd : '.$isDsd);
+	Plugins::C3PO::Logger::debugMessage('filedsdRate : '.$filedsdRate);
+	Plugins::C3PO::Logger::debugMessage('dsdrates : '.Data::Dump::dump($dsdrates));
 	
-	if (!defined $fileSamplerate || $fileSamplerate==0){
+	if ($isDsd && (!defined $filedsdRate || $filedsdRate==0)){
+	
+		return undef;
+	} 
+	if (!$isDsd && (!defined $fileSamplerate || $fileSamplerate==0)){
 		
 		return undef;
 	}
-	my $rateFamily;
+	my $ratefamily;
+	
+	if ($isDsd){
+		my $max=0;
+
+		if ($fileSamplerate % 48000 == 0) {
+		
+			$ratefamily=48000;
+	
+		} else {
+		
+			$ratefamily=44100;
+		}
+		for my $rs (keys %$dsdrates){
+
+			if (! $samplerates->{$rs}){next;}
+			my $rate = $rs*$ratefamily;
+
+			#Data::Dump::dump($max,$rate, $rateFamily, $rate % $rateFamily, $samplerates->{$rate});
+
+			if ($rate>$max){
+
+				$max = $rate;
+			}
+		} 
+		return ($max > 0 ? $max : undef);
+	} 
 	
 	$fileSamplerate= $fileSamplerate/1;
 	
@@ -850,15 +955,15 @@ sub _getMaxSyncrounusSampleRate{
 	
 	if ($fileSamplerate % 11025 == 0) {
 		
-		$rateFamily=11025;
+		$ratefamily=11025;
 	
 	} elsif ($fileSamplerate % 12000 == 0) {
 		
-		$rateFamily=12000;
+		$ratefamily=12000;
 		
 	} elsif ($fileSamplerate % 8000 == 0) {
 		
-		$rateFamily=8000;
+		$ratefamily=8000;
 		
 	} else {
 	
@@ -876,8 +981,7 @@ sub _getMaxSyncrounusSampleRate{
 		
 		#Data::Dump::dump($max,$rate, $rateFamily, $rate % $rateFamily, $samplerates->{$rate});
 		
-		if (($rate % $rateFamily == 0 ) && 
-		    ($rate>$max)){
+		if (($rate % $ratefamily == 0 ) && ($rate>$max)){
 			
 			$max = $rate;
 		}
@@ -1174,5 +1278,5 @@ sub _getFormat{
 ###############################################################################
 # Codec independent - Helper routines.
 ################################################################################
-###############################################################################
+
 1;

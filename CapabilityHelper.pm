@@ -126,10 +126,13 @@ sub new {
 		$supportedCodecs{'dsf'}{'supported'}=0;
 		$supportedCodecs{'dff'}{'supported'}=0;
 	}
-	
+		if (main::INFOLOG && $log->is_info) {
+			$log->info("unlimitedDsdRate  : ".dump($unlimitedDsdRate));
+	}
 	if (main::DEBUGLOG && $log->is_debug) {
 			$log->debug("isSoxDsdCapable  : ".dump($isSoxDsdCapable));
-			 $log->debug("supported codecs  : ".dump(%supportedCodecs));
+			$log->debug("supported codecs  : ".dump(%supportedCodecs));
+			$log->debug("unlimitedDsdRate  : ".dump($unlimitedDsdRate));
 	}
 	my $self = bless {
 		codecs => \%supportedCodecs,

@@ -53,7 +53,10 @@ sub page {
 }
 
 sub prefs {
-	return ($plugin->getPreferences(), $plugin->getSharedPrefNameList());		  
+	my @list= $plugin->getSharedPrefNameList();
+	push (@list, 'unlimitedDsdRate');
+	
+	return ($plugin->getPreferences(), @list);		  
 }
 sub refreshStatus{
 
@@ -69,9 +72,10 @@ sub handler {
 	
 	my $prefs = $plugin->getPreferences();
 	
-	$params->{'logFolder'} =$prefs->get('logFolder');
-	$params->{'soxVersion'} =$prefs->get('soxVersion');
-	$params->{'isSoxDsdCapable'} =$prefs->get('isSoxDsdCapable');
+	$params->{'logFolder'}			=	$prefs->get('logFolder');
+	$params->{'soxVersion'}			=	$prefs->get('soxVersion');
+	$params->{'isSoxDsdCapable'}		=	$prefs->get('isSoxDsdCapable');
+	
 	
 	my $status= $plugin->getStatus();
 	
@@ -90,15 +94,17 @@ sub handler {
 			$prefCodecs->{$codec} = $selected ? 'on' : undef;
 		}
 		$prefs->set('codecs', $prefCodecs);
-		$prefs->writeAll();
 		
-		$class->SUPER::handler( $client, $params );
-		$plugin->settingsChanged();
-
+		$prefs->writeAll();
 		$prefs->savenow();
+		
+		$plugin->settingsChanged();
+		$prefs->savenow();	
+		
 	}
-	$params->{'prefs'}->{'codecs'}=$prefCodecs; 
-	$params->{'supportedCodecs'}= $plugin->getSupportedCodecs();
+	$params->{'prefs'}->{'codecs'}	=	$prefCodecs; 
+	$params->{'supportedCodecs'}		=	$plugin->getSupportedCodecs();
+	
 
 	if (main::DEBUGLOG && $log->is_debug) {
 			$log->debug(dump("preference CODECS: ").

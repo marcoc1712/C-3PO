@@ -157,7 +157,7 @@ sub initPlugin {
 	$preferences->set('pathToHeaderRestorer_exe', $EnvironmentHelper->pathToHeaderRestorer_exe());
 	$preferences->set('soxVersion', $EnvironmentHelper->soxVersion());
 	$preferences->set('isSoxDsdCapable', $EnvironmentHelper->isSoxDsdCapable());
-	
+
 	$preferences->writeAll();
 	$preferences->savenow();
 	
@@ -177,6 +177,7 @@ sub initPlugin {
 	_initCodecs();
 	
 	$C3POwillStart=$class->_testC3PO();
+	$preferences->set('C3POwillStart', $C3POwillStart);
 
 	_disableProfiles();
 
@@ -224,7 +225,7 @@ sub getPreferences{
 	
 	my $PreferencesHelper= Plugins::C3PO::PreferencesHelper->new(\%logger, preferences('plugin.C3PO'), $client);
 	my $preferences= $PreferencesHelper->preferences();
-	
+
 	return $preferences;
 }
 
@@ -283,7 +284,7 @@ sub initClientCodecs{
 	}
 	
 	my $prefs= $class->getPreferences($client);
-	
+
 	my $codecList="";
 	
 	my $supportedCli;
@@ -338,14 +339,14 @@ sub settingsChanged{
 	my $class = shift;
 	my $client=shift;
 	
-	
-	my $prefs= $class->getPreferences();
-	
+	my $prefs= $class->getPreferences($client);
+		
+		
 	$CapabilityHelper = Plugins::C3PO::CapabilityHelper->new(\%logger,
 							$EnvironmentHelper->isSoxDsdCapable(),
 							$prefs->get('unlimitedDsdRate')
-						);
-	
+	);
+
 	if (main::DEBUGLOG && $log->is_debug) {	
 			my $conv = Slim::Player::TranscodingHelper::Conversions();
 			my $caps = \%Slim::Player::TranscodingHelper::capabilities;
@@ -503,7 +504,7 @@ sub _clientCalback{
 	my $type = shift;
 	
 	my $preferences = $class->getPreferences($client);
-	
+
 	my $id= $client->id();
 	my $macaddress= $client->macaddress();
 	my $modelName= $client->modelName();
@@ -518,18 +519,19 @@ sub _clientCalback{
 	my $clientCodecList= $class->initClientCodecs($client);
 	
 	if (main::INFOLOG && $log->is_info) {
-			 $log->info("$type ClientCallback received from \n".
-						"id:                     $id \n".
-						"mac address:            $macaddress \n".
-						"modelName:              $modelName \n".
-						"model:                  $model \n".
-						"name:                   $name \n".
-						"max samplerate:         $maxSupportedSamplerate \n".
-						"max dsdrate:			 $maxSupportedDsdrate \n".
-						"supported sample rates: $samplerateList \n".
-						"supported dsd rates:    $dsdrateList \n".
-						"supported codecs :      $clientCodecList".
-						"");
+
+		$log->info("$type ClientCallback received from \n".
+				   "id:                     $id \n".
+				   "mac address:            $macaddress \n".
+				   "modelName:              $modelName \n".
+				   "model:                  $model \n".
+				   "name:                   $name \n".
+				   "max samplerate:         $maxSupportedSamplerate \n".
+				   "max dsd resolution:     $maxSupportedDsdrate \n".
+				   "supported sample rates: $samplerateList \n".
+				   "supported dsd rates:    $dsdrateList \n".
+				   "supported codecs :      $clientCodecList".
+				   "");
 	}
 	#register the new client in preferences.
 	$preferences->client($client)->set('id',$id);
@@ -615,7 +617,13 @@ sub _initDsdRates{
 	} else {
 
 		my $capDsdRates = $CapabilityHelper->dsdrates();	
-		my $prefRef =  $class->translateDsdRates($prefs->client($client)->get('dsdrates'));
+		if (main::DEBUGLOG && $log->is_debug) {
+			$log->debug(" DSD Rates: ".dump($prefs->client($client)->get('dsdRates')));
+		}
+		my $prefRef =  $class->translateDsdRates($prefs->client($client)->get('dsdRates'));
+		if (main::DEBUGLOG && $log->is_debug) {
+			 $log->debug("Translated DSD Rates: ".dump($prefRef));
+		}
 	
 		$prefDsdRates = _refreshRates($capDsdRates, $maxSupportedDsdrate, $prefRef);
 		
