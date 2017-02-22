@@ -216,7 +216,9 @@ sub defaultDsdRates{
 	my $capDsdrates=$self->dsdrates();
 	my $maxSupportedDsdrate= $self->maxSupportedDsdRate($client);
 	
-	return $self->_defaultRates($capDsdrates,$maxSupportedDsdrate);
+	# default enable only DSD64 when supported.
+	return $self->_defaultRates($capDsdrates,$maxSupportedDsdrate >0 ? 64 : 0);
+	
 }
 sub guessSampleRateList{
 	my $self = shift;

@@ -21,6 +21,7 @@ package Plugins::C3PO::Shared;
 
 use strict;
 use warnings;
+use Data::Dump qw(dump pp);
 
 my @clientPrefNamesScalar = qw(	id macaddress model modelName name 
 								maxSupportedSamplerate maxSupportedDsdrate
@@ -28,7 +29,7 @@ my @clientPrefNamesScalar = qw(	id macaddress model modelName name
 								enableConvert enableResample
 								showDetails);
 								
-my @clientPrefNamesHash	  = qw(	sampleRates);
+my @clientPrefNamesHash	  = qw(	sampleRates dsdRates);
 
 my @clientPrefNames= @clientPrefNamesScalar;
 push @clientPrefNames, @clientPrefNamesHash;
@@ -70,6 +71,9 @@ sub getTranscoderTableFromPreferences{
 	
 	my $clientString= buildClientString($client->id());
 	my $prefs= prefsToHash($preferences,$client);
+	
+	#dump ($prefs);
+	#dump (getTranscoderTable($clientString,$prefs));
 	
 	return (getTranscoderTable($clientString,$prefs));
 }
@@ -125,7 +129,7 @@ sub buildTranscoderTable{
 	for my $i (getClientPrefNameScalarList()){
 		
 		$transcodeTable->{$i}=$prefs->{$clientString}->{$i};
-
+		
 	}
 	my $samplerates = $prefs->{$clientString}->{'sampleRates'};
 	

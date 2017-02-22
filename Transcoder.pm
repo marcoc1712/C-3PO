@@ -49,7 +49,7 @@ sub initTranscoder{
 		$transcodeTable->{'command'}="";
 		
 		if (!$codecs->{$codec}) {next;}
-		
+				
 		my $cmd={};
 		if (isLMSDebug()) {
 			$log->debug("checking $codec");
@@ -665,13 +665,18 @@ sub _checkResample{
 	my $isDsdInput = ($inCodec eq 'dsf'  || $inCodec eq 'dff') ? 1 : 0;
 	my $isDsdOutput = ($outCodec eq 'dsf'  || $outCodec eq 'dff') ? 1 : 0;
 
+	my $maxSupportedSamplerate = $transcodeTable->{'maxSupportedSamplerate'};
 	my $samplerates=$transcodeTable->{'sampleRates'};
-	my $maxsamplerate = _getMaxRate($samplerates,$transcodeTable->{'maxSupportedSamplerate'});
-	my $dsdrates=$transcodeTable->{'dsdrates'};
-	my $maxDsdrate = _getMaxRate($dsdrates,$transcodeTable->{'maxSupportedDsdrate'});
+	my $maxsamplerate = _getMaxRate($samplerates,44100);
+	
+	my $maxSupportedDsdrate = $transcodeTable->{'maxSupportedDsdrate'};
+	my $dsdrates=$transcodeTable->{'dsdates'};
+	my $maxDsdrate = _getMaxRate($dsdrates,0);
 
-	Plugins::C3PO::Logger::infoMessage('maxDsdrate :'.$maxDsdrate);
-	Plugins::C3PO::Logger::infoMessage('dsdrate :'.Data::Dump::dump($dsdrates));
+	Plugins::C3PO::Logger::infoMessage('$maxsamplerate :'.$maxsamplerate);
+	Plugins::C3PO::Logger::infoMessage('sampleRates :'.Data::Dump::dump($samplerates));
+	Plugins::C3PO::Logger::infoMessage('$maxDsdrate :'.$maxDsdrate);
+	Plugins::C3PO::Logger::infoMessage('dsdrates :'.Data::Dump::dump($dsdrates));
 
 	my $forcedSamplerate= $transcodeTable->{'options'}->{'forcedSamplerate'};
 	my $resampleWhen= $transcodeTable->{'resampleWhen'};
@@ -757,6 +762,11 @@ sub _checkResample{
 	Plugins::C3PO::Logger::infoMessage('isDsdOutput :                '.$isDsdOutput);
 	Plugins::C3PO::Logger::infoMessage('maxDsdrate :                 '.$maxDsdrate);
 	Plugins::C3PO::Logger::infoMessage('maxsamplerate :              '.$maxsamplerate);
+	
+	if ($isDsdOutput){
+		# lms always force it to max samplerate.
+		$forcedSamplerate = undef;
+	}
 
 	if (!isRuntime($transcodeTable)){
 		
@@ -764,8 +774,7 @@ sub _checkResample{
 		
 	} elsif (defined $forcedSamplerate && $forcedSamplerate>0){
 
-		#$targetSamplerate=$forcedSamplerate;
-		$targetSamplerate= $isDsdOutput ? $maxDsdrate : $maxsamplerate;
+		$targetSamplerate=$forcedSamplerate;
 
 	} elsif ($resampleWhen eq'N'){ #do nothing
 
@@ -841,7 +850,7 @@ sub _willResample{
 }
 sub _getMaxRate{
 	my $rates= shift;
-	my $playerMax = shift;
+	my $faultback = shift;
 
 	my $max=0;
 
@@ -854,7 +863,7 @@ sub _getMaxRate{
 		}
 	} 
 	#Data::Dump::dump ($max);
-	return (($max>0) ? $max : $playerMax);
+	return (($max>0) ? $max : $faultback);
 }
 sub _getTestFile{
 	my $transcodeTable =shift;

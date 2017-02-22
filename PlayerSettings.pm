@@ -108,7 +108,9 @@ sub handler {
 	$params->{'status'}			= $status->{'status'};
 	$params->{'status_msg'}		= $status->{'message'};
 	$params->{'status_details'}	= $status->{'details'};
-		
+	
+	my $disabledDsdRates=_getdisabledDsdRates($client,$prefDsdRates);
+	
 	# SaveSettings pressed #####################################################	
 	if ($params->{'saveSettings'}){
 	
@@ -159,11 +161,14 @@ sub handler {
 		}
 		$prefs->client($client)->set( 'sampleRates', 
 				$plugin->translateSampleRates($prefSampleRates));
-				
+
 		for my $rate (keys %$prefDsdRates){
 			
-			my $selected = $params->{'pref_dsdRates'.$rate};
-			$prefDsdRates->{$rate} = $selected ? 'on' : undef;
+			#don't copy form disabled!!!!
+			if (!$disabledDsdRates->{$rate}){		
+				my $selected = $params->{'pref_dsdRates'.$rate};
+				$prefDsdRates->{$rate} = $selected ? 'on' : undef;
+			}
 		}
 		$prefs->client($client)->set( 'dsdRates', 
 				$plugin->translateDsdRates($prefDsdRates));
@@ -263,8 +268,17 @@ sub _getdisabledSampleRates{
 		$log->debug(dump("samplerates: ".$sampleRates).
 					dump($sampleRates));
 	}
+	my $out;
+	my $enabledRates = _getEnabledRates($prefSampleRates,$sampleRates,$maxSupportedSamplerate);
 	
-	my $out = _getDisabledRates($prefSampleRates,$sampleRates,$maxSupportedSamplerate);
+	for my $rate (keys %$enabledRates){
+		
+		if (!$enabledRates->{$rate}){
+		
+			$out->{$rate} = 1;	
+		}
+	
+	} 
 	
 	if (main::DEBUGLOG && $log->is_debug) {
 		
@@ -285,8 +299,20 @@ sub _getdisabledDsdRates{
 					dump($dsdrates));
 	}
 
-	my $out = _getDisabledRates($prefDsdRates,$dsdrates,$maxSupportedDsdRate);
-	
+	my $enabledRates = _getEnabledRates($prefDsdRates,$dsdrates,$maxSupportedDsdRate);
+	my $out;
+	my $first=1;
+	for my $rate (sort keys %$enabledRates){
+		
+		#disable first enable, so it could not be removed.
+		if ($first && $enabledRates->{$rate}){
+			$first=0;
+			$out->{$rate} = 1;	
+		} elsif (!($enabledRates->{$rate})){
+		
+			$out->{$rate} = 1;
+		}
+	} 
 	if (main::DEBUGLOG && $log->is_debug) {
 		
 		$log->debug(dump("disabled dsd rates: ".$out).
@@ -294,7 +320,7 @@ sub _getdisabledDsdRates{
 	}	
 	return $out;
 }
-sub _getDisabledRates{
+sub _getEnabledRates{
 	my $prefRates = shift;
 	my $capsRates = shift;
 	my $maxSupportedRate = shift || 0;
@@ -307,18 +333,22 @@ sub _getDisabledRates{
 					dump($prefRates));	
 	}
 	my $out={};
-	
+
 	for my $rate (keys %$prefRates){
 		
 		if (!($capsRates->{$rate})){
 		
-			$out->{$rate} = 1; 
+			$out->{$rate} = 0; 
 			
 		} elsif ($capsRates->{$rate} > $maxSupportedRate){
 		
-			$out->{$rate} = 1;
+			$out->{$rate} = 0;	
+		} else {
+			
+			$out->{$rate} = 1;	
 		}
-	}	
+	}
+
 	return $out;
 }
 sub _getdisabledCodecs{

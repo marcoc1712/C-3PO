@@ -610,25 +610,25 @@ sub _initDsdRates{
 	
 		$prefDsdRates = $CapabilityHelper->defaultDsdRates($client);
 		
-		if (main::DEBUGLOG && $log->is_debug) {
-			$log->debug("Default DSD Rates: ".dump($prefDsdRates));
+		if (main::INFOLOG && $log->is_info) {
+			$log->info("Default DSD Rates: ".dump($prefDsdRates));
 		}
 	
 	} else {
 
 		my $capDsdRates = $CapabilityHelper->dsdrates();	
-		if (main::DEBUGLOG && $log->is_debug) {
-			$log->debug(" DSD Rates: ".dump($prefs->client($client)->get('dsdRates')));
+		if (main::INFOLOG && $log->is_info) {
+			$log->info(" DSD Rates: ".dump($prefs->client($client)->get('dsdRates')));
 		}
 		my $prefRef =  $class->translateDsdRates($prefs->client($client)->get('dsdRates'));
-		if (main::DEBUGLOG && $log->is_debug) {
-			 $log->debug("Translated DSD Rates: ".dump($prefRef));
+		if (main::INFOLOG && $log->is_info) {
+			 $log->info("Translated DSD Rates: ".dump($prefRef));
 		}
 	
 		$prefDsdRates = _refreshRates($capDsdRates, $maxSupportedDsdrate, $prefRef);
 		
-		if (main::DEBUGLOG && $log->is_debug) {
-			 $log->debug("Refreshed DSD Rates: ".dump($prefDsdRates));
+		if (main::INFOLOG && $log->is_info) {
+			 $log->info("Refreshed DSD Rates: ".dump($prefDsdRates));
 		}
 		
 	}
@@ -1394,7 +1394,7 @@ sub _refreshRates{
 		
 		# rate is new added in supported
 		if (!exists $prefRates->{$rate}){
-				$prefRates->{$rate}=undef;
+				$prefRates->{$rate}=0;
 		} 
 	}
 	return $prefRates
