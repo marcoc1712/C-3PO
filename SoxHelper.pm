@@ -94,10 +94,8 @@ sub resample{
 
 	my $sdmFilterType		=$transcodeTable->{'sdmFilterType'};
 
-	my $dsdLowpass1Active	=1;
 	my $dsdLowpass1Value	=$transcodeTable->{'dsdLowpass1Value'} || 50;
 	my $dsdLowpass1Order	=$transcodeTable->{'dsdLowpass1Order'} || 2;
-	#my $dsdLowpass1Active	=$transcodeTable->{'dsdLowpass1Active'};
 
 	my $dsdLowpass2Value	=$transcodeTable->{'dsdLowpass2Value'};
 	my $dsdLowpass2Order	=$transcodeTable->{'dsdLowpass2Order'};
@@ -139,9 +137,8 @@ sub resample{
 	
 	my $lowpass="";
 	
-	if ($dsdLowpass1Active){
-		$lowpass = $lowpass.'lowpass -'.$dsdLowpass1Order.' '.$dsdLowpass1Value*1000;
-	}
+	$lowpass = $lowpass.'lowpass -'.$dsdLowpass1Order.' '.$dsdLowpass1Value*1000;
+
 	if ($dsdLowpass2Active){
 		$lowpass = $lowpass.' lowpass -'.$dsdLowpass2Order.' '.$dsdLowpass2Value*1000;
 	}

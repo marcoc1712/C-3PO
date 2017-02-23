@@ -670,7 +670,7 @@ sub _checkResample{
 	my $maxsamplerate = _getMaxRate($samplerates,44100);
 	
 	my $maxSupportedDsdrate = $transcodeTable->{'maxSupportedDsdrate'};
-	my $dsdrates=$transcodeTable->{'dsdates'};
+	my $dsdrates=$transcodeTable->{'dsdRates'};
 	my $maxDsdrate = _getMaxRate($dsdrates,0);
 
 	Plugins::C3PO::Logger::infoMessage('$maxsamplerate :'.$maxsamplerate);

@@ -231,7 +231,7 @@ sub _migratePrefs{
 		
 			$self->{preferences}->set('dsdLowpass1Value',22);
 			$self->{preferences}->set('dsdLowpass1Order',2);
-			$self->{preferences}->set('dsdLowpass1Active','on');
+			#$self->{preferences}->set('dsdLowpass1Active','on');
 
 			$self->{preferences}->set('dsdLowpass2Value',33);
 			$self->{preferences}->set('dsdLowpass2Order',2);
@@ -280,8 +280,8 @@ sub _migratePrefs{
 								$self->{preferences}->get('dsdLowpass1Value'));
 				$self->{preferences}->client($client)->set('dsdLowpass1Order',
 								$self->{preferences}->get('dsdLowpass1Order'));
-				$self->{preferences}->client($client)->set('dsdLowpass1Active',
-								$self->{preferences}->get('dsdLowpass1Active'));
+				#$self->{preferences}->client($client)->set('dsdLowpass1Active',
+				#				$self->{preferences}->get('dsdLowpass1Active'));
 								
 				$self->{preferences}->client($client)->set('dsdLowpass2Value',
 								$self->{preferences}->get('dsdLowpass2Value'));
@@ -307,7 +307,7 @@ sub _migratePrefs{
 			} else{
 				$self->{preferences}->client($client)->set('dsdLowpass1Value','22');
 				$self->{preferences}->client($client)->set('dsdLowpass1Order',2);
-				$self->{preferences}->client($client)->set('dsdLowpass1Active','on');
+				#$self->{preferences}->client($client)->set('dsdLowpass1Active','on');
 
 				$self->{preferences}->client($client)->set('dsdLowpass2Value',33);
 				$self->{preferences}->client($client)->set('dsdLowpass2Order',2);
@@ -404,7 +404,7 @@ sub _initDefaultPrefs{
 			sdmFilterType				=> "auto",
 			dsdLowpass1Value			=> 22,
 			dsdLowpass1Order			=> 2,
-			dsdLowpass1Active			=> "on",
+			#dsdLowpass1Active			=> "on",
 			dsdLowpass2Value			=> 33,
 			dsdLowpass2Order			=> 2,
 			dsdLowpass2Active			=> "0",

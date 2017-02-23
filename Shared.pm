@@ -49,7 +49,7 @@ my @sharedPrefNames		  = qw(	enable
 								ditherType ditherPrecision
 								
 								sdmFilterType
-								dsdLowpass1Value dsdLowpass1Order dsdLowpass1Active
+								dsdLowpass1Value dsdLowpass1Order 
 								dsdLowpass2Value dsdLowpass2Order dsdLowpass2Active	
 								dsdLowpass3Value dsdLowpass3Order dsdLowpass3Active
 								dsdLowpass4Value dsdLowpass4Order dsdLowpass4Active	

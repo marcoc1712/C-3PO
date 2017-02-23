@@ -96,10 +96,13 @@ sub handler {
 		$prefs->set('codecs', $prefCodecs);
 		
 		$prefs->writeAll();
-		$prefs->savenow();
-		
+		# BE SURE TO KEEP FOLLOWING LINE; Otherways settings wont apply without
+		# a double pressing of applybutton or a restart.
+		#
+		$class->SUPER::handler( $client, $params );
 		$plugin->settingsChanged();
-		$prefs->savenow();	
+
+		$prefs->savenow();
 		
 	}
 	$params->{'prefs'}->{'codecs'}	=	$prefCodecs; 

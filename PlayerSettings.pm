@@ -179,6 +179,7 @@ sub handler {
 		$plugin->getPreferences($client);
 		$class->SUPER::handler( $client, $params );
 		$plugin->settingsChanged($client);
+		
 		$prefs->savenow();
 	}
 	# END SaveSettings ########################################################
