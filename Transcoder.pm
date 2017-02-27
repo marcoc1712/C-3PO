@@ -754,11 +754,11 @@ sub _checkResample{
 	$maxDsdrate = $maxDsdrate*44100;
 		
 	Plugins::C3PO::Logger::infoMessage('is runtime :                 '.(isRuntime($transcodeTable)));
-	Plugins::C3PO::Logger::infoMessage('forced Samplerate :          '.$forcedSamplerate);
+	Plugins::C3PO::Logger::infoMessage('forced Samplerate :          '.($forcedSamplerate ? $forcedSamplerate :''));
 	Plugins::C3PO::Logger::infoMessage('resampleWhen :               '.$resampleWhen);
-	Plugins::C3PO::Logger::infoMessage('file samplerate:              '.$fileSamplerate);
+	Plugins::C3PO::Logger::infoMessage('file samplerate:              '.($fileSamplerate ? $fileSamplerate : ''));
 	Plugins::C3PO::Logger::infoMessage('resampleTo :                 '.$resampleTo);
-	Plugins::C3PO::Logger::infoMessage('Max syncrounus sample rate : '.$maxSyncrounusRate);
+	Plugins::C3PO::Logger::infoMessage('Max syncrounus sample rate : '.($maxSyncrounusRate ? $maxSyncrounusRate : ''));
 	Plugins::C3PO::Logger::infoMessage('isDsdOutput :                '.$isDsdOutput);
 	Plugins::C3PO::Logger::infoMessage('maxDsdrate :                 '.$maxDsdrate);
 	Plugins::C3PO::Logger::infoMessage('maxsamplerate :              '.$maxsamplerate);
@@ -1283,9 +1283,5 @@ sub _getFormat{
 	Plugins::C3PO::Logger::debugMessage("using format: ".$format->toString());
 	return $format;
 }
-
-###############################################################################
-# Codec independent - Helper routines.
-################################################################################
 
 1;

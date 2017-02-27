@@ -284,11 +284,11 @@ sub _getSoxVersion{
 	my $i = index($ret, "SoX v");
 	my $versionString= substr($ret,$i+5);
 	
-	my $version = Plugins::C3PO::Shared::unstringVersion($versionString,$log);
+	my ($version, $extra) = Plugins::C3PO::Shared::unstringVersion($versionString,$log);
 	
 	if (main::INFOLOG && $log->is_info) {
 		$log->info("Sox path  is: ".$pathToSox);
-		$log->info("Sox version is: ".$version);
+		$log->info("Sox version is: ".$version.($extra ? $extra : ''));
 	}
 	return $version;
 }

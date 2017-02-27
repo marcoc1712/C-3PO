@@ -306,17 +306,63 @@ sub unstringVersion{
 	
 	my @versionArray = split /[.]/, $versionString;
 	
-	if (!(scalar @versionArray) == 3) {
+	my $major;
+	my $minor;
+	my $patchlevel;
+	my $extra;
+	
+	my $patchlevelString;
+	
+	$major=$versionArray[0];
+	$minor=$versionArray[1];
+	
+	if ((scalar @versionArray) == 4) {
+	
+		$extra=$versionArray[3];
+	
+	} elsif ((scalar @versionArray) == 3) {
+		
+		$patchlevelString=$versionArray[2];
+		
+		if (!Scalar::Util::looks_like_number($patchlevelString)) {
+
+			for (my $i=0; $i <= length($patchlevelString); $i++){
+				
+				my $c= substr($patchlevelString,$i,1);
+				
+				if (Scalar::Util::looks_like_number($c)){
+				
+					$patchlevel=$patchlevel.$c;
+					
+				} else{
+
+					$extra= substr($patchlevelString,$i,length($patchlevelString));
+					last;
+				}
+			}
+		} else {
+		
+			$patchlevel = $patchlevelString;
+		}
+		
+		if (!$patchlevel){
+		
+			$patchlevel=0;
+			
+		} elsif ($patchlevel*1 >99){
+			
+			$extra = substr($patchlevel,0,length($patchlevel)).($extra ? $extra : '');
+			$patchlevel = substr($patchlevel,0,2);
+		}
+		
+	} else{
+	
 		$log->warn('WARNING: invalid version string: '.$versionString);
 		return undef;
 	}
-	
-	my $major=$versionArray[0];
-	my $minor=$versionArray[1];
-	my $patchlevel=$versionArray[2];
-	
-	if ($minor*1 > 99 || $patchlevel*1 > 99) {
-		$log->warn('WARNING: invalid version string: '.$versionString);
+
+	if ($minor*1 > 99) {
+		warn('WARNING: invalid version string: '.$versionString);
 		return undef;
 	}
 	
@@ -327,6 +373,6 @@ sub unstringVersion{
 		return undef;
 	}
 	
-	return $version;
+	return $version, $extra;
 }
 1;

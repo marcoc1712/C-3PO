@@ -3,8 +3,8 @@ PLUGIN_C3PO_ADVANCED_OPTIONS
 	IT	OPZIONI AVANZATE
 	
 PLUGIN_C3PO_ADVANCED_OPTIONS_DESC
-	EN	Use with caution at your own risk.
-	IT	Usare con cautela ed a prorpio rischio.
+	EN	Use with caution and at your own risk.
+	IT	Usare con cautela ed a proprio rischio.
 
 PLUGIN_C3PO_UNLIMITED_DSD_RATES
 	EN	Unlimited dsd resolutions
@@ -14,12 +14,20 @@ PLUGIN_C3PO_UNLIMITED_DSD_RATES_DESC
 	EN	Allow dsd resolutions to be greater than "Max sample rate"/88200. CAUTION: could produce noise dangerous for you and your speakers
 	IT	Non limitare la risoluzione DSD in uscita al "Massimo sample rate supportato"/88200. ATTENZIONE può generare rumore dannoso per te e per i diffusori.
 
-PLUGIN_C3PO_TITLE
+PLUGIN_C3PO_GENERAL_SETTINGS_TITLE
 	EN	GENERAL SETTINGS
 	IT	IMPOSTAZIONI GENERALI
 
-PLUGIN_C3PO_TITLE_DESC
-	EN	General Settings (default values). See also per player settings.
+PLUGIN_C3PO_GENERAL_SETTINGS_TITLE_DESC
+	EN	General Settings.
+	IT	Impostazioni generali.
+
+PLUGIN_C3PO_DEFAULT_SETTINGS_TITLE
+	EN	DEFAULT SETTINGS
+	IT	IMOSTAIONI STANDARD
+
+PLUGIN_C3PO_DEFAULT_SETTINGS_TITLE_DESC
+	EN	Default values for player settings.
 	IT	Impostazioni generali (valori standard). Verificare le impostazioni per singolo lettore.
 
 PLUGIN_C3PO_ENABLE_TITLE
@@ -609,12 +617,12 @@ PLUGIN_C3PO_PLAYER_TITLE_DESC
 	IT	Ricordarsi di confermare le modifiche.
 
 PLUGIN_C3PO_USE_GLOBAL
-	EN	Use global settings
-	IT	Usa le impostazioni generali
+	EN	Use default settings
+	IT	Usa le impostazioni predefinite
 	
 PLUGIN_C3PO_USE_GLOBAL_DESC
-	EN	Use global settings (see Advanced tab, C-3PO Transcoding Helper section) for this player.
-	IT	Usa le impostazioni generali (vedi Advanced, Transcoding Helper) per questo player.
+	EN	Use default settings (see Advanced tab, C-3PO Transcoding Helper section) for this player.
+	IT	Usa le impostazioni predefinite (vedi Advanced, Transcoding Helper) per questo player.
 
 PLUGIN_C3PO_SHOW_DETAILS
 	EN	Show details

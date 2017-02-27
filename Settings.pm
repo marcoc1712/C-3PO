@@ -25,6 +25,9 @@ use warnings;
 use base qw(Slim::Web::Settings);
 
 use Digest::MD5 qw(md5_hex);
+use File::Spec::Functions qw(:ALL);
+use File::Basename;
+use URI::Escape;
 
 use Slim::Utils::Log;
 use Slim::Utils::Prefs;
@@ -72,7 +75,17 @@ sub handler {
 	
 	my $prefs = $plugin->getPreferences();
 	
-	$params->{'logFolder'}			=	$prefs->get('logFolder');
+	my $logfile= catdir($prefs->get('logFolder'), "C-3PO.log");
+	my $logFileURI = uri_escape ($logfile);
+		
+	#$params->{'logFolder'}			=	$prefs->get('logFolder');
+	$params->{'logFile'}				=	$logfile;
+	$params->{'logFileURI'}			=	$logFileURI;
+	
+
+	$log->info('URI '.$logFileURI);	
+
+	
 	$params->{'soxVersion'}			=	$prefs->get('soxVersion');
 	$params->{'isSoxDsdCapable'}		=	$prefs->get('isSoxDsdCapable');
 	

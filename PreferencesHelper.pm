@@ -54,25 +54,7 @@ sub preferences {
     my $self = shift;  
     return $self->{preferences};
 }
-#sub set {
-#    my $self = shift;  
-#    my $key = shift;
-#	my $value = shift;
-#	
-#	 $self->{preferences}->set($key,$value);
-#}
-#sub get {
-#    my $self = shift;  
-#    my $key = shift;
-#	
-#	 $self->{preferences}->get($key);
-#}
-#sub client {
-#	 my $self = shift;  
-#	 my $client = shift;
-#	 
-#	 return $self->{preferences}->client($client)
-#}
+
 ####################################################################################################
 # Private
 #
@@ -324,6 +306,17 @@ sub _migratePrefs{
 		}
 	}
 	
+	if ($prefVersion < 20006){
+	
+			if (!$client){
+			
+			} else{
+				
+				$self->{preferences}->client($client)->set('useGlogalSettings','');
+				$self->{preferences}->client($client)->set('showDetails','on');
+			}
+	}
+	
 	# upgrade version.
 	if ($client){
 	
@@ -434,10 +427,10 @@ sub _getCurrentVersion{
 			last;
 		}
 	}
-	my $version = Plugins::C3PO::Shared::unstringVersion($currentVersion,$log);
+	my ($version, $extra)= Plugins::C3PO::Shared::unstringVersion($currentVersion,$log);
 
 	if (main::DEBUGLOG && $log->is_debug) {
-		$log->debug("C-3PO version is: ".$version);
+		$log->debug("C-3PO version is: ".$version.($extra ? $extra : ''));
 	}
 	
 	return $version;

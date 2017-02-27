@@ -32,8 +32,8 @@ sub new {
 	$self->_set_useSoxToTranscodeWhenResampling(1);
 	$self->_set_useSoxToEncodeWhenResampling(1);
 
-	$self->_set_useFFMpegToSplit(1);
-	$self->_set_useFFMpegToTranscode(1);
+	$self->_set_useFFMpegToSplit(0);
+	$self->_set_useFFMpegToTranscode(0);
 	
 	$self->_set_useFAADToSplit(0);
 		
@@ -48,55 +48,24 @@ sub splitBeforeResampling {
 	my $self = shift;
 	my $transcodeTable=shift;
 
-	my $commandString="";
-	
-	Plugins::C3PO::Logger::debugMessage('splitBeforeResampling');
-
-	if ($self->useFFMpegToSplit($transcodeTable)){
-
-		$commandString=$self->_splitUsingFfmpeg($transcodeTable);
-		
-	} else {
-		
-		#Always encode to FLAC (0 compresion).
-		$commandString=$self->_splitUsingFlac($transcodeTable);
-	}
-	Plugins::C3PO::Logger::debugMessage('command: '.$commandString);
-	return $commandString;
+	#I'm not aware of any tool to split dsd files
+	return "";
 }
 sub decodeBeforeResampling{
 	my $self = shift;
 	my $transcodeTable=shift;
 	
+	#dsd always ned sox downsampling, never transcode
 	return "";
+
 }
 sub splitAndEncode{
 
 	my $self = shift;
 	my $transcodeTable=shift;
 	
-	my $outCodec=$self->getOutputCodec($transcodeTable);
-	my $commandString="";
-	
-	Plugins::C3PO::Logger::debugMessage('splitAndEncode to $outCodec');
-	
-	if ($self->compareCodecs($outCodec, 'flc')){
-	
-		#Encode to FLAC, final compression, FFMPEG can't.
-		$commandString = $self->_splitAndEncodeUsingFlac($transcodeTable);
-	
-	} elsif ($self->useFFMpegToSplit($transcodeTable)){
-		
-		#could encode directly to outcodec, if useFFMpegToTranscode
-		$commandString=$self->_splitAndEncodeUsingFfmpeg($transcodeTable);
-		
-	} else {
-		#always encode to flac (0 compression) wil be transcoded to $outcodec in 
-		#a further step (normally using sox).)
-		$commandString=$self->_splitUsingFlac($transcodeTable);
-	}
-	Plugins::C3PO::Logger::debugMessage('command: '.$commandString);
-	return $commandString;
+	#dsd always ned sox downsampling, never transcode
+	return "";
 
 }
 ################################################################################
@@ -107,42 +76,23 @@ sub transcodeToWav{
 	my $self = shift;
 	my $transcodeTable=shift;
 	
-	my $commandstring;
-	
-	if ($self->_useFFMpegToTranscode($transcodeTable)){
-		
-		$commandstring = Plugins::C3PO::FfmpegHelper::transcode($transcodeTable);
-		
-	} else {
-	
-		$commandstring = Plugins::C3PO::SoxHelper::transcode($transcodeTable);
-	}
-	return $commandstring;
+	#dsd always ned sox downsampling, never transcode
+	return "";
 }
 sub transcodeToAiff{
 	my $self = shift;
 	my $transcodeTable=shift;
 	
-	my $commandstring;
-	
-	if ($self->_useFFMpegToTranscode($transcodeTable)){
-		
-		$commandstring = Plugins::C3PO::FfmpegHelper::transcode($transcodeTable);
-		
-	} else {
-	
-		$commandstring = Plugins::C3PO::SoxHelper::transcode($transcodeTable);
-	}
-	return $commandstring;
+	#dsd always ned sox downsampling, never transcode
+	return "";
 }
 
 sub transcodeToFlac{
 	my $self = shift;
 	my $transcodeTable=shift;
 
-	my $commandstring=Plugins::C3PO::FlacHelper::encode($transcodeTable);
-	
-	return $commandstring;
+	#dsd always ned sox downsampling, never transcode
+	return "";
 }
 ################################################################################
 # Private methods.

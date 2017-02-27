@@ -126,8 +126,8 @@ sub new {
 		$supportedCodecs{'dsf'}{'supported'}=0;
 		$supportedCodecs{'dff'}{'supported'}=0;
 	}
-		if (main::INFOLOG && $log->is_info) {
-			$log->info("unlimitedDsdRate  : ".dump($unlimitedDsdRate));
+	if (main::DEBUGLOG && $log->is_debug) {
+			$log->debug("unlimitedDsdRate  : ".dump($unlimitedDsdRate));
 	}
 	if (main::DEBUGLOG && $log->is_debug) {
 			$log->debug("isSoxDsdCapable  : ".dump($isSoxDsdCapable));
@@ -339,7 +339,7 @@ sub _guessRateList{
 	
 	my $rateList="";
 	
-	for my $k (sort(keys $rates)){
+	for my $k (sort(keys %$rates)){
 		my $rate=$rates->{$k};
 
 		if ($rate+1 > $maxrate+1) {next};

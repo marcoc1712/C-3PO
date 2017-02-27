@@ -3,7 +3,7 @@
 	<id>91d8fb10-c3po-11e3-ac10-0800200c9a66</id>
 	<name>PLUGIN_C3PO</name>
 	<module>Plugins::C3PO::Plugin</module>
-	<version>2.00.06</version>
+	<version>2.00.08</version>
 	<description>PLUGIN_C3PO_DESC</description>
 	<creator>marcoc1712</creator>
 	<email>marcoc1712@gmail.com</email>
@@ -18,7 +18,8 @@
 		<minVersion>7.8</minVersion>
         <maxVersion>*</maxVersion>
 	</targetApplication>
-	<zipUrl>http://www.marcoc1712.it/downloads/C3POEXE-v2.00.04.zip</zipUrl>
-	<md5>b0a339736612dc42fe1e7016649fc47f</md5>
+	<zipUrl>http://www.marcoc1712.it/downloads/C3POEXE-v2.00.06.zip</zipUrl>
+	<md5>b780c42360827efe3ef80867750d2269</md5>
+
 	<file>C-3PO.exe</file>
 </extension>

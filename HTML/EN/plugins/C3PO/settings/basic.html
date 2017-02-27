@@ -12,8 +12,8 @@
 		[% END %]
 	[% END %]
 
-	[% WRAPPER setting title="PLUGIN_C3PO_TITLE" desc="PLUGIN_C3PO_TITLE_DESC" %]
-		[% "PLUGIN_C3PO_TITLE_DESC" | string %]
+	[% WRAPPER setting title="PLUGIN_C3PO_GENERAL_SETTINGS_TITLE" desc="" %]
+		[% "" | string %]
 	[% END %]
 	[% WRAPPER setting title="PLUGIN_C3PO_CODEC_SELECTION_TITLE" desc="PLUGIN_C3PO_CODEC_SELECTION_DESC" %]
 		[% FOREACH codec IN prefs.codecs %]
@@ -29,9 +29,9 @@
 	[% WRAPPER setting title="PLUGIN_C3PO_ENABLE_TITLE" desc="PLUGIN_C3PO_ENABLE_DESC" %]
 		<input name="pref_enable" type="checkbox" [% IF prefs.enable %] checked [% END %]>
 	[% END %]
-	
-	[% PROCESS 'plugins/C3PO/settings/common.html' %]
-	
+	[% IF 0 %]
+		[% PROCESS 'plugins/C3PO/settings/common.html' %]
+	[% END %]
 	[% WRAPPER setting title="" desc="" %][% END %]
 	
 	[% IF isSoxDsdCapable %]
@@ -49,9 +49,8 @@
 	[% END %]
 	
 	[% WRAPPER setting title="PLUGIN_C3PO_LOG_C3PO" desc="" %]
-
-	
-		<a "[% logFolder | lower %]" target="log">[% logFolder %]</a>
+		
+		<a href="file:///[% logFileURI | lower %]" target="_blank"> [% logFile %]</a>
 	
 	[% END %]
 	

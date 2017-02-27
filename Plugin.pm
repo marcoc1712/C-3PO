@@ -610,25 +610,25 @@ sub _initDsdRates{
 	
 		$prefDsdRates = $CapabilityHelper->defaultDsdRates($client);
 		
-		if (main::INFOLOG && $log->is_info) {
-			$log->info("Default DSD Rates: ".dump($prefDsdRates));
+		if (main::DEBUGLOG && $log->is_debug) {
+			$log->debug("Default DSD Rates: ".dump($prefDsdRates));
 		}
 	
 	} else {
 
 		my $capDsdRates = $CapabilityHelper->dsdrates();	
-		if (main::INFOLOG && $log->is_info) {
-			$log->info(" DSD Rates: ".dump($prefs->client($client)->get('dsdRates')));
+		if (main::DEBUGLOG && $log->is_debug) {
+			$log->debug(" DSD Rates: ".dump($prefs->client($client)->get('dsdRates')));
 		}
 		my $prefRef =  $class->translateDsdRates($prefs->client($client)->get('dsdRates'));
-		if (main::INFOLOG && $log->is_info) {
-			 $log->info("Translated DSD Rates: ".dump($prefRef));
+		if (main::DEBUGLOG && $log->is_debug) {
+			 $log->debug("Translated DSD Rates: ".dump($prefRef));
 		}
 	
 		$prefDsdRates = _refreshRates($capDsdRates, $maxSupportedDsdrate, $prefRef);
 		
-		if (main::INFOLOG && $log->is_info) {
-			 $log->info("Refreshed DSD Rates: ".dump($prefDsdRates));
+		if (main::DEBUGLOG && $log->is_debug) {
+			 $log->debug("Refreshed DSD Rates: ".dump($prefDsdRates));
 		}
 		
 	}
@@ -1080,19 +1080,13 @@ sub _calcStatus{
 					$log->debug("resampleTo: ".$prefs->get('resampleTo'));
 				}
 				
-				$ref = _getStatusLine('502','server',$ref);
+				#$ref = _getStatusLine('502','server',$ref);
 				$ref = _getStatusLine('502',$client,$ref);
 
 			}
 			if ($prefEnableSeekRef->{$codec} && $prefEnableStdinRef->{$codec}){
 				
-				$ref = _getStatusLine('503','server',$ref);
-				$ref = _getStatusLine('503',$client,$ref);
-
-			}
-			if ($prefEnableSeekRef->{$codec} && $prefEnableStdinRef->{$codec}){
-				
-				$ref = _getStatusLine('503','server',$ref);
+				#$ref = _getStatusLine('503','server',$ref);
 				$ref = _getStatusLine('503',$client,$ref);
 
 			}
@@ -1468,7 +1462,4 @@ sub _refreshCodecs{
 
 	return ($prefCodecs);
 }
-################################################################################
-# tobe deletes
-#
 1;
