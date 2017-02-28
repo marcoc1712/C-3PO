@@ -724,7 +724,7 @@ sub _checkResample{
 		
 			$filedsdRate = $fileSamplerate/44100;
 
-			Plugins::C3PO::Logger::infoMessage('isDsdIm: '.$isDsdInput);
+			Plugins::C3PO::Logger::infoMessage('isDsdIn: '.$isDsdInput);
 			Plugins::C3PO::Logger::infoMessage('file dsdrate: '.$filedsdRate);
 		
 		}
@@ -819,6 +819,9 @@ sub _willResample{
 	if ($transcodeTable->{'remixLeft'} && !($transcodeTable->{'remixLeft'} eq 100)) {return 1;}
 	if ($transcodeTable->{'remixRight'} && !($transcodeTable->{'remixRight'} eq 100)) {return 1;}
 	if ($transcodeTable->{'flipChannels'}) {return 1;}
+	
+	my $outCodec= $transcodeTable->{'outCodec'};
+	if ($outCodec eq 'dsf'  || $outCodec eq 'dff') {return 1;} # needs sdm. and maybe lowpass.
 	
 	#Always resample if any extra effects is requested.
 	if ($transcodeTable->{'extra_before_rate'} && !($transcodeTable->{'extra_before_rate'} eq "")) {return 1;}
@@ -1163,15 +1166,19 @@ sub _isResamplingRequested{
 	my $transcodeTable =shift;
 	
 	my $inCodec= $transcodeTable->{'inCodec'};
+	my $outCodec= $transcodeTable->{'outCodec'};
 	
 	Plugins::C3PO::Logger::debugMessage('In codec '.$inCodec);
+	Plugins::C3PO::Logger::debugMessage('In codec '.$outCodec);
 	Plugins::C3PO::Logger::debugMessage('enableResample: '.
 		($transcodeTable->{'enableResample'}->{$inCodec} ? 
 			$transcodeTable->{'enableResample'}->{$inCodec} : 0));
 	
 	Plugins::C3PO::Logger::debugMessage('resampleWhen: '.$transcodeTable->{'resampleWhen'});
 	
-	if (! $transcodeTable->{'enableResample'}->{$inCodec}) {return 0;}
+	if ($transcodeTable->{'enableResample'}->{$inCodec}) {return 1;}
+	if ($outCodec eq 'dsf'  || $outCodec eq 'dff') {return 1;} 
+	
 	return !($transcodeTable->{'resampleWhen'} eq 'N');
 }
 sub isTranscodingRequired{

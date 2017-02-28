@@ -289,7 +289,6 @@ sub _migratePrefs{
 			} else{
 				$self->{preferences}->client($client)->set('dsdLowpass1Value','22');
 				$self->{preferences}->client($client)->set('dsdLowpass1Order',2);
-				#$self->{preferences}->client($client)->set('dsdLowpass1Active','on');
 
 				$self->{preferences}->client($client)->set('dsdLowpass2Value',33);
 				$self->{preferences}->client($client)->set('dsdLowpass2Order',2);
@@ -308,10 +307,8 @@ sub _migratePrefs{
 	
 	if ($prefVersion < 20006){
 	
-			if (!$client){
+			if ($client){
 			
-			} else{
-				
 				$self->{preferences}->client($client)->set('useGlogalSettings','');
 				$self->{preferences}->client($client)->set('showDetails','on');
 			}
@@ -364,7 +361,8 @@ sub _initDefaultPrefs{
 	if ($client){
 	
 		$self->{preferences}->client($client)->set('enable', 'on');
-		$self->{preferences}->client($client)->set('useGlogalSettings', 'on');
+		$self->{preferences}->client($client)->set('useGlogalSettings', '');
+		$self->{preferences}->client($client)->set('showDetails', 'on');
 	
 	} else {
 	

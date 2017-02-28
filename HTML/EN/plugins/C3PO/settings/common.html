@@ -175,26 +175,30 @@
 		[% IF prefs.aliasing %] checked [% END %]
 		[% IF prefs.useGlogalSettings %] disabled [% END %]>
 [% END %]
-[% WRAPPER setting title="PLUGIN_C3PO_NOIOPT" desc="PLUGIN_C3PO_NOIOPT_DESC" %]
-	<input name="pref_noIOpt" type="checkbox" 
-		[% IF prefs.noIOpt %] checked [% END %]
-		[% IF prefs.useGlogalSettings %] disabled [% END %]>
-[% END %]
-[% WRAPPER setting title="PLUGIN_C3PO_HI_PRECISION_CLOCK" desc="PLUGIN_C3PO_HI_PRECISION_CLOCK_DESC" %]
-	<input name="pref_highPrecisionClock" type="checkbox" 
-		[% IF prefs.highPrecisionClock %] checked [% END %]
-		[% IF prefs.useGlogalSettings %] disabled [% END %]>
+[% IF soxVersion > 140401 %]
+	[% WRAPPER setting title="PLUGIN_C3PO_NOIOPT" desc="PLUGIN_C3PO_NOIOPT_DESC" %]
+		<input name="pref_noIOpt" type="checkbox" 
+			[% IF prefs.noIOpt %] checked [% END %]
+			[% IF prefs.useGlogalSettings %] disabled [% END %]>
+	[% END %]
+	[% WRAPPER setting title="PLUGIN_C3PO_HI_PRECISION_CLOCK" desc="PLUGIN_C3PO_HI_PRECISION_CLOCK_DESC" %]
+		<input name="pref_highPrecisionClock" type="checkbox" 
+			[% IF prefs.highPrecisionClock %] checked [% END %]
+			[% IF prefs.useGlogalSettings %] disabled [% END %]>
+	[% END %]
 [% END %]
 [% WRAPPER setting title="PLUGIN_C3PO_BANDWIDTH" desc="PLUGIN_C3PO_BANDWIDTH_DESC" %]
 	<input type="text" class="stdedit sliderInput_740_997" name="pref_bandwidth" id="bandwidth" 
 		value="[% prefs.bandwidth %]" size="5"
 		[% IF prefs.useGlogalSettings %] disabled [% END %]>
 [% END %]
-[% WRAPPER setting title="PLUGIN_C3PO_SMALLROLLOFF" desc="PLUGIN_C3PO_SMALLROLLOFF_DESC" %]
-	<input name="pref_smallRollOff" type="checkbox" 
-		[% IF prefs.smallRollOff %] checked [% END %]
-		[% IF prefs.useGlogalSettings %] disabled [% END %]>
-[% END %]
+[% IF soxVersion > 140401 %]
+	[% WRAPPER setting title="PLUGIN_C3PO_SMALLROLLOFF" desc="PLUGIN_C3PO_SMALLROLLOFF_DESC" %]
+		<input name="pref_smallRollOff" type="checkbox" 
+			[% IF prefs.smallRollOff %] checked [% END %]
+			[% IF prefs.useGlogalSettings %] disabled [% END %]>
+	[% END %]
+[% END %]	
 [% WRAPPER setting title="PLUGIN_C3PO_EXTRA_BEFORE_RATE" desc="PLUGIN_C3PO_EXTRA_BEFORE_RATE_DESC" %]
 	<input type="text" class="stdedit" name="pref_extra_before_rate" id="extra_before_rate" 
 		   value="[% prefs.extra_before_rate | html %]" size="50" maxlength="100" 

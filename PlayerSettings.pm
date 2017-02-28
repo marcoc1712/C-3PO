@@ -62,7 +62,6 @@ sub handler {
 	my ($class, $client, $params, $callback, @args) = @_;
 	
 	#refresh capabilities, to see chamge sin the global options.
-	
 	#refresh the codec list.
 	my $clientCodecList=$plugin->initClientCodecs($client);
 	
@@ -197,7 +196,12 @@ sub handler {
 	
 	# copy here prefs not in prefList
 	
-	_copyPrefsToParams($client,$params,'useGlogalSettings');
+	# sanity check after 2.00.06 changes.
+	#_copyPrefsToParams($client,$params,'useGlogalSettings');
+	$prefs->client($client)->set('useGlogalSettings',undef);
+	$params->{'pref_useGlogalSettings'}=0;
+	$prefs->client($client)->set('showDetails','on');
+	$params->{'pref_showDetails'}=1;
 	
 	_copyPrefsToParams($client,$params,'id');
 	_copyPrefsToParams($client,$params,'macaddress');

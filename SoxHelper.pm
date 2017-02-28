@@ -161,11 +161,11 @@ sub resample{
 	# rate -v -L -n -t -a -b 90.7 -f 192000
 	if ($quality){$rateString= $rateString.' -'.$quality};
 	if ($phase){$rateString= $rateString.' -'.$phase};
-	if ($noIOpt){$rateString= $rateString.' -'.$noIOpt};
-	if ($highPrecisionClock){$rateString= $rateString.' -'.$highPrecisionClock};
+	if (($soxVersion > 140401) && $noIOpt){$rateString= $rateString.' -'.$noIOpt};
+	if (($soxVersion > 140401) && $highPrecisionClock){$rateString= $rateString.' -'.$highPrecisionClock};
 	if ($aliasing){$rateString= $rateString.' -'.$aliasing};
 	if ($bandwidth){$rateString= $rateString.' -b '.$bandwidth};
-	if ($smallRollOff){$rateString= $rateString.' -'.$smallRollOff};
+	if (($soxVersion > 140401) && $smallRollOff){$rateString= $rateString.' -'.$smallRollOff};
 	if ($outSamplerate){$rateString= $rateString.' '.$outSamplerate};
 	
 	# effects gain -h gain -3 loudness -6 65 remix -m 1v0.94 2
