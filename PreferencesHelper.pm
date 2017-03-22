@@ -108,12 +108,12 @@ sub _migratePrefs{
 		if ($client){
 			$log->info("_migratePrefs for client: ".$client." from: ".$prefVersion." to: ".$curentVersion);
 		} else{
-			$log->info("_migratePrefs from: ".$prefVersion." to: ".$curentVersion);
+			$log->info("_migratePrefs SERVER from: ".$prefVersion." to: ".$curentVersion);
 		}
 	}
 	
 	if ((!$client && $prefVersion == 0 && !($self->{preferences}->get('outCodec'))) ||
-		($client && $prefVersion == 0 && !($self->{preferences}->client($client)->get('outCodec')))){
+	    ($client && $prefVersion == 0 && !($self->{preferences}->client($client)->get('outCodec')))){
 
 		#C-3PO is running for the first time
 		$self->_initDefaultPrefs($client);
@@ -323,6 +323,7 @@ sub _migratePrefs{
 	
 		$self->{preferences}->set('version',$curentVersion);
 	}
+        
 	$self->{preferences}->writeAll();
 	$self->{preferences}->savenow();
 	
@@ -363,34 +364,38 @@ sub _initDefaultPrefs{
 		$self->{preferences}->client($client)->set('enable', 'on');
 		$self->{preferences}->client($client)->set('useGlogalSettings', '');
 		$self->{preferences}->client($client)->set('showDetails', 'on');
+                
+                for my $item (Plugins::C3PO::Shared::getSharedPrefNameList()){
+			$self->{preferences}->client($client)->set($item, $self->{preferences}->get($item));
+		}
 	
 	} else {
 	
 		$self->{preferences}->init({
-			enable						=> "on",
+			enable                                  => "on",
 			unlimitedDsdRate			=> "0",
 			resampleWhen				=> "A",
-			resampleTo					=> "S",
-			outCodec					=> "wav",
-			outBitDepth					=> 3,
+			resampleTo                              => "S",
+			outCodec				=> "wav",
+			outBitDepth				=> 3,
 			#outEncoding				=> undef,
 			#outChannels				=> 2,
-			headroom					=> "1",
-			gain						=> 0,
+			headroom				=> "1",
+			gain					=> 0,
 			loudnessGain				=> 0,
-			loudnessRef					=> 65,
-			remixLeft					=> 100,
-			remixRight					=> 100,
+			loudnessRef				=> 65,
+			remixLeft				=> 100,
+			remixRight				=> 100,
 			flipChannels				=> "0",
-			quality						=> "v",
-			phase						=> "I",
-			aliasing					=> "0",
-			noIOpt						=> "0",
+			quality					=> "v",
+			phase					=> "I",
+			aliasing				=> "0",
+			noIOpt					=> "0",
 			smallRollOff				=> "on",
 			highPrecisionClock			=> "0",
-			bandwidth					=> 907,
-			#dither						=> "on",
-			ditherType					=> "1",
+			bandwidth				=> 907,
+			#dither					=> "on",
+			ditherType				=> "1",
 			ditherPrecision				=> -1,
 			sdmFilterType				=> "auto",
 			dsdLowpass1Value			=> 22,
@@ -405,7 +410,7 @@ sub _initDefaultPrefs{
 			dsdLowpass4Value			=> 48,
 			dsdLowpass4Order			=> 2,
 			dsdLowpass4Active			=> "0",
-			#extra						=> "",
+			#extra					=> "",
 			extra_before_rate			=> "",
 			extra_after_rate			=> "",
 		});

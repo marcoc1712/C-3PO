@@ -71,7 +71,7 @@ sub handler {
 	
 	$params->{'soxVersion'} =$prefs->get('soxVersion');
 	$params->{'isSoxDsdCapable'} =$prefs->get('isSoxDsdCapable');
-	
+       
 	my $codecsCli    = $prefs->client($client)->get('codecsCli');
 	my $prefCodecs   = $prefs->client($client)->get('codecs');
 	my $prefSeeks    = $prefs->client($client)->get('enableSeek');

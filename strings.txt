@@ -805,8 +805,8 @@ PLUGIN_C3PO_STATUS_ALL_951
 	IT	La versione di SOX in uso non è aggiornata, sostituirla con una più recente per abilitare ulteriori funzionalità.
 
 PLUGIN_C3PO_STATUS_CLIENT_952
-	EN	Your player can play the DSD format, the SOX version in use not. See the instructions here: www.tobedefined.com on getting a modified version of SOX.
-	IT	Il tuo player può riprodurre il formato DSD, la versione di SOX in uso no. Vedi le istruioni qui: www.tobedefined.com su come ottenere una versione modificata di SOX.
+	EN	Your player can play the DSD format, the SOX version in use not. See: www.audiodigitale.eu
+	IT	Il tuo player può riprodurre il formato DSD, la versione di SOX in uso no. Vedi www.audiodigitale.eu.
 
 PLUGIN_C3PO_STATUS_SERVER_952
 	EN	The SOX version in use does not handle DSD formats. See instructions here: www.tobedefined.com on getting a modified version.

@@ -87,7 +87,7 @@ sub handler {
 
 	
 	$params->{'soxVersion'}			=	$prefs->get('soxVersion');
-	$params->{'isSoxDsdCapable'}		=	$prefs->get('isSoxDsdCapable');
+	$params->{'isSoxDsdCapable'}    =	$prefs->get('isSoxDsdCapable');
 	
 	
 	my $status= $plugin->getStatus();
@@ -119,7 +119,7 @@ sub handler {
 		
 	}
 	$params->{'prefs'}->{'codecs'}	=	$prefCodecs; 
-	$params->{'supportedCodecs'}		=	$plugin->getSupportedCodecs();
+	$params->{'supportedCodecs'}	=	$plugin->getSupportedCodecs();
 	
 
 	if (main::DEBUGLOG && $log->is_debug) {

@@ -246,8 +246,7 @@
 	[% WRAPPER setting title="PLUGIN_C3PO_SDM_FILTER_TYPE" desc="PLUGIN_C3PO_SDM_FILTER_TYPE_DESC" %]
 		<select class="stdedit" name="pref_sdmFilterType" id="sdmFilterType"
 			[% IF  (needsClient &&  prefs.useGlogalSettings) ||
-				  (needsClient && !prefs.codecsCli.dsf && !prefs.codecsCli.dff) ||
-				  (!needsClient && !prefs.codecs.dsf && ! prefs.codecs.dff)
+				  (!prefs.codecsCli.dsf && !prefs.codecsCli.dff)
 			%] disabled [% END %]
 			<option [% IF prefs.sdmFilterType == "0" %]selected="selected" [% END %]value="-1">
 				[% 'PLUGIN_C3PO_SDM_FILTER_TYPE_DISABLED' | string %]
@@ -298,14 +297,12 @@
 		<input type="text" class="stdedit sliderInput_15_50" name="pref_dsdLowpass1Value" 
 			id="dsdLowpass1Slider" value="[% prefs.dsdLowpass1Value %]" size="5"
 			[% IF  (needsClient &&  prefs.useGlogalSettings) ||
-				(needsClient && !prefs.codecsCli.dsf && !prefs.codecsCli.dff) ||
-				(!needsClient && !prefs.codecs.dsf && ! prefs.codecs.dff)
+				(!prefs.codecs.dsf && !prefs.codecs.dff)
 			%] disabled [% END %]
 		<label for="pref_dsdLowpass1Order" >[% "PLUGIN_C3PO_DSD_IN_LOWPASS_ORDER" | string %] &nbsp;&nbsp; </label>
 		<select class="stdedit" name="pref_dsdLowpass1Order" id="dsdLowpass1Order"
 			[% IF  (needsClient &&  prefs.useGlogalSettings) ||
-					(needsClient && !prefs.codecsCli.dsf && !prefs.codecsCli.dff) ||
-					(!needsClient && !prefs.codecs.dsf && ! prefs.codecs.dff)
+					(!prefs.codecs.dsf && !prefs.codecs.dff)
 			%] disabled [% END %] />
 			<option [% IF prefs.dsdLowpass1Order == "1" %]selected="selected" [% END %]value="1">
 				[% "PLUGIN_C3PO_DSD_IN_LOWPASS_ORDER_1" | string %]
@@ -318,8 +315,7 @@
 			<input name="pref_dsdLowpass1Active" type="checkbox" 
 				[% IF prefs.dsdLowpass1Active %] checked [% END %]
 				[% IF  (needsClient &&  prefs.useGlogalSettings) ||
-						(needsClient && !prefs.codecsCli.dsf && !prefs.codecsCli.dff) ||
-						(!needsClient && !prefs.codecs.dsf && ! prefs.codecs.dff)
+						(!prefs.codecs.dsf && !prefs.codecs.dff)
 				%] disabled [% END %]
 			<label for="pref_dsdLowpass1Active" >[% "PLUGIN_C3PO_DSD_IN_LOWPASS_CB" | string %] &nbsp;&nbsp; </label>
 		[% END %]	
@@ -329,14 +325,12 @@
 		<input type="text" class="stdedit sliderInput_15_50" name="pref_dsdLowpass2Value" 
 			   id="dsdLowpass2Slider" value="[% prefs.dsdLowpass2Value %]" size="5"
 			   [% IF  (needsClient &&  prefs.useGlogalSettings) ||
-					(needsClient && !prefs.codecsCli.dsf && !prefs.codecsCli.dff) ||
-					(!needsClient && !prefs.codecs.dsf && ! prefs.codecs.dff)
+					(!prefs.codecs.dsf && !prefs.codecs.dff)
 			%] disabled [% END %]
 		<label for="pref_dsdLowpass2Order" >[% "PLUGIN_C3PO_DSD_IN_LOWPASS_ORDER" | string %] &nbsp;&nbsp; </label>
 		<select class="stdedit" name="pref_dsdLowpass2Order" id="dsdLowpass2Order"
 			[% IF  (needsClient &&  prefs.useGlogalSettings) ||
-				(needsClient && !prefs.codecsCli.dsf && !prefs.codecsCli.dff) ||
-				(!needsClient && !prefs.codecs.dsf && ! prefs.codecs.dff)
+				(!prefs.codecs.dsf && !prefs.codecs.dff)
 			%] disabled [% END %] />
 			<option [% IF prefs.dsdLowpass2Order == "1" %]selected="selected" [% END %]value="1">
 				[% "PLUGIN_C3PO_DSD_IN_LOWPASS_ORDER_1" | string %]
@@ -348,8 +342,7 @@
 		<input name="pref_dsdLowpass2Active" type="checkbox" 
 			[% IF prefs.dsdLowpass2Active %] checked [% END %]
 			[% IF  (needsClient &&  prefs.useGlogalSettings) ||
-				(needsClient && !prefs.codecsCli.dsf && !prefs.codecsCli.dff) ||
-				(!needsClient && !prefs.codecs.dsf && ! prefs.codecs.dff)
+				(!prefs.codecs.dsf && !prefs.codecs.dff)
 			%] disabled [% END %]
 		<label for="pref_dsdLowpass2Active" >[% "PLUGIN_C3PO_DSD_IN_LOWPASS_CB" | string %] &nbsp;&nbsp; </label>
 	[% END %]
@@ -358,14 +351,12 @@
 		<input type="text" class="stdedit sliderInput_15_50" name="pref_dsdLowpass3Value" 
 			id="dsdLowpass3Slider" value="[% prefs.dsdLowpass3Value %]" size="5"
 			[% IF  (needsClient &&  prefs.useGlogalSettings) ||
-				(needsClient && !prefs.codecsCli.dsf && !prefs.codecsCli.dff) ||
-				(!needsClient && !prefs.codecs.dsf && ! prefs.codecs.dff)
+				(!prefs.codecs.dsf && !prefs.codecs.dff)
 			%] disabled [% END %]
 		<label for="pref_dsdLowpass3Order" >[% "PLUGIN_C3PO_DSD_IN_LOWPASS_ORDER" | string %] &nbsp;&nbsp; </label>
 		<select class="stdedit" name="pref_dsdLowpass3Order" id="dsdLowpass3Order"
 			[% IF  (needsClient &&  prefs.useGlogalSettings) ||
-				(needsClient && !prefs.codecsCli.dsf && !prefs.codecsCli.dff) ||
-				(!needsClient && !prefs.codecs.dsf && ! prefs.codecs.dff)
+				(!prefs.codecs.dsf && !prefs.codecs.dff)
 			%] disabled [% END %] />
 			<option [% IF prefs.dsdLowpass3Order == "1" %]selected="selected" [% END %]value="1">
 				[% "PLUGIN_C3PO_DSD_IN_LOWPASS_ORDER_1" | string %]
@@ -377,8 +368,7 @@
 		<input name="pref_dsdLowpass3Active" type="checkbox" 
 			[% IF prefs.dsdLowpass3Active %] checked [% END %]
 			[% IF  (needsClient &&  prefs.useGlogalSettings) ||
-				(needsClient && !prefs.codecsCli.dsf && !prefs.codecsCli.dff) ||
-				(!needsClient && !prefs.codecs.dsf && ! prefs.codecs.dff)
+				(!prefs.codecs.dsf && !prefs.codecs.dff)
 			%] disabled [% END %]
 		<label for="pref_dsdLowpass3Active" >[% "PLUGIN_C3PO_DSD_IN_LOWPASS_CB" | string %] &nbsp;&nbsp; </label>
 	[% END %]
@@ -387,14 +377,12 @@
 		<input type="text" class="stdedit sliderInput_15_50" name="pref_dsdLowpass4Value" 
 			id="dsdLowpass4Slider" value="[% prefs.dsdLowpass4Value %]" size="5"
 			[% IF  (needsClient &&  prefs.useGlogalSettings) ||
-				(needsClient && !prefs.codecsCli.dsf && !prefs.codecsCli.dff) ||
-				(!needsClient && !prefs.codecs.dsf && ! prefs.codecs.dff)
+				(!prefs.codecs.dsf && !prefs.codecs.dff)
 			%] disabled [% END %]
 		<label for="pref_dsdLowpass4Order" >[% "PLUGIN_C3PO_DSD_IN_LOWPASS_ORDER" | string %] &nbsp;&nbsp; </label>
 		<select class="stdedit" name="pref_dsdLowpass4Order" id="dsdLowpass4Order"
 			[% IF  (needsClient &&  prefs.useGlogalSettings) ||
-				(needsClient && !prefs.codecsCli.dsf && !prefs.codecsCli.dff) ||
-				(!needsClient && !prefs.codecs.dsf && ! prefs.codecs.dff)
+				(!prefs.codecs.dsf && !prefs.codecs.dff)
 			%] disabled [% END %] />
 			<option [% IF prefs.dsdLowpass4Order == "1" %]selected="selected" [% END %]value="1">
 				[% "PLUGIN_C3PO_DSD_IN_LOWPASS_ORDER_1" | string %]
@@ -406,8 +394,7 @@
 		<input name="pref_dsdLowpass4Active" type="checkbox" 
 			[% IF prefs.dsdLowpass4Active %] checked [% END %]
 			[% IF  (needsClient &&  prefs.useGlogalSettings) ||
-				(needsClient && !prefs.codecsCli.dsf && !prefs.codecsCli.dff) ||
-				(!needsClient && !prefs.codecs.dsf && ! prefs.codecs.dff)
+				(!prefs.codecs.dsf && !prefs.codecs.dff)
 			%] disabled [% END %]
 		<label for="pref_dsdLowpass4Active" >[% "PLUGIN_C3PO_DSD_IN_LOWPASS_CB" | string %] &nbsp;&nbsp; </label>
 	[% END %]
