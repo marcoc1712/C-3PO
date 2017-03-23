@@ -199,10 +199,10 @@ sub _migratePrefs{
 		
 	} #here specifIc advancements from versions greather than 1.1.02
 
-	if ($prefVersion < 10106){
+	if ($prefVersion < 20012){
 		
 		if (!$client){
-		
+
 			$self->{preferences}->set('enable', 'on');
 			$self->{preferences}->set('unlimitedDsdRate', '');
 			
@@ -213,7 +213,6 @@ sub _migratePrefs{
 		
 			$self->{preferences}->set('dsdLowpass1Value',22);
 			$self->{preferences}->set('dsdLowpass1Order',2);
-			#$self->{preferences}->set('dsdLowpass1Active','on');
 
 			$self->{preferences}->set('dsdLowpass2Value',33);
 			$self->{preferences}->set('dsdLowpass2Order',2);
@@ -229,7 +228,10 @@ sub _migratePrefs{
 			$self->{preferences}->set('dsdLowpass4Active','');
 
 		} else{
-		
+				
+            $self->{preferences}->client($client)->set('useGlogalSettings','');
+            $self->{preferences}->client($client)->set('showDetails','on');
+            
 			$self->{preferences}->client($client)->set('enable', 'on');
 			
 			if  ($self->{preferences}->get('noIOpt')){
@@ -262,9 +264,7 @@ sub _migratePrefs{
 								$self->{preferences}->get('dsdLowpass1Value'));
 				$self->{preferences}->client($client)->set('dsdLowpass1Order',
 								$self->{preferences}->get('dsdLowpass1Order'));
-				#$self->{preferences}->client($client)->set('dsdLowpass1Active',
-				#				$self->{preferences}->get('dsdLowpass1Active'));
-								
+												
 				$self->{preferences}->client($client)->set('dsdLowpass2Value',
 								$self->{preferences}->get('dsdLowpass2Value'));
 				$self->{preferences}->client($client)->set('dsdLowpass2Order',
@@ -304,16 +304,7 @@ sub _migratePrefs{
 			}
 		}
 	}
-	
-	if ($prefVersion < 20006){
-	
-			if ($client){
-			
-				$self->{preferences}->client($client)->set('useGlogalSettings','');
-				$self->{preferences}->client($client)->set('showDetails','on');
-			}
-	}
-	
+		
 	# upgrade version.
 	if ($client){
 	
