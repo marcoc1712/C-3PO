@@ -1046,8 +1046,8 @@ sub _calcStatus{
 
 			} else {
 				
-				$ref = _getStatusLine('021','server',$ref);
-				$ref = _getStatusLine('021',$client,$ref);
+				$ref = _getStatusLine('522','server',$ref);
+				$ref = _getStatusLine('522',$client,$ref);
 
 			}
 			
