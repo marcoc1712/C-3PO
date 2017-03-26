@@ -38,6 +38,10 @@ PLUGIN_C3PO_ENABLE_DESC
 	EN	Enable C-3PO. Default choice for new player.
 	IT	Abilita C-3PO, default per i nuovi players. 
 
+PLUGIN_C3PO_ADVANCED_OPTIONS
+	EN	ADVANCED OPTIONS.
+	IT	OPZIONI AVANZATE. 
+
 PLUGIN_C3PO_PLAYER_ENABLE_TITLE
 	EN	Enable C-3PO for this player.
 	IT	Abilita C-3PO per questo player. 
