@@ -74,6 +74,7 @@ use Plugins::C3PO::Shared;
 use Plugins::C3PO::PreferencesHelper;
 use Plugins::C3PO::CapabilityHelper;
 use Plugins::C3PO::EnvironmentHelper;
+use Plugins::C3PO::LMSTranscodingHelper;
 use Plugins::C3PO::Logger;
 use Plugins::C3PO::Transcoder;
 use Plugins::C3PO::OsHelper;
@@ -114,6 +115,7 @@ $logger{'log'}=$log;
 
 my $EnvironmentHelper;
 my $CapabilityHelper;
+my $LMSTranscodingHelper;
 
 
 ################################################################################
@@ -140,6 +142,7 @@ sub initPlugin {
 	}
 	
 	$EnvironmentHelper = Plugins::C3PO::EnvironmentHelper->new(\%logger, $C3POfolder, $serverFolder);	
+
 	my $preferences = $class->getPreferences();
 
 	$preferences->set('serverFolder', $EnvironmentHelper->serverFolder());
@@ -178,8 +181,14 @@ sub initPlugin {
 	
 	$C3POwillStart=$class->_testC3PO();
 	$preferences->set('C3POwillStart', $C3POwillStart);
+    
+    $LMSTranscodingHelper = Plugins::C3PO::LMSTranscodingHelper->new($class);
+    
+    if (main::INFOLOG && $log->is_info) {
+        $log->info( $LMSTranscodingHelper->prettyPrintConversionCapabilities("STATUS QUO ANTE: ") );
+	}
 
-	_disableProfiles();
+    $LMSTranscodingHelper->disableProfiles();
 
 	# Subscribe to new client events
 	Slim::Control::Request::subscribe(
@@ -192,11 +201,25 @@ sub initPlugin {
 		\&clientReconnectCallback, 
 		[['client'], ['reconnect']],
 	);
+    
+    #$serverPreferences->setChange(\&fileTypesChanged, 'disabledformats');
+    
 }
 sub shutdownPlugin {
 	Slim::Control::Request::unsubscribe( \&newClientCallback );
 	Slim::Control::Request::unsubscribe( \&clientReconnectCallback );
+    
 }
+sub fileTypesChanged{
+    
+    if (main::INFOLOG && $log->is_info) {
+         $log->info("fileTypesChange request received");
+	}
+    $class->settingsChanged();
+    
+    return 1
+}
+
 
 sub newClientCallback {
 	my $request = shift;
@@ -228,7 +251,11 @@ sub getPreferences{
 
 	return $preferences;
 }
-
+sub getServerPreferences{
+    my $self = shift;
+    
+    return $serverPreferences;
+}
 sub getSharedPrefNameList(){
 	return Plugins::C3PO::Shared::getSharedPrefNameList();
 }
@@ -339,21 +366,13 @@ sub settingsChanged{
 	my $class = shift;
 	my $client=shift;
 	
-	my $prefs= $class->getPreferences($client);
+    my $prefs= $class->getPreferences($client);
 		
 		
 	$CapabilityHelper = Plugins::C3PO::CapabilityHelper->new(\%logger,
 							$EnvironmentHelper->isSoxDsdCapable(),
 							$prefs->get('unlimitedDsdRate')
 	);
-
-	if (main::DEBUGLOG && $log->is_debug) {	
-			my $conv = Slim::Player::TranscodingHelper::Conversions();
-			my $caps = \%Slim::Player::TranscodingHelper::capabilities;
-			$log->debug("STATUS QUO ANTE: ");
-			$log->debug("LMS conversion Table:   ".dump($conv));
-			$log->debug("LMS Capabilities Table: ".dump($caps));
-	}
 	
 	if (main::DEBUGLOG && $log->is_debug) {
 		$log->debug("preferences:");
@@ -361,18 +380,11 @@ sub settingsChanged{
 	}
 	
 	if ($client){
-		_disableProfiles($client);
+		$LMSTranscodingHelper->disableProfiles($client);
 	} else {
-		_disableProfiles();
+		$LMSTranscodingHelper->disableProfiles();
 	}
 	
-	if (main::DEBUGLOG && $log->is_debug) {	
-			my $conv = Slim::Player::TranscodingHelper::Conversions();
-			my $caps = \%Slim::Player::TranscodingHelper::capabilities;
-			$log->debug("AFTER PROFILES DISABLING: ");
-			$log->debug("LMS conversion Table:   ".dump($conv));
-			$log->debug("LMS Capabilities Table: ".dump($caps));
-	}
 	if ($client){
 		
 		_playerSettingChanged($client);
@@ -386,14 +398,6 @@ sub settingsChanged{
 			_playerSettingChanged($c);
 		
 		}
-	}
-	
-	if (main::DEBUGLOG && $log->is_debug) {	
-			my $conv = Slim::Player::TranscodingHelper::Conversions();
-			my $caps = \%Slim::Player::TranscodingHelper::capabilities;
-			$log->debug("RESULT: ");
-			$log->debug("LMS conversion Table:   ".dump($conv));
-			$log->debug("LMS Capabilities Table: ".dump($caps));
 	}
 }
 sub getStatus{
@@ -542,17 +546,9 @@ sub _clientCalback{
 	$preferences->client($client)->set('maxSupportedSamplerate',$maxSupportedSamplerate);
 	$preferences->client($client)->set('maxSupportedDsdrate',$maxSupportedDsdrate);
 
-	if ($preferences->client($client)->get('enable')) {
-	
-		_setupTranscoder($client);
-		
-	} elsif (main::INFOLOG && $log->is_info){
-		
-		 $log->info("C-3PO disabled for client: $id");
-	}
-	
-	return 1;
+	return _setupTranscoder($client);
 }
+
 
 sub _initSampleRates{
 	my $client = shift;
@@ -1154,197 +1150,66 @@ sub _playerSettingChanged{
 	$class->initClientCodecs($client);
 
 	#refresh transcoderTable.
-	_setupTranscoder($client);
+	 _setupTranscoder($client);
+    
+
+    return 1;
 }
 
-# store values before preferences change.
-my %previousCodecs=();
-my %previousenabled=();
-
-sub _disableProfiles{
-	my $client = shift;
-	
-	my %codecs=();
-	my %players=();
-	
-	my %newEnabled=();
-	if ($client){
-	
-		$players{$client->id()}=1;
-	
-	} else {
-	
-		%newEnabled = %{_getEnabledPlayers()};
-		for my $p (keys %previousenabled){
-
-			if ($previousenabled{$p}) {$players{$p}=1;}
-		}
-		for my $p (keys %newEnabled){
-
-			if ($newEnabled{$p}) {$players{$p}=1;}
-		}
-	}
-
-	my %newCodecs = %{$class->getPreferences()->get('codecs')};
-	for my $c (keys %previousCodecs){
-	
-		if ($previousCodecs{$c}) {$codecs{$c}=1;}
-	}
-	for my $c (keys %newCodecs){
-		
-		if ($newCodecs{$c}) {$codecs{$c}=1;}
-	}
-
-	if (main::DEBUGLOG && $log->is_debug) {		
-		$log->debug("New codecs: ");
-		$log->debug(dump(%newCodecs));
-		$log->debug("previous codecs: ");
-		$log->debug(dump(%previousCodecs));
-		$log->debug("codecs: ");
-		$log->debug(dump(%codecs));
-		$log->debug("New enabled players: ");
-		$log->debug(dump(%newEnabled));
-		$log->debug("Previously enabled players: ");
-		$log->debug(dump(%previousenabled));
-		$log->debug("players: ");
-		$log->debug(dump(%players));
-	}
-	
-	my $conv = Slim::Player::TranscodingHelper::Conversions();
-	
-	if (main::DEBUGLOG && $log->is_debug) {		
-		$log->debug("transcodeTable: ".dump($conv));
-	}
-	
-	for my $profile (keys %$conv){
-		
-		#flc-pcm-*-00:04:20:12:b3:17
-		#aac-aac-*-*
-		
-		my ($inputtype, $outputtype, $clienttype, $clientid) = _inspectProfile($profile);
-		
-		if ($codecs{$inputtype} && $players{$clientid}){
-		
-			if (main::DEBUGLOG && $log->is_debug) {		
-				$log->debug("disable: ". $profile);
-			}
-			
-			_disableProfile($profile);
-
-			delete $Slim::Player::TranscodingHelper::commandTable{ $profile };
-			delete $Slim::Player::TranscodingHelper::capabilities{ $profile };
-
-		}
-	}
-	
-	if (main::DEBUGLOG && $log->is_debug) {		
-				my $conv = Slim::Player::TranscodingHelper::Conversions();
-				$log->debug("transcodeTable: ".dump($conv));
-	}
-	
-	%previousCodecs	 = %newCodecs;
-	%previousenabled = %newEnabled;
-}
-sub _getEnabledPlayers{
-
-	my @clientList= Slim::Player::Client::clients();
-	my %enabled=();
-	
-	for my $client (@clientList){
-		
-		my $prefs= $class->getPreferences($client);
-		if ($prefs->client($client)->get('enable')){
-			
-			$enabled{$client->id()} = 1;
-		}
-	}
-	return \%enabled;
-}
-sub _inspectProfile{
-	my $profile=shift;
-	
-	my $inputtype;
-	my $outputtype;
-	my $clienttype;
-	my $clientid;;
-	
-	if ($profile =~ /^(\S+)\-+(\S+)\-+(\S+)\-+(\S+)$/) {
-
-		$inputtype  = $1;
-		$outputtype = $2;
-		$clienttype = $3;
-		$clientid   = lc($4);
-		
-		return ($inputtype, $outputtype, $clienttype, $clientid);	
-	}
-	return (undef,undef,undef,undef);
-}
-sub _enableProfile{
-	my $profile = shift;
-	my @out = ();
-	
-	my @disabled = @{ $serverPreferences->get('disabledformats') };
-	for my $format (@disabled) {
-
-		if ($format eq $profile) {next;}
-		push @out, $format;
-	}
-	$serverPreferences->set('disabledformats', \@out);
-	$serverPreferences->writeAll();
-	$serverPreferences->savenow();
-}
-sub _disableProfile{
-	my $profile = shift;
-	my @disabled = @{ $serverPreferences->get('disabledformats') };
-	my $found=0;
-	for my $format (@disabled) {
-		
-		if ($format eq $profile){
-			$found=1;
-			last;}
-	}
-	if (! $found ){
-		push @disabled, $profile;
-		$serverPreferences->set('disabledformats', \@disabled);
-		$serverPreferences->writeAll();
-		$serverPreferences->savenow();
-	}
-}
 sub _setupTranscoder{
 	my $client=shift;
-	
-	my $transcodeTable=_buildTranscoderTable($client);
-	
-	if (main::DEBUGLOG && $log->is_debug) {
-			 $log->debug("TranscoderTable:");
-			 $log->debug(dump($transcodeTable));
-	}
-	
-	if (main::DEBUGLOG && $log->is_debug){
-		$log->debug("logger: ".dump(\%logger));
-	}
-	
-	my $commandTable=Plugins::C3PO::Transcoder::initTranscoder($transcodeTable,\%logger);
-	
-	if (main::INFOLOG && $log->is_info) {
-		$log->info("commandTable: ".dump($commandTable));
-	}
+    
+	my $prefs= $class->getPreferences($client);
+    
+    if ($prefs->client($client)->get('enable')) {
+    
+        my $transcodeTable=_buildTranscoderTable($client);
 
-	for my $profile (keys %$commandTable){
+        if (main::DEBUGLOG && $log->is_debug) {
+                 $log->debug("TranscoderTable:");
+                 $log->debug(dump($transcodeTable));
+                 $log->debug("logger: ".dump(\%logger));
+        }
 
-		my $cmd = $commandTable->{$profile};
-		
-		if (main::DEBUGLOG && $log->is_debug) {
-			 $log->debug("\n".
-						"PROFILE  : ".$cmd->{'profile'}."\n".
-						" Command : ".$cmd->{'command'}."\n".
-						" Capabilities: ".
-						dump($cmd->{'capabilities'}));
-		}
-		_enableProfile($profile);
-		$Slim::Player::TranscodingHelper::commandTable{ $cmd->{'profile'} } = $cmd->{'command'};
-		$Slim::Player::TranscodingHelper::capabilities{ $cmd->{'profile'} } = $cmd->{'capabilities'};
+        my $commandTable=Plugins::C3PO::Transcoder::initTranscoder($transcodeTable,\%logger);
+
+        if (main::DEBUGLOG && $log->is_debug){
+            $log->debug("commandTable: ".dump($commandTable));
+        }
+
+        for my $profile (keys %$commandTable){
+
+            my $cmd = $commandTable->{$profile};
+
+            if (main::DEBUGLOG && $log->is_debug) {
+                 $log->debug("\n".
+                            "PROFILE  : ".$cmd->{'profile'}."\n".
+                            " Command : ".$cmd->{'command'}."\n".
+                            " Capabilities: ".
+                            dump($cmd->{'capabilities'}));
+            }
+
+            $LMSTranscodingHelper->enableProfile($profile);
+
+            $Slim::Player::TranscodingHelper::commandTable{ $cmd->{'profile'} } = $cmd->{'command'};
+            $Slim::Player::TranscodingHelper::capabilities{ $cmd->{'profile'} } = $cmd->{'capabilities'};
+        } 
+        
+    } else {
+        
+       $LMSTranscodingHelper->restoreProfiles($client);
+        
+        if (main::INFOLOG && $log->is_info){
+            
+            $log->info("C-3PO disabled for client: ".$client->id());
+        }
+	}
+    
+    if (main::INFOLOG && $log->is_info) {
+        $log->info( $LMSTranscodingHelper->prettyPrintConversionCapabilities("Transcoder table for client: ".$client->id(), $client));
 	} 
+    
+    return 1;
 }
 sub _buildTranscoderTable{
 	my $client=shift;
