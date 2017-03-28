@@ -88,15 +88,16 @@ sub isProfileEnabled{
 }
 sub prettyPrintConversionCapabilities{
     my $self = shift;
+    my $details = shift || 0;
     my $message = shift || "";
     my $client = shift || undef;
-    
+
     my $conv    = $self->get_conversions();
     my $caps    = $self->get_capabilities();
     my %players = %{_getEnabledPlayers()};
     my %codecs  = %{$plugin->getPreferences()->get('codecs')};
-    
-    my $out="\n\n".$message."\n";
+
+    my $out="\n\n".$message."\n\n";
     
     for my $profile (sort keys %$conv){
         
@@ -108,11 +109,25 @@ sub prettyPrintConversionCapabilities{
             if (!($clienttype eq '*') && !($client->model() eq $clienttype)) {next}
         }
                 
-        my $enabled = $self->isProfileEnabled($profile) ? "" : "DISABLED";
-        my $c3po= ($players{$clientid} && $codecs{$inputtype}) ? "SET BY C-3PO PLUGIN" : "";
+        my $enabled     = $self->isProfileEnabled($profile);
+        
+        my %backup      = %Slim::Player::TranscodingHelper::binaries;
+        my $binOK       = Slim::Player::TranscodingHelper::checkBin($profile,0);
+        my %binaries    = %Slim::Player::TranscodingHelper::binaries;
+        %Slim::Player::TranscodingHelper::binaries = %backup;
+        
+        my $transcoder="";
+        my $separator="";
+        
+        for my $p (keys %binaries){
+            
+            $transcoder = $transcoder.$separator.$p;
+            $separator= " | ";
+        }
 
+        my $c3po= ($players{$clientid} && $codecs{$inputtype}) ? "SET BY C-3PO PLUGIN" : "";
         my $capLine="" ;
-        my $separator= "# ";
+        $separator= "# ";
         
         for my $c (keys $caps->{$profile}){
             
@@ -120,11 +135,22 @@ sub prettyPrintConversionCapabilities{
             $separator= ", ";
         }
         
-        my $line1= qq($inputtype $outputtype $clienttype $clientid $enabled $c3po);
+        my $status = $enabled ? $binOK ? $transcoder eq '' ? 'Native' : $transcoder : 'UNAVAILLABLE' : 'DISABLED';
+
+        #my $line = qq ($inputtype $outputtype  [$status] ($clienttype - $clientid));
+        my $line = sprintf("%-5s %-5s %-30s %-20s %-20s\n", $inputtype, $outputtype, "[".$status."]", $clienttype, $clientid);
+        
+        my $line1= qq($inputtype $outputtype $clienttype $clientid $status $c3po);
         my $line2= qq(  $capLine);
         my $line3= qq(  $conv->{$profile});
         
-        $out=$out.("\n".$line1."\n".$line2."\n".$line3."\n");
+        if ($details){
+            
+           $out=$out.("\n".$line1."\n".$line2."\n".$line3."\n");
+        } else{
+           
+           $out = $out.$line;
+        }
     }
     $out=$out."\n";
     return $out;
@@ -185,7 +211,7 @@ sub disableProfiles{
 	my $conv = $self->get_conversions();
 
 	if (main::DEBUGLOG && $log->is_debug) {
-        $log->debug( $self->prettyPrintConversionCapabilities("STATUS QUO ANTE: ") );
+        $log->debug( $self->prettyPrintConversionCapabilities(1,"STATUS QUO ANTE: ") );
 	}
     
 	for my $profile (keys %$conv){
@@ -211,7 +237,7 @@ sub disableProfiles{
 	}
 
     if (main::DEBUGLOG && $log->is_debug) {	
-         $log->debug( $self->prettyPrintConversionCapabilities("AFTER PROFILES DISABLING: "));
+         $log->debug( $self->prettyPrintConversionCapabilities(1,"AFTER PROFILES DISABLING: "));
 	}
     
 	%previousCodecs	 = %newCodecs;
@@ -269,7 +295,7 @@ sub restoreProfiles{
     }
     if (main::DEBUGLOG && $log->is_debug) {	
         
-      $log->debug( $self->prettyPrintConversionCapabilities("AFTER RESTORE PROFILES : "));
+      $log->debug( $self->prettyPrintConversionCapabilities(1,"AFTER RESTORE PROFILES : "));
 	}
 }
 sub enableProfile{

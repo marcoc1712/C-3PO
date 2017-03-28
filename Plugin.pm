@@ -185,7 +185,7 @@ sub initPlugin {
     $LMSTranscodingHelper = Plugins::C3PO::LMSTranscodingHelper->new($class);
     
     if (main::INFOLOG && $log->is_info) {
-        $log->info( $LMSTranscodingHelper->prettyPrintConversionCapabilities("STATUS QUO ANTE: ") );
+        $log->info( $LMSTranscodingHelper->prettyPrintConversionCapabilities(0,"File types table: STATUS QUO ANTE: ") );
 	}
 
     $LMSTranscodingHelper->disableProfiles();
@@ -1206,8 +1206,9 @@ sub _setupTranscoder{
 	}
     
     if (main::INFOLOG && $log->is_info) {
-        $log->info( $LMSTranscodingHelper->prettyPrintConversionCapabilities("Transcoder table for client: ".$client->id(), $client));
-	} 
+        #$log->info( $LMSTranscodingHelper->prettyPrintConversionCapabilities(0,"File Types Table for client: ".$client->id(), $client));
+        $log->info( $LMSTranscodingHelper->prettyPrintConversionCapabilities(0,"File Types Table rebuilded"));
+    } 
     
     return 1;
 }
