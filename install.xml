@@ -3,7 +3,7 @@
 	<id>91d8fb10-c3po-11e3-ac10-0800200c9a66</id>
 	<name>PLUGIN_C3PO</name>
 	<module>Plugins::C3PO::Plugin</module>
-	<version>2.00.12</version>
+	<version>2.00.13</version>
 	<description>PLUGIN_C3PO_DESC</description>
 	<creator>marcoc1712</creator>
 	<email>marcoc1712@gmail.com</email>

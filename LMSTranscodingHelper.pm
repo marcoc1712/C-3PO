@@ -235,7 +235,7 @@ sub restoreProfiles{
 		#flc-pcm-*-00:04:20:12:b3:17
 		#aac-aac-*-*
         
-		#if (!$self->isProfileEnabled($profile)){next;}
+		if (!$self->isProfileEnabled($profile)){next;}
         
 		my ($inputtype, $outputtype, $clienttype, $clientid) = _inspectProfile($profile);
 
