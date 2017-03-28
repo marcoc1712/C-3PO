@@ -303,15 +303,26 @@ sub enableProfile{
 	my $profile = shift;
 	my @out = ();
 	
+    my $found; 
+    
 	my @disabled = @{$self->get_disabledProfiles()};
 	for my $format (@disabled) {
 
-		if ($format eq $profile) {next;}
+		if ($format eq $profile) {
+            
+            $found=1;
+            next;
+        }
+        
 		push @out, $format;
 	}
-	$serverPreferences->set('disabledformats', \@out);
-	$serverPreferences->writeAll();
-	$serverPreferences->savenow();
+    if ($found){
+        
+       	$serverPreferences->set('disabledformats', \@out);
+        $serverPreferences->writeAll();
+        $serverPreferences->savenow(); 
+    }
+
 }
 
 ####################################################################################################

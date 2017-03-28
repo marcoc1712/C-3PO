@@ -202,14 +202,16 @@ sub initPlugin {
 		[['client'], ['reconnect']],
 	);
     
+    # the following will enable a callback for every file type change, 
+    # but is unnncesary and can leat to an unfinished loop.
     #$serverPreferences->setChange(\&fileTypesChanged, 'disabledformats');
-    
 }
 sub shutdownPlugin {
 	Slim::Control::Request::unsubscribe( \&newClientCallback );
 	Slim::Control::Request::unsubscribe( \&clientReconnectCallback );
     
 }
+
 sub fileTypesChanged{
     
     if (main::INFOLOG && $log->is_info) {
@@ -219,7 +221,6 @@ sub fileTypesChanged{
     
     return 1
 }
-
 
 sub newClientCallback {
 	my $request = shift;
