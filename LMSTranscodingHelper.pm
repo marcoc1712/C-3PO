@@ -98,7 +98,9 @@ sub prettyPrintConversionCapabilities{
     my %codecs  = %{$plugin->getPreferences()->get('codecs')};
 
     my $out="\n\n".$message."\n\n";
-    
+
+    my $prevInputtype="";
+
     for my $profile (sort keys %$conv){
         
         my ($inputtype, $outputtype, $clienttype, $clientid) = _inspectProfile($profile);
@@ -112,6 +114,7 @@ sub prettyPrintConversionCapabilities{
         my $enabled     = $self->isProfileEnabled($profile);
         
         my %backup      = %Slim::Player::TranscodingHelper::binaries;
+        %Slim::Player::TranscodingHelper::binaries=();
         my $binOK       = Slim::Player::TranscodingHelper::checkBin($profile,0);
         my %binaries    = %Slim::Player::TranscodingHelper::binaries;
         %Slim::Player::TranscodingHelper::binaries = %backup;
@@ -122,7 +125,7 @@ sub prettyPrintConversionCapabilities{
         for my $p (keys %binaries){
             
             $transcoder = $transcoder.$separator.$p;
-            $separator= " | ";
+            $separator= "|";
         }
 
         my $c3po= ($players{$clientid} && $codecs{$inputtype}) ? "SET BY C-3PO PLUGIN" : "";
@@ -136,20 +139,28 @@ sub prettyPrintConversionCapabilities{
         }
         
         my $status = $enabled ? $binOK ? $transcoder eq '' ? 'Native' : $transcoder : 'UNAVAILLABLE' : 'DISABLED';
-
-        #my $line = qq ($inputtype $outputtype  [$status] ($clienttype - $clientid));
-        my $line = sprintf("%-5s %-5s %-30s %-20s %-20s\n", $inputtype, $outputtype, "[".$status."]", $clienttype, $clientid);
         
-        my $line1= qq($inputtype $outputtype $clienttype $clientid $status $c3po);
-        my $line2= qq(  $capLine);
-        my $line3= qq(  $conv->{$profile});
+         if ($details){
+           
+            my $line1= qq($inputtype $outputtype $clienttype $clientid $status $c3po);
+            my $line2= qq(  $capLine);
+            my $line3= qq(  $conv->{$profile});
         
-        if ($details){
-            
-           $out=$out.("\n".$line1."\n".$line2."\n".$line3."\n");
+            $out=$out.("\n".$line1."\n".$line2."\n".$line3."\n");
+           
         } else{
            
-           $out = $out.$line;
+            if ($prevInputtype eq $inputtype){
+                
+                my $line = sprintf("%-5s %-5s %-30s %-20s %-20s\n", "", $outputtype, "[".$status."]", $clienttype, $clientid);
+                $out = $out.$line;
+                
+            } else{
+            
+                my $line = sprintf("%-5s %-5s %-30s %-20s %-20s\n", $inputtype, $outputtype, "[".$status."]", $clienttype, $clientid);
+                $out = $out."\n".$line;
+                $prevInputtype = $inputtype;
+            }
         }
     }
     $out=$out."\n";
@@ -261,7 +272,7 @@ sub restoreProfiles{
 		#flc-pcm-*-00:04:20:12:b3:17
 		#aac-aac-*-*
         
-		if (!$self->isProfileEnabled($profile)){next;}
+		#if (!$self->isProfileEnabled($profile)){next;}
         
 		my ($inputtype, $outputtype, $clienttype, $clientid) = _inspectProfile($profile);
 
