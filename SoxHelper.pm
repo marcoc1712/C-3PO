@@ -168,12 +168,14 @@ sub resample{
 	if (($soxVersion > 140401) && $smallRollOff){$rateString= $rateString.' -'.$smallRollOff};
 	if ($outSamplerate){$rateString= $rateString.' '.$outSamplerate};
 	
-	# effects gain -h gain -3 loudness -6 65 remix -m 1v0.94 2
+	# effects gain -h -3 loudness -6 65 remix -m 1v0.94 2
 	my $effects="";
 	
-	if ($headroom){$effects= $effects.' gain -h'};
+    if ($headroom && $gain){$effects= $effects.' gain -h -'.$gain;}
+    
+	elsif ($headroom){$effects= $effects.' gain -h';}
 	
-	if ($gain){$effects= $effects.' gain -'.$gain};
+	elsif ($gain){$effects= $effects.' gain -'.$gain;}
 	
 	if ($loudnessGain){$effects= $effects.' loudness '.$loudnessGain.' '.$loudnessRef};
 	
