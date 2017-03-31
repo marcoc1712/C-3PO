@@ -1222,10 +1222,7 @@ sub _buildTranscoderTable{
 	my $prefs= $class->getPreferences($client);
 	
 	my $transcoderTable= Plugins::C3PO::Shared::getTranscoderTableFromPreferences($prefs,$client);
-	
-	#add the path to the preference file itself.
-	#$transcoderTable->{'pathToPrefFile'}=$EnvironmentHelper->pathToPrefFile();
-	
+
 	return $transcoderTable;
 }
 

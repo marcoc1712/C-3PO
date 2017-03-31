@@ -61,8 +61,9 @@ sub resample{
 	}
 	
 	############################################################################
-	
 
+    my $soxMultithread      =>$transcodeTable->{'soxMultithread'};
+    my $soxBuffer           =>$transcodeTable->{'soxBuffer'};
 
 	my $outBitDepth			=$transcodeTable->{'outBitDepth'};
 	my $outCompression		=$transcodeTable->{'outCompression'};
@@ -83,12 +84,7 @@ sub resample{
 		
 	my $extra_before_rate	=$transcodeTable->{'extra_before_rate'};
 	my $extra_after_rate	=$transcodeTable->{'extra_after_rate'};
-	
-	#my $outChannels		=$transcodeTable->{'outChannels'};
-	#my $outEncoding		=$transcodeTable->{'outEncoding'};
-	#my $outByteOrder		=$transcodeTable->{'outByteOrder'};
-	#my $dither				=$transcodeTable->{'dither'};
-	
+
 	my $ditherType			=$transcodeTable->{'ditherType'};
 	my $ditherPrecision		=$transcodeTable->{'ditherPrecision'};
 
@@ -127,12 +123,8 @@ sub resample{
 	}
 	
 	if ($outCompression){$outFormatSpec= $outFormatSpec.' -C '.$outCompression};
-	
-	#if ($outSamplerate){$outFormatSpec= $outFormatSpec.' -r '.$outSamplerate};
-	#if ($outChannels){$outFormatSpec= $outFormatSpec.' -c '.$outChannels};
-	#if ($outEncoding){$outFormatSpec= $outFormatSpec.' -'.$outEncoding};
-	#if ($outByteOrder){$outFormatSpec= $outFormatSpec.' -'.$outByteOrder};
-	
+    
+	############################################################################
 	# LOWPASS filter to be applied when input is DSD 
 	
 	my $lowpass="";
@@ -148,7 +140,7 @@ sub resample{
 	if ($dsdLowpass4Active){
 		$lowpass = $lowpass.' lowpass -'.$dsdLowpass4Order.' '.$dsdLowpass4Value*1000;
 	}
-	
+	############################################################################
 	my 	$rateString= ' rate';
 	
 	$aliasing					= $aliasing ? "a" : undef;
@@ -209,7 +201,8 @@ sub resample{
 		$effects= $effects.' remix -m '.$leftCh.' '.$rightCh;
 	}
 	#nothing to add if not flipped.
-
+    
+    ###########################################################################
 	# DITHER, yo be applied only when OUTPUT IS PCM.
 
 	#if (!defined $dither){$effects= $effects.' -D'};
@@ -246,7 +239,7 @@ sub resample{
 	if ($ditherType && $ditherPrecision && ($ditherPrecision > 0) && ($soxVersion > 140400)){
 		$dither = $dither.' -p '.$ditherPrecision;
 	}
-	
+	############################################################################
 	# SDM to by applied only to DSD output
 	
 	my $sdm='';;
@@ -295,7 +288,16 @@ sub resample{
 	$transcodeTable->{'transitCodec'}= _translateCodec($outCodec);
 	
 	############################################################################
-	
+	# Multithread option and buffer
+    
+    my $execOptions = "--buffer=".$soxBuffer*1024;
+    
+    if ($soxMultithread) {
+        
+        $execOptions = $execOptions." −−multi−threaded";
+    } 
+   
+   ############################################################################# 
 	my $chain="";
 	
 	if (($inCodec eq "dsf") || ($inCodec eq "dff")) {
@@ -354,9 +356,8 @@ sub resample{
 	
 	} 
 	############################################################################
-	
-	#$commandString = $commandString.qq($outCodec$outFormatSpec --buffer=$buffer - $chain);
-	$commandString = $commandString.qq($outCodec$outFormatSpec - $chain);
+
+	$commandString = $commandString.qq($outCodec$outFormatSpec $execOptions - $chain);
 	
 	return $commandString;
 

@@ -1,18 +1,3 @@
-PLUGIN_C3POsquee_ADVANCED_OPTIONS
-	EN	ADVANCED OPTIONS
-	IT	OPZIONI AVANZATE
-	
-PLUGIN_C3PO_ADVANCED_OPTIONS_DESC
-	EN	Use with caution and at your own risk.
-	IT	Usare con cautela ed a proprio rischio.
-
-PLUGIN_C3PO_UNLIMITED_DSD_RATES
-	EN	Unlimited dsd resolutions
-	IT	Risoluzione DSD illimitata
-
-PLUGIN_C3PO_UNLIMITED_DSD_RATES_DESC
-	EN	Allow dsd resolutions to be greater than "Max sample rate"/88200. CAUTION: could produce noise dangerous for you and your speakers
-	IT	Non limitare la risoluzione DSD in uscita al "Massimo sample rate supportato"/88200. ATTENZIONE può generare rumore dannoso per te e per i diffusori.
 
 PLUGIN_C3PO_GENERAL_SETTINGS_TITLE
 	EN	GENERAL SETTINGS
@@ -38,9 +23,61 @@ PLUGIN_C3PO_ENABLE_DESC
 	EN	Enable C-3PO. Default choice for new player.
 	IT	Abilita C-3PO, default per i nuovi players. 
 
+PLUGIN_C3PO_HELPER_APPLICATIONS
+	EN	HELPER APPLICATIONS
+	IT	APPLICAZIONI A SUPPORTO
+
+PLUGIN_C3PO_HELPER_APPLICATIONS_DESC
+	EN	Settings for helper application used in trascoding.
+	IT	Impostazioni per le applicazioni di supporto alla transcodifica.
+
+PLUGIN_C3PO_HELPER_APPLICATIONS_NOT_FOUND
+	EN	Not found. See Information, Helper Application Folder.
+	IT	Non trovato. Vedi Informazioni, Helper Application Folder.
+
+PLUGIN_C3PO_SOX
+	EN	- SOX
+	IT	- SOX
+
+PLUGIN_C3PO_SOX_VERSION
+	EN	-- Version
+	IT	-- Versione
+
+PLUGIN_C3PO_SOX_MULTITHREAD
+	EN	 -- Multithread
+	IT	 -- Multithread
+
+PLUGIN_C3PO_SOX_MULTITHREAD_DESC
+	EN	Enable Sox to run in multithreaded mode (best for modern CPU)
+	IT	Abilita Sox ad essere eseguito in multithreading (migliora le prestazioni su CPU moderne).
+
+PLUGIN_C3PO_SOX_BUFFER
+	EN	 -- Buffer size
+	IT	 -- Dimensione del buffer
+
+PLUGIN_C3PO_SOX_BUFFER_DESC
+	EN	Minimal buffer size in MB. Suggested value for multithreading is 32.
+	IT	Buffer minimo di memoria in MB riservato a SOX, valore consigliato per il multithreading: 32.
+
+PLUGIN_C3PO_FFMPEG
+	EN	- FFMPEG
+	IT	- FFMPEG
+
 PLUGIN_C3PO_ADVANCED_OPTIONS
 	EN	ADVANCED OPTIONS.
 	IT	OPZIONI AVANZATE. 
+
+PLUGIN_C3PO_ADVANCED_OPTIONS_DESC
+	EN	Use with caution and at your own risk.
+	IT	Usare con cautela ed a proprio rischio.
+
+PLUGIN_C3PO_UNLIMITED_DSD_RATES
+	EN	Unlimited dsd resolutions
+	IT	Risoluzione DSD illimitata
+
+PLUGIN_C3PO_UNLIMITED_DSD_RATES_DESC
+	EN	Allow dsd resolutions to be greater than "Max sample rate"/88200. CAUTION: could produce noise dangerous for you and your speakers
+	IT	Non limitare la risoluzione DSD in uscita al "Massimo sample rate supportato"/88200. ATTENZIONE puï¿½ generare rumore dannoso per te e per i diffusori.
 
 PLUGIN_C3PO_PLAYER_ENABLE_TITLE
 	EN	Enable C-3PO for this player.
@@ -56,7 +93,7 @@ PLUGIN_C3PO_CODEC_SELECTION_TITLE
 	
 PLUGIN_C3PO_CODEC_SELECTION_DESC
 	EN	List of input formats (aka codecs).  'Lossy' formats are not supported. PCM is WAV
-	IT	Elenco dei formati (o codec) supportati in ingresso. I formati 'lossy' non sono gestiti. PCM è WAV.
+	IT	Elenco dei formati (o codec) supportati in ingresso. I formati 'lossy' non sono gestiti.
 
 PLUGIN_C3PO_CODEC_SELECTION_PLAYER_DESC
 	EN	List of input formats (aka codecs) supported by the Player. Greyed formats could - and should - be handled outside C-3PO.
@@ -168,7 +205,7 @@ PLUGIN_C3PO_OUT_BITDEPTH-
 	
 PLUGIN_C3PO_OUT_BITDEPTH_DESC-
 	EN	output bit-depth (PCM only, DSD is always bit stream)
-	IT	bit-depth dello stream in uscita (solo PCM. DSD è sempre e solo bitstram)
+	IT	bit-depth dello stream in uscita (solo PCM. DSD Ã¨ sempre e solo bitstram)
 
 PLUGIN_C3PO_OUT_BITDEPTH
 	EN	Output Bit-depth
@@ -494,11 +531,11 @@ PLUGIN_C3PO_DITHER_PRECISION
 
 PLUGIN_C3PO_DITHER_PRECISION-
 	EN	- Dithering target bit depth
-	IT	- ProfonditÃ  in bit alla quale è applicato il dithering
+	IT	- ProfonditÃ  in bit alla quale ï¿½ applicato il dithering
 	
 PLUGIN_C3PO_DITHER_PRECISION_DESC
 	EN	Override the target precision. Please note that any value greater than 24 or the output bit deph means NO ovverride.
-	IT	Utilizza una profonditÃ  in bit (precisione) diversa da quella del formato di output. Valori superiori a 24 o alla profondità  dello stream di output, vengono ignorati. 
+	IT	Utilizza una profonditÃ  in bit (precisione) diversa da quella del formato di output. Valori superiori a 24 o alla profonditï¿½ dello stream di output, vengono ignorati. 
 	
 PLUGIN_C3PO_DITHER_PRECISION_IGNORE
 	EN	Same as output.
@@ -658,7 +695,7 @@ PLUGIN_C3PO_DSD_SAMPLE_RATE_LIST_DESC
 
 PLUGIN_C3PO_ENABLE_SEEK_DESC
 	EN	Enable seek capabilities ("T" and "U"), necessary for cue sheet usage but incompatible with "I" stream format, used by many on line services (i.e. Qobuz).
-	IT	Abilita la capacitÃ  di ricerca ("T" e "U"), indispensabile per l'uso dei cue sheets ma incompatibile con la modalità  "I", necessaria per molti servizi on line (es. Qobuz).
+	IT	Abilita la capacitÃ  di ricerca ("T" e "U"), indispensabile per l'uso dei cue sheets ma incompatibile con la modalitï¿½ "I", necessaria per molti servizi on line (es. Qobuz).
 
 PLUGIN_C3PO_ENABLE_STDIN_TITLE
 	EN	Enable 'stdin' (i.e. Qobuz)
@@ -666,7 +703,7 @@ PLUGIN_C3PO_ENABLE_STDIN_TITLE
 	
 PLUGIN_C3PO_ENABLE_STDIN_DESC
 	EN	Enable input from standard Input capability ("I"), used by many on line services (i.e. Qobuz), but incompatible with ("T" and "U"), necessary for cue sheet usage.
-	IT	Abilita l'ingresso da 'standard Input' ("I"), necessario per molti servizi on line (es. Qobuz), ma incompatibile con le capacità  di ricerca ("T" and "U")indispensabile per l'uso dei cue sheets.
+	IT	Abilita l'ingresso da 'standard Input' ("I"), necessario per molti servizi on line (es. Qobuz), ma incompatibile con le capacitï¿½ di ricerca ("T" and "U")indispensabile per l'uso dei cue sheets.
 
 PLUGIN_C3PO_CONVERT_TITLE
 	EN	Enable transcoding
@@ -742,31 +779,31 @@ PLUGIN_C3PO_STATUS_014
 
 PLUGIN_C3PO_STATUS_CLIENT_021
 	EN	Squeezelite version is non compliant (Squeezelite-R2).
-	IT	La verisone di Squeezelite non è compatibile (Squeezelite-R2).
+	IT	La verisone di Squeezelite non ï¿½ compatibile (Squeezelite-R2).
 
 PLUGIN_C3PO_STATUS_SERVER_021
 	EN	Squeezelite version is non compliant (Squeezelite-R2). See players.
-	IT	La versione di Squeezelite non è compatibile (Squeezelite-R2). Vedi Lettori.
+	IT	La versione di Squeezelite non ï¿½ compatibile (Squeezelite-R2). Vedi Lettori.
 	
 PLUGIN_C3PO_STATUS_101
 	EN	Unable to run C-3PO transcoder, fault back to PERL. See server log.
-	IT	Impossibile eseguire C-3PO transcoder, verrà  utilizzato PERL. Verificare il log del server.
+	IT	Impossibile eseguire C-3PO transcoder, verrï¿½ utilizzato PERL. Verificare il log del server.
 		
 PLUGIN_C3PO_STATUS_CLIENT_502
 	EN	StdIn (es. Qobuz) enabled in windows, faulf back to 'Always upsample' at 'Max allowed sample rate'.
-	IT	StdIn (es. Qobuz) abilitato in windows, verrà  utilizzato Il ricampionamento al massimo sample rate supportato.
+	IT	StdIn (es. Qobuz) abilitato in windows, verrï¿½ utilizzato Il ricampionamento al massimo sample rate supportato.
 
 PLUGIN_C3PO_STATUS_SERVER_502
 	EN	StdIn (es. Qobuz) enabled in windows, faulf back to 'Always upsample' at 'Max allowed sample rate' (see players).
-	IT	StdIn (es. Qobuz) abilitato in windows, verrà  utilizzato Il ricampionamento al massimo sample rate supportato (controllare in player).
+	IT	StdIn (es. Qobuz) abilitato in windows, verrï¿½ utilizzato Il ricampionamento al massimo sample rate supportato (controllare in player).
 
 PLUGIN_C3PO_STATUS_CLIENT_503
 	EN	StdIn (es. Qobuz) and Seek (cue sheet) capability selected for the same codec. Seek will be ignored.
-	IT	StdIn (es. Qobuz) e Ricerca(cue sheet) selezionati per lo stesso formato. Ricerca verrà  ignorato.
+	IT	StdIn (es. Qobuz) e Ricerca(cue sheet) selezionati per lo stesso formato. Ricerca verrï¿½ ignorato.
 
 PLUGIN_C3PO_STATUS_SERVER_503
 	EN	StdIn (es. Qobuz) and Seek (cue sheet) capability selected for the same codec. Seek will be ignored (see players).
-	IT	StdIn (es. Qobuz) e Ricerca(cue sheet) selezionati per lo stesso formato. Ricerca verrà  ignorato (controllare in players).
+	IT	StdIn (es. Qobuz) e Ricerca(cue sheet) selezionati per lo stesso formato. Ricerca verrï¿½ ignorato (controllare in players).
 
 PLUGIN_C3PO_STATUS_CLIENT_504
 	EN	Apple lossless is always decoded when resampled.
@@ -774,27 +811,27 @@ PLUGIN_C3PO_STATUS_CLIENT_504
 	
 PLUGIN_C3PO_STATUS_CLIENT_521
 	EN	Player is not Squeezelite, assuming is compliant.
-	IT	Il player non è Squeezelite, si assume sia compatibile.
+	IT	Il player non ï¿½ Squeezelite, si assume sia compatibile.
 
 PLUGIN_C3PO_STATUS_SERVER_522
 	EN	Squeezelite version is non R2, assuming is compliant.
-	IT	La versione di Squeezelite non è R2, si assume sia compatibile.
+	IT	La versione di Squeezelite non ï¿½ R2, si assume sia compatibile.
 
 PLUGIN_C3PO_STATUS_SERVER_522
 	EN	Squeezelite version is non R2, assuming is compliant. See players.
-	IT	La versione di Squeezelite non è R2, si assume sia compatibile. Vedi Lettori.
+	IT	La versione di Squeezelite non ï¿½ R2, si assume sia compatibile. Vedi Lettori.
 
 PLUGIN_C3PO_STATUS_601
 	EN	C-3PO transcoder is downloading, please wait. Reload page to see changes.
-	IT	C-3PO transcoder è in download, attendere qualche secondo e ricaricare la pagina per verificare l'avanzamento.
+	IT	C-3PO transcoder ï¿½ in download, attendere qualche secondo e ricaricare la pagina per verificare l'avanzamento.
 	
 PLUGIN_C3PO_STATUS_701
 	EN	C-3PO transcoder is downloading. Using PERL instead. Reload page to see changes.
-	IT	C-3PO transcoder è in download, viene temporaneamente utilizzato PERL. Ricaricare la pagina per verificare l'avanzamento.
+	IT	C-3PO transcoder ï¿½ in download, viene temporaneamente utilizzato PERL. Ricaricare la pagina per verificare l'avanzamento.
 	
 PLUGIN_C3PO_STATUS_903
 	EN	FFMPEG not found, fault back to FLAC.
-	IT	FFMPEG non Ã¨ stato trovato, verrà  utilizzato FLAC.
+	IT	FFMPEG non Ã¨ stato trovato, verrï¿½ utilizzato FLAC.
 
 PLUGIN_C3PO_STATUS_CLIENT_904
 	EN	FLAC is always decoded before resampling.
@@ -814,7 +851,7 @@ PLUGIN_C3PO_STATUS_CLIENT_921
 
 PLUGIN_C3PO_STATUS_ALL_951
 	EN	SOX version is outdated, Replace it with a newer version to enable more transcoding capibilities.
-	IT	La versione di SOX in uso non è aggiornata, sostituirla con una più recente per abilitare ulteriori funzionalità .
+	IT	La versione di SOX in uso non ï¿½ aggiornata, sostituirla con una piï¿½ recente per abilitare ulteriori funzionalitï¿½.
 
 PLUGIN_C3PO_STATUS_CLIENT_952
 	EN	Your player can play the DSD format, the SOX version in use not. See: www.audiodigitale.eu

@@ -1,6 +1,6 @@
 # C-3PO
 
-Squeezebox server plugin. Allows server side file type conversion and resampling, now  also to and from DSD,  server side,
+Squeezebox server plugin. Allows server side file type conversion and resampling, now  also to and from DSD.
 
 Replaces the "file type menu"  and "custom-convert.conf file" usage.
 

@@ -13,7 +13,7 @@
 	[% END %]
 
 	[% WRAPPER setting title="PLUGIN_C3PO_GENERAL_SETTINGS_TITLE" desc="" %]
-		[% "" | string %]
+		
 	[% END %]
 	[% WRAPPER setting title="PLUGIN_C3PO_CODEC_SELECTION_TITLE" desc="PLUGIN_C3PO_CODEC_SELECTION_DESC" %]
 		[% FOREACH codec IN prefs.codecs %]
@@ -28,7 +28,44 @@
 	[% END %]
 	[% WRAPPER setting title="PLUGIN_C3PO_ENABLE_TITLE" desc="PLUGIN_C3PO_ENABLE_DESC" %]
 		<input name="pref_enable" type="checkbox" [% IF prefs.enable %] checked [% END %]>
+	[% END %]&nbsp;&nbsp;</label></td>
+    
+    [% WRAPPER setting title="PLUGIN_C3PO_HELPER_APPLICATIONS" desc="" %]
+    [% END %]
+    
+    [% WRAPPER setting title="PLUGIN_C3PO_SOX" desc="" %]
+          [% pathToSox %] 
 	[% END %]
+    [% WRAPPER setting title="PLUGIN_C3PO_SOX_VERSION" desc="" %]
+		
+        [% soxVersion %] 
+        [% IF isSoxDsdCapable %]
+            dsd capable
+        [% ELSE %]
+            NOT dsd capable
+        [% END %]
+        
+	[% END %]
+    [% WRAPPER setting title="PLUGIN_C3PO_SOX_MULTITHREAD" desc="PLUGIN_C3PO_SOX_MULTITHREAD_DESC" %]
+		<input name="pref_soxMultithread" type="checkbox" [% IF prefs.soxMultithread %] checked [% END %]
+               [% IF soxVersion < 140402 %] disabled [% END %]>
+	[% END %]
+    [% WRAPPER setting title="PLUGIN_C3PO_SOX_BUFFER" desc="PLUGIN_C3PO_SOX_BUFFER_DESC" %]
+        <input type="text" class="stdedit sliderInput_8_128" name="pref_soxBuffer" id="soxBuffer" 
+               value="[% prefs.soxBuffer %]" size="5"
+               [% IF soxVersion < 140402 %] disabled [% END %]>  
+    [% END %]
+    
+    [% WRAPPER setting title="PLUGIN_C3PO_FFMPEG" desc="" %]
+     
+        [% IF pathToFFmpeg != "" %]
+           [% pathToFFmpeg %] 
+        [% ELSE %]
+           [% "PLUGIN_C3PO_HELPER_APPLICATIONS_NOT_FOUND" | string %] 
+        [% END %]
+        
+	[% END %]&nbsp;&nbsp;</label></td>
+    
 	[% IF 0 %]
 		[% PROCESS 'plugins/C3PO/settings/common.html' %]
 	[% END %]

@@ -21,7 +21,7 @@ package Plugins::C3PO::Transcoder;
 
 use strict;
 use warnings;
-
+use Data::Dump qw(dump pp);
 my $logger;
 my $log;
 

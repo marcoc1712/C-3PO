@@ -306,6 +306,14 @@ sub _migratePrefs{
                 }
             }
         }
+        if ($prefVersion < 20013){
+            
+            if (!$client){
+                 $self->{preferences}->set('soxMultithread','');
+                 $self->{preferences}->set('soxBuffer',8);
+            }
+        
+        }
         #here next versions additionals migration fetures
 	}
 		
@@ -368,29 +376,31 @@ sub _initDefaultPrefs{
 	
 		$self->{preferences}->init({
 			enable                      => "on",
+            soxMultithread              => "0",
+            soxBuffer                   => 8,
 			unlimitedDsdRate			=> "0",
 			resampleWhen				=> "A",
 			resampleTo                  => "S",
-			outCodec				=> "wav",
-			outBitDepth				=> 3,
+			outCodec                    => "wav",
+			outBitDepth                 => 3,
 			#outEncoding				=> undef,
 			#outChannels				=> 2,
-			headroom				=> "1",
-			gain					=> 0,
+			headroom                    => "1",
+			gain                        => 0,
 			loudnessGain				=> 0,
-			loudnessRef				=> 65,
-			remixLeft				=> 100,
-			remixRight				=> 100,
+			loudnessRef                 => 65,
+			remixLeft                   => 100,
+			remixRight                  => 100,
 			flipChannels				=> "0",
-			quality					=> "v",
-			phase					=> "I",
-			aliasing				=> "0",
-			noIOpt					=> "0",
+			quality                     => "v",
+			phase                       => "I",
+			aliasing                    => "0",
+			noIOpt                      => "0",
 			smallRollOff				=> "on",
 			highPrecisionClock			=> "0",
-			bandwidth				=> 907,
-			#dither					=> "on",
-			ditherType				=> "1",
+			bandwidth                   => 907,
+			#dither                     => "on",
+			ditherType                  => "1",
 			ditherPrecision				=> -1,
 			sdmFilterType				=> "auto",
 			dsdLowpass1Value			=> 22,
@@ -405,7 +415,7 @@ sub _initDefaultPrefs{
 			dsdLowpass4Value			=> 48,
 			dsdLowpass4Order			=> 2,
 			dsdLowpass4Active			=> "0",
-			#extra					=> "",
+			#extra                      => "",
 			extra_before_rate			=> "",
 			extra_after_rate			=> "",
 		});

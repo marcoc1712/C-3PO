@@ -56,7 +56,7 @@ my @sharedPrefNames		  = qw(	enable
 								
 								);
 				
-my @globalPrefNames		  = qw(	unlimitedDsdRate codecs 
+my @globalPrefNames		  = qw(	codecs soxMultithread soxBuffer unlimitedDsdRate  
                                 serverFolder logFolder C3POfolder pathToPrefFile
 								pathToFlac pathToSox pathToFaad pathToFFmpeg
 								pathToC3PO_exe pathToC3PO_pl pathToPerl

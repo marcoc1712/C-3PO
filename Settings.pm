@@ -60,7 +60,7 @@ sub prefs {
     #avoid erasure of all preference on save.
 	#my @list= $plugin->getSharedPrefNameList();
 	my @list=();
-    push (@list, 'enable', 'unlimitedDsdRate');
+    push (@list, 'enable', 'unlimitedDsdRate', 'soxMultithread', 'soxBuffer');
 	
 	return ($plugin->getPreferences(), @list);		  
 }
@@ -86,9 +86,11 @@ sub handler {
 	$params->{'logFileURI'}			=	$logFileURI;
 
 	#$log->info('URI '.$logFileURI);	
-
+    $params->{'pathToSox'}          =	$prefs->get('pathToSox');
 	$params->{'soxVersion'}			=	$prefs->get('soxVersion');
 	$params->{'isSoxDsdCapable'}    =	$prefs->get('isSoxDsdCapable');
+    
+    $params->{'pathToFFmpeg'}       =	$prefs->get('pathToFFmpeg');
 	
 	
 	my $status= $plugin->getStatus();
