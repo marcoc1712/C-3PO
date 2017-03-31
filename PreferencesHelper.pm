@@ -118,191 +118,195 @@ sub _migratePrefs{
 		#C-3PO is running for the first time
 		$self->_initDefaultPrefs($client);
 
-	} elsif ($prefVersion == 0){
+	} else {
+        
+        if ($prefVersion == 0){
 	
-		 #C-3PO was running prior v. 1.1.03
-		 
-		if ($client){
-		
-			if  (! $self->{preferences}->client($client)->get('useGlogalSettings')){
+            #C-3PO was running prior v. 1.1.03
 
-				# some adjustement from version 1.0 to 1.1
+            if ($client){
 
-				if ($self->{preferences}->client($client)->get('extra')){
-					$self->{preferences}->client($client)->set('extra_after_rate', 
-					$self->{preferences}->client($client)->get('extra'));
-				}
-				
-				if (!($self->{preferences}->client($client)->get('ditherType')) || 
-					 $self->{preferences}->client($client)->get('ditherType') eq "X" ){
+                if  (! $self->{preferences}->client($client)->get('useGlogalSettings')){
 
-					if (!$self->{preferences}->client($client)->get('dither')){
-						$self->{preferences}->client($client)->set('ditherType', -1);
-					} else {
-						$self->{preferences}->client($client)->set('ditherType', 1);
-					}
-					
-					$self->{preferences}->set('ditherPrecision', -1);
-				}
-				
-				# some adjustement for 1.1.2
+                    # some adjustement from version 1.0 to 1.1
 
-				if (! $self->{preferences}->client($client)->get('loudnessRef')){
-					$self->{preferences}->client($client)->set('headroom', $self->{preferences}->get('headroom'));
-					$self->{preferences}->client($client)->set('loudnessGain', $self->{preferences}->get('loudnessGain'));
-					$self->{preferences}->client($client)->set('loudnessRef', $self->{preferences}->get('loudnessRef'));
-					$self->{preferences}->client($client)->set('remixLeft', $self->{preferences}->get('remixLeft'));
-					$self->{preferences}->client($client)->set('remixRight', $self->{preferences}->get('remixRight'));
-					$self->{preferences}->client($client)->set('flipChannels', $self->{preferences}->get('flipChannels'));			
-				}
-			}
-			
-			$self->{preferences}->client($client)->remove( 'outEncoding' );
-			$self->{preferences}->client($client)->remove( 'outChannels' );
-			$self->{preferences}->client($client)->remove( 'extra' );
-			$self->{preferences}->client($client)->remove( 'dither' );
+                    if ($self->{preferences}->client($client)->get('extra')){
+                        $self->{preferences}->client($client)->set('extra_after_rate', 
+                        $self->{preferences}->client($client)->get('extra'));
+                    }
 
-		} else { #server
-		 
-			$self->{preferences}->init({				
-			   headroom					=> "1",
-			   gain						=> 0,
-			   loudnessGain				=> 0,
-			   loudnessRef				=> 65,
-			   remixLeft				=> 100,
-			   remixRight				=> 100,
-			   flipChannels				=> "0",
-			   extra_before_rate		=> "",
-			   extra_after_rate			=> "",
-		   });
+                    if (!($self->{preferences}->client($client)->get('ditherType')) || 
+                         $self->{preferences}->client($client)->get('ditherType') eq "X" ){
 
-			# some adjustement from version 1.0 to 1.1
+                        if (!$self->{preferences}->client($client)->get('dither')){
+                            $self->{preferences}->client($client)->set('ditherType', -1);
+                        } else {
+                            $self->{preferences}->client($client)->set('ditherType', 1);
+                        }
 
-		   if ($self->{preferences}->get('extra')){
-			   $self->{preferences}->set('extra_after_rate', $self->{preferences}->get('extra'));
-		   }
-		   if (! $self->{preferences}->get('ditherType')){
-		   
-			   if (!$self->{preferences}->get('dither')){
-				   $self->{preferences}->set('ditherType', -1);
-			   } else {
-				   $self->{preferences}->set('ditherType', 1);
-			   }
-			  $self->{preferences}->set('ditherPrecision', -1);
-		   }
-		   		   
-		   $self->{preferences}->remove( 'outEncoding' );
-		   $self->{preferences}->remove( 'outChannels' );
-		   $self->{preferences}->remove( 'extra' );
-		   $self->{preferences}->remove( 'dither' );
-	    } 
-		
-	} #here specifIc advancements from versions greather than 1.1.02
+                        $self->{preferences}->set('ditherPrecision', -1);
+                    }
 
-	if ($prefVersion < 20012){
-		
-		if (!$client){
+                    # some adjustement for 1.1.2
 
-			$self->{preferences}->set('enable', 'on');
-			$self->{preferences}->set('unlimitedDsdRate', '');
-			
-			$self->{preferences}->set('noIOpt','');
-			$self->{preferences}->set('highPrecisionClock','');
-			$self->{preferences}->set('smallRollOff','on');
-			$self->{preferences}->set('sdmFilterType','auto');
-		
-			$self->{preferences}->set('dsdLowpass1Value',22);
-			$self->{preferences}->set('dsdLowpass1Order',2);
+                    if (! $self->{preferences}->client($client)->get('loudnessRef')){
+                        $self->{preferences}->client($client)->set('headroom', $self->{preferences}->get('headroom'));
+                        $self->{preferences}->client($client)->set('loudnessGain', $self->{preferences}->get('loudnessGain'));
+                        $self->{preferences}->client($client)->set('loudnessRef', $self->{preferences}->get('loudnessRef'));
+                        $self->{preferences}->client($client)->set('remixLeft', $self->{preferences}->get('remixLeft'));
+                        $self->{preferences}->client($client)->set('remixRight', $self->{preferences}->get('remixRight'));
+                        $self->{preferences}->client($client)->set('flipChannels', $self->{preferences}->get('flipChannels'));			
+                    }
+                }
 
-			$self->{preferences}->set('dsdLowpass2Value',33);
-			$self->{preferences}->set('dsdLowpass2Order',2);
-			$self->{preferences}->set('dsdLowpass2Active','');
+                $self->{preferences}->client($client)->remove( 'outEncoding' );
+                $self->{preferences}->client($client)->remove( 'outChannels' );
+                $self->{preferences}->client($client)->remove( 'extra' );
+                $self->{preferences}->client($client)->remove( 'dither' );
+
+            } else { #server
+
+                $self->{preferences}->init({				
+                   headroom					=> "1",
+                   gain						=> 0,
+                   loudnessGain				=> 0,
+                   loudnessRef				=> 65,
+                   remixLeft				=> 100,
+                   remixRight				=> 100,
+                   flipChannels				=> "0",
+                   extra_before_rate		=> "",
+                   extra_after_rate			=> "",
+               });
+
+                # some adjustement from version 1.0 to 1.1
+
+               if ($self->{preferences}->get('extra')){
+                   $self->{preferences}->set('extra_after_rate', $self->{preferences}->get('extra'));
+               }
+               if (! $self->{preferences}->get('ditherType')){
+
+                   if (!$self->{preferences}->get('dither')){
+                       $self->{preferences}->set('ditherType', -1);
+                   } else {
+                       $self->{preferences}->set('ditherType', 1);
+                   }
+                  $self->{preferences}->set('ditherPrecision', -1);
+               }
+
+               $self->{preferences}->remove( 'outEncoding' );
+               $self->{preferences}->remove( 'outChannels' );
+               $self->{preferences}->remove( 'extra' );
+               $self->{preferences}->remove( 'dither' );
+            } 
+
+        } #here specifIc advancements from versions greather than 1.1.02
+
+        if ($prefVersion < 20012){
+
+            if (!$client){
+
+                $self->{preferences}->set('enable', 'on');
+                $self->{preferences}->set('unlimitedDsdRate', '');
+
+                $self->{preferences}->set('noIOpt','');
+                $self->{preferences}->set('highPrecisionClock','');
+                $self->{preferences}->set('smallRollOff','on');
+                $self->{preferences}->set('sdmFilterType','auto');
+
+                $self->{preferences}->set('dsdLowpass1Value',22);
+                $self->{preferences}->set('dsdLowpass1Order',2);
+
+                $self->{preferences}->set('dsdLowpass2Value',33);
+                $self->{preferences}->set('dsdLowpass2Order',2);
+                $self->{preferences}->set('dsdLowpass2Active','');
 
 
-			$self->{preferences}->set('dsdLowpass3Value',44);
-			$self->{preferences}->set('dsdLowpass3Order',2);
-			$self->{preferences}->set('dsdLowpass3Active','');
-			
-			$self->{preferences}->set('dsdLowpass4Value',48);
-			$self->{preferences}->set('dsdLowpass4Order',2);
-			$self->{preferences}->set('dsdLowpass4Active','');
+                $self->{preferences}->set('dsdLowpass3Value',44);
+                $self->{preferences}->set('dsdLowpass3Order',2);
+                $self->{preferences}->set('dsdLowpass3Active','');
 
-		} else{
-				
-            $self->{preferences}->client($client)->set('useGlogalSettings','');
-            $self->{preferences}->client($client)->set('showDetails','on');
-            
-			$self->{preferences}->client($client)->set('enable', 'on');
-			
-			if  ($self->{preferences}->get('noIOpt')){
-				$self->{preferences}->client($client)->set('noIOpt','on');
-			} else{
-				$self->{preferences}->client($client)->set('noIOpt','');
-			}
-			
-			if  ($self->{preferences}->get('highPrecisionClock')){
-				$self->{preferences}->client($client)->set('highPrecisionClock','on');
-			} else{
-				$self->{preferences}->client($client)->set('highPrecisionClock','');
-			}
-			
-			if  ($self->{preferences}->get('smallRollOff')){
-				$self->{preferences}->client($client)->set('smallRollOff','on');
-			} else{
-				$self->{preferences}->client($client)->set('smallRollOff','');
-			}
-			
-			if  ($self->{preferences}->get('sdmFilterType')){
-				$self->{preferences}->client($client)->set('sdmFilterType',
-								$self->{preferences}->get('sdmFilterType'));
-			} else{
-				$self->{preferences}->client($client)->set('sdmFilterType','auto');
-			}
-			
-			if  ($self->{preferences}->get('dsdLowpass1Value')){
-				$self->{preferences}->client($client)->set('dsdLowpass1Value',
-								$self->{preferences}->get('dsdLowpass1Value'));
-				$self->{preferences}->client($client)->set('dsdLowpass1Order',
-								$self->{preferences}->get('dsdLowpass1Order'));
-												
-				$self->{preferences}->client($client)->set('dsdLowpass2Value',
-								$self->{preferences}->get('dsdLowpass2Value'));
-				$self->{preferences}->client($client)->set('dsdLowpass2Order',
-								$self->{preferences}->get('dsdLowpass2Order'));
-				$self->{preferences}->client($client)->set('dsdLowpass2Active',
-								$self->{preferences}->get('dsdLowpass2Active'));
-								
-				$self->{preferences}->client($client)->set('dsdLowpass3Value',
-								$self->{preferences}->get('dsdLowpass3Value'));
-				$self->{preferences}->client($client)->set('dsdLowpass3Order',
-								$self->{preferences}->get('dsdLowpass3Order'));
-				$self->{preferences}->client($client)->set('dsdLowpass3Active',
-								$self->{preferences}->get('dsdLowpass3Active'));
-								
-				$self->{preferences}->client($client)->set('dsdLowpass4Value',
-								$self->{preferences}->get('dsdLowpass4Value'));
-				$self->{preferences}->client($client)->set('dsdLowpass4Order',
-								$self->{preferences}->get('dsdLowpass4Order'));
-				$self->{preferences}->client($client)->set('dsdLowpass4Active',
-								$self->{preferences}->get('dsdLowpass4Active'));
-								
-			} else{
-				$self->{preferences}->client($client)->set('dsdLowpass1Value','22');
-				$self->{preferences}->client($client)->set('dsdLowpass1Order',2);
+                $self->{preferences}->set('dsdLowpass4Value',48);
+                $self->{preferences}->set('dsdLowpass4Order',2);
+                $self->{preferences}->set('dsdLowpass4Active','');
 
-				$self->{preferences}->client($client)->set('dsdLowpass2Value',33);
-				$self->{preferences}->client($client)->set('dsdLowpass2Order',2);
-				$self->{preferences}->client($client)->set('dsdLowpass2Active','');
+            } else{
 
-				$self->{preferences}->client($client)->set('dsdLowpass3Value',44);
-				$self->{preferences}->client($client)->set('dsdLowpass3Order',2);
-				$self->{preferences}->client($client)->set('dsdLowpass3Active','');
+                $self->{preferences}->client($client)->set('useGlogalSettings','');
+                $self->{preferences}->client($client)->set('showDetails','on');
 
-				$self->{preferences}->client($client)->set('dsdLowpass4Value',48);
-				$self->{preferences}->client($client)->set('dsdLowpass4Order',2);
-				$self->{preferences}->client($client)->set('dsdLowpass4Active','');
-			}
-		}
+                $self->{preferences}->client($client)->set('enable', 'on');
+
+                if  ($self->{preferences}->get('noIOpt')){
+                    $self->{preferences}->client($client)->set('noIOpt','on');
+                } else{
+                    $self->{preferences}->client($client)->set('noIOpt','');
+                }
+
+                if  ($self->{preferences}->get('highPrecisionClock')){
+                    $self->{preferences}->client($client)->set('highPrecisionClock','on');
+                } else{
+                    $self->{preferences}->client($client)->set('highPrecisionClock','');
+                }
+
+                if  ($self->{preferences}->get('smallRollOff')){
+                    $self->{preferences}->client($client)->set('smallRollOff','on');
+                } else{
+                    $self->{preferences}->client($client)->set('smallRollOff','');
+                }
+
+                if  ($self->{preferences}->get('sdmFilterType')){
+                    $self->{preferences}->client($client)->set('sdmFilterType',
+                                    $self->{preferences}->get('sdmFilterType'));
+                } else{
+                    $self->{preferences}->client($client)->set('sdmFilterType','auto');
+                }
+
+                if  ($self->{preferences}->get('dsdLowpass1Value')){
+                    $self->{preferences}->client($client)->set('dsdLowpass1Value',
+                                    $self->{preferences}->get('dsdLowpass1Value'));
+                    $self->{preferences}->client($client)->set('dsdLowpass1Order',
+                                    $self->{preferences}->get('dsdLowpass1Order'));
+
+                    $self->{preferences}->client($client)->set('dsdLowpass2Value',
+                                    $self->{preferences}->get('dsdLowpass2Value'));
+                    $self->{preferences}->client($client)->set('dsdLowpass2Order',
+                                    $self->{preferences}->get('dsdLowpass2Order'));
+                    $self->{preferences}->client($client)->set('dsdLowpass2Active',
+                                    $self->{preferences}->get('dsdLowpass2Active'));
+
+                    $self->{preferences}->client($client)->set('dsdLowpass3Value',
+                                    $self->{preferences}->get('dsdLowpass3Value'));
+                    $self->{preferences}->client($client)->set('dsdLowpass3Order',
+                                    $self->{preferences}->get('dsdLowpass3Order'));
+                    $self->{preferences}->client($client)->set('dsdLowpass3Active',
+                                    $self->{preferences}->get('dsdLowpass3Active'));
+
+                    $self->{preferences}->client($client)->set('dsdLowpass4Value',
+                                    $self->{preferences}->get('dsdLowpass4Value'));
+                    $self->{preferences}->client($client)->set('dsdLowpass4Order',
+                                    $self->{preferences}->get('dsdLowpass4Order'));
+                    $self->{preferences}->client($client)->set('dsdLowpass4Active',
+                                    $self->{preferences}->get('dsdLowpass4Active'));
+
+                } else{
+                    $self->{preferences}->client($client)->set('dsdLowpass1Value','22');
+                    $self->{preferences}->client($client)->set('dsdLowpass1Order',2);
+
+                    $self->{preferences}->client($client)->set('dsdLowpass2Value',33);
+                    $self->{preferences}->client($client)->set('dsdLowpass2Order',2);
+                    $self->{preferences}->client($client)->set('dsdLowpass2Active','');
+
+                    $self->{preferences}->client($client)->set('dsdLowpass3Value',44);
+                    $self->{preferences}->client($client)->set('dsdLowpass3Order',2);
+                    $self->{preferences}->client($client)->set('dsdLowpass3Active','');
+
+                    $self->{preferences}->client($client)->set('dsdLowpass4Value',48);
+                    $self->{preferences}->client($client)->set('dsdLowpass4Order',2);
+                    $self->{preferences}->client($client)->set('dsdLowpass4Active','');
+                }
+            }
+        }
+        #here next versions additionals migration fetures
 	}
 		
 	# upgrade version.
@@ -352,7 +356,7 @@ sub _initDefaultPrefs{
 	# sets default values for 'real' preferences.
 	if ($client){
 	
-		$self->{preferences}->client($client)->set('enable', 'on');
+		#$self->{preferences}->client($client)->set('enable', 'on');
 		$self->{preferences}->client($client)->set('useGlogalSettings', '');
 		$self->{preferences}->client($client)->set('showDetails', 'on');
                 
@@ -363,10 +367,10 @@ sub _initDefaultPrefs{
 	} else {
 	
 		$self->{preferences}->init({
-			enable                                  => "on",
+			enable                      => "on",
 			unlimitedDsdRate			=> "0",
 			resampleWhen				=> "A",
-			resampleTo                              => "S",
+			resampleTo                  => "S",
 			outCodec				=> "wav",
 			outBitDepth				=> 3,
 			#outEncoding				=> undef,

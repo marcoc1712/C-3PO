@@ -56,8 +56,11 @@ sub page {
 }
 
 sub prefs {
-	my @list= $plugin->getSharedPrefNameList();
-	push (@list, 'unlimitedDsdRate');
+    
+    #avoid erasure of all preference on save.
+	#my @list= $plugin->getSharedPrefNameList();
+	my @list=();
+    push (@list, 'enable', 'unlimitedDsdRate');
 	
 	return ($plugin->getPreferences(), @list);		  
 }
@@ -81,11 +84,9 @@ sub handler {
 	#$params->{'logFolder'}			=	$prefs->get('logFolder');
 	$params->{'logFile'}				=	$logfile;
 	$params->{'logFileURI'}			=	$logFileURI;
-	
 
-	$log->info('URI '.$logFileURI);	
+	#$log->info('URI '.$logFileURI);	
 
-	
 	$params->{'soxVersion'}			=	$prefs->get('soxVersion');
 	$params->{'isSoxDsdCapable'}    =	$prefs->get('isSoxDsdCapable');
 	
