@@ -132,7 +132,8 @@ sub prettyPrintConversionCapabilities{
         my $capLine="" ;
         $separator= "# ";
         
-        for my $c (keys $caps->{$profile}){
+        my %profiles= %{$caps->{$profile}};
+        for my $c (keys %profiles){
             
             $capLine = $capLine.$separator.$c." ". $caps->{$profile}->{$c};
             $separator= ", ";

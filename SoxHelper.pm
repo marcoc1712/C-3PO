@@ -301,8 +301,6 @@ sub resample{
         $execOptions = qq ($execOptions $multiOptions);
     } 
    
-      $execOptions;
-   
    ############################################################################# 
 	my $chain="";
 	
