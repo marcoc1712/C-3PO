@@ -116,7 +116,7 @@ sub handler {
         # Don't copy into prefs from disabled or not showed  parameters, 
         # it will result in a complete erasure of preferences.
         
-        if ($params->{'pref_enable'} && ($params->{'pref_resampleWhen'}){
+        if ($params->{'pref_enable'} && ($params->{'pref_resampleWhen'})){
 
             for my $item (@prefList){
                 _copyParamsToPrefs($client,$params,$item);

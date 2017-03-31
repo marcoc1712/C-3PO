@@ -24,6 +24,9 @@
 package Plugins::C3PO::SoxHelper;
 
 use strict;
+use warnings;
+use Data::Dump qw(dump pp);
+
 #my $stdBuffer = 8192; #44100/16
 #my $buffer= $stdBuffer;
 
@@ -62,9 +65,9 @@ sub resample{
 	
 	############################################################################
 
-    my $soxMultithread      =>$transcodeTable->{'soxMultithread'};
-    my $soxBuffer           =>$transcodeTable->{'soxBuffer'};
-
+    my $soxMultithread      = $transcodeTable->{'soxMultithread'};
+    my $soxBuffer           = $transcodeTable->{'soxBuffer'};
+    
 	my $outBitDepth			=$transcodeTable->{'outBitDepth'};
 	my $outCompression		=$transcodeTable->{'outCompression'};
 	my $quality				=$transcodeTable->{'quality'};
@@ -242,9 +245,9 @@ sub resample{
 	############################################################################
 	# SDM to by applied only to DSD output
 	
-	my $sdm='';;
+	my $sdm='';
 	
-	if (!$sdmFilterType || ($sdmFilterType == -1) ){
+	if (!$sdmFilterType || ($sdmFilterType eq -1) ){
 		
 		$sdm = $sdm.''; #no sdm 
 		
@@ -291,11 +294,14 @@ sub resample{
 	# Multithread option and buffer
     
     my $execOptions = "--buffer=".$soxBuffer*1024;
-    
+    my $multiOptions = qq(--multi-threaded);
+
     if ($soxMultithread) {
         
-        $execOptions = $execOptions." −−multi−threaded";
+        $execOptions = qq ($execOptions $multiOptions);
     } 
+   
+      $execOptions;
    
    ############################################################################# 
 	my $chain="";
