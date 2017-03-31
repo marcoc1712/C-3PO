@@ -293,6 +293,7 @@ sub resample{
 	############################################################################
 	# Multithread option and buffer
     
+    $soxBuffer = $soxBuffer ? $soxBuffer : 8;
     my $execOptions = "--buffer=".$soxBuffer*1024;
     my $multiOptions = qq(--multi-threaded);
 
