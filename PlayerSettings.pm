@@ -116,18 +116,11 @@ sub handler {
         # Don't copy into prefs from disabled or not showed  parameters, 
         # it will result in a complete erasure of preferences.
         
-        if ($params->{'enable'}){
+        if ($params->{'pref_enable'} && ($params->{'pref_resampleWhen'}){
 
-           #if ($params->{'pref_showDetails'} && $params->{'pref_resampleWhen'})
-           if ($params->{'pref_resampleWhen'}){
-
-               for my $item (@prefList){
-                   _copyParamsToPrefs($client,$params,$item);
-               }
-           }
-         
-           #_copyParamsToPrefs($client,$params,'useGlogalSettings');
-           #_copyParamsToPrefs($client,$params,'showDetails');
+            for my $item (@prefList){
+                _copyParamsToPrefs($client,$params,$item);
+            }
 
            for my $codec (keys %$prefSeeks){
 
@@ -174,7 +167,7 @@ sub handler {
                }
            }
            $prefs->client($client)->set( 'dsdRates', 
-                   $plugin->translateDsdRates($prefDsdRates));
+                                         $plugin->translateDsdRates($prefDsdRates));
         }   
         _copyParamsToPrefs($client,$params,'enable');
         
