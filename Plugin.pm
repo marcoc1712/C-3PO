@@ -185,7 +185,7 @@ sub initPlugin {
     $LMSTranscodingHelper = Plugins::C3PO::LMSTranscodingHelper->new($class);
     
     if (main::INFOLOG && $log->is_info) {
-        $log->info( $LMSTranscodingHelper->prettyPrintConversionCapabilities(0,"File types table: STATUS QUO ANTE: ") );
+        $log->info( $class->prettyPrintConversionCapabilities(0,"File types table: STATUS QUO ANTE: ") );
 	}
 
     $LMSTranscodingHelper->disableProfiles();
@@ -473,6 +473,14 @@ sub getStatus{
 	}
 	
 	return \%out;
+}
+sub prettyPrintConversionCapabilities{
+    my $class = shift;
+    my $details = shift;
+    my $message = shift;
+    my $client = shift;
+    
+    return $LMSTranscodingHelper->prettyPrintConversionCapabilities($details,$message,$client);
 }
 #callback for windows downloader
 sub setWinExecutablesStatus{
@@ -1207,8 +1215,8 @@ sub _setupTranscoder{
 	}
     
     if (main::INFOLOG && $log->is_info) {
-        #$log->info( $LMSTranscodingHelper->prettyPrintConversionCapabilities(0,"File Types Table for client: ".$client->id(), $client));
-        $log->info( $LMSTranscodingHelper->prettyPrintConversionCapabilities(0,"File Types Table rebuilded"));
+        #$log->info( $class->prettyPrintConversionCapabilities(0,"File Types Table for client: ".$client->id(), $client));
+        $log->info( $class->prettyPrintConversionCapabilities(0,"File Types Table rebuilded"));
     } 
     
     return 1;

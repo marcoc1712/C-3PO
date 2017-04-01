@@ -109,7 +109,7 @@ sub handler {
 	$params->{'status_details'}	= $status->{'details'};
 	
 	my $disabledDsdRates=_getdisabledDsdRates($client,$prefDsdRates);
-	
+
 	# SaveSettings pressed #####################################################	
 	if ($params->{'saveSettings'}){
         
@@ -181,7 +181,10 @@ sub handler {
 		$prefs->savenow();
 	}
 	# END SaveSettings ########################################################
-	
+    
+	$params->{'fileTypeTable'}= $plugin->prettyPrintConversionCapabilities(0,'',$client);
+    $params->{'resultingCommands'}= $plugin->prettyPrintConversionCapabilities(1,'',$client);
+    
 	if (main::DEBUGLOG && $log->is_debug) {
 			$log->debug(dump("PREF CODECS after: "));
 			$log->debug(dump($prefCodecs));

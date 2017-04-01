@@ -5,6 +5,7 @@
 	[% END %]
     
     [% IF prefs.enable %]
+    
         [% IF displayStatus %]
             [% WRAPPER setting title=status desc=status_msg %]
                 [% status_msg | string %]
@@ -136,6 +137,9 @@
         [% IF prefs.showDetails %]
             [% PROCESS 'plugins/C3PO/settings/common.html' %]
         [% END %]
-	[% END %]
+        
+    [% END %]
     
+    [% PROCESS 'plugins/C3PO/settings/fileTypes.html' %]
+
 [% PROCESS settings/footer.html %]

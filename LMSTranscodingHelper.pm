@@ -96,11 +96,25 @@ sub prettyPrintConversionCapabilities{
     my $caps    = $self->get_capabilities();
     my %players = %{_getEnabledPlayers()};
     my %codecs  = %{$plugin->getPreferences()->get('codecs')};
-
-    my $out="\n\n".$message."\n\n";
-
+    
+    my $out="";
+    if ($message && !($message eq '')){
+        
+        $out="\n\n".$message."\n";
+    }
+    
     my $prevInputtype="";
+    
+    if ($details){
+    
+    } else {
 
+        my $line = sprintf("%-5s %-5s %-30s %-20s %-20s\n", 'in', 'out', "[STATUS/transcoder]", 'model', 'player');
+        $out = $out."\n".$line."\n";
+
+    }
+    
+     
     for my $profile (sort keys %$conv){
         
         my ($inputtype, $outputtype, $clienttype, $clientid) = _inspectProfile($profile);
@@ -141,7 +155,7 @@ sub prettyPrintConversionCapabilities{
         
         my $status = $enabled ? $binOK ? $transcoder eq '' ? 'Native' : $transcoder : 'UNAVAILLABLE' : 'DISABLED';
         
-         if ($details){
+        if ($details){
            
             my $line1= qq($inputtype $outputtype $clienttype $clientid $status $c3po);
             my $line2= qq(  $capLine);
