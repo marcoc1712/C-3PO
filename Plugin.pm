@@ -98,6 +98,11 @@ use Slim::Utils::Log;
 use Slim::Utils::Prefs;
 use Slim::Utils::Strings qw(string);
 use Slim::Player::TranscodingHelper;
+use Slim::Player::Client;
+use Slim::Player::StreamingController;
+use Slim::Player::SongStreamController;
+
+use FileHandle;
 
 my $class;
 
@@ -205,11 +210,36 @@ sub initPlugin {
     # the following will enable a callback for every file type change, 
     # but is unnncesary and can leat to an unfinished loop.
     #$serverPreferences->setChange(\&fileTypesChanged, 'disabledformats');
+    
+    # Subscribe to new song event
+	Slim::Control::Request::subscribe(
+		\&newSong, 
+		[['playlist'], ['newsong']],
+	);
 }
 sub shutdownPlugin {
 	Slim::Control::Request::unsubscribe( \&newClientCallback );
 	Slim::Control::Request::unsubscribe( \&clientReconnectCallback );
+    Slim::Control::Request::unsubscribe( \&newSong );
     
+}
+sub newSong{
+    my $request = shift;
+    
+    if (main::INFOLOG && $log->is_info) {
+        # $log->info("newSong request received");
+	}
+
+	if ( my $id = $request->clientid()) {
+		my $client = Slim::Player::Client::getClient($id);
+        my $controller = $client->controller();
+        my $songStreamController = $controller->songStreamController();
+        my $song = $songStreamController->song();
+        
+        #dump $song;
+	}
+
+    return 1
 }
 
 sub fileTypesChanged{

@@ -919,10 +919,10 @@ sub _getMaxSyncrounusRate{
 	my $filedsdRate = shift;
     my $dsdrates = shift;
 	
-	Plugins::C3PO::Logger::debugMessage('fileSamplerate : '.$fileSamplerate);
+	Plugins::C3PO::Logger::debugMessage('fileSamplerate : '.($fileSamplerate ? $fileSamplerate : ''));
 	Plugins::C3PO::Logger::debugMessage('Samplerates : '.Data::Dump::dump($samplerates));
 	Plugins::C3PO::Logger::debugMessage('is dsd : '.$isDsd);
-	Plugins::C3PO::Logger::debugMessage('filedsdRate : '.$filedsdRate);
+	Plugins::C3PO::Logger::debugMessage('filedsdRate : '.($filedsdRate ? $filedsdRate : ''));
 	Plugins::C3PO::Logger::debugMessage('dsdrates : '.Data::Dump::dump($dsdrates));
 	
 	if ($isDsd && (!defined $filedsdRate || $filedsdRate==0)){
