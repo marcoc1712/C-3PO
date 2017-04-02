@@ -786,31 +786,31 @@ PLUGIN_C3PO_STATUS_014
 
 PLUGIN_C3PO_STATUS_CLIENT_021
 	EN	Squeezelite version is non compliant (Squeezelite-R2).
-	IT	La verisone di Squeezelite non � compatibile (Squeezelite-R2).
+	IT	La verisone di Squeezelite non è compatibile (Squeezelite-R2).
 
 PLUGIN_C3PO_STATUS_SERVER_021
 	EN	Squeezelite version is non compliant (Squeezelite-R2). See players.
-	IT	La versione di Squeezelite non � compatibile (Squeezelite-R2). Vedi Lettori.
+	IT	La versione di Squeezelite non è compatibile (Squeezelite-R2). Vedi Lettori.
 	
 PLUGIN_C3PO_STATUS_101
 	EN	Unable to run C-3PO transcoder, fault back to PERL. See server log.
 	IT	Impossibile eseguire C-3PO transcoder, verr� utilizzato PERL. Verificare il log del server.
 		
 PLUGIN_C3PO_STATUS_CLIENT_502
-	EN	StdIn (es. Qobuz) enabled in windows, faulf back to 'Always upsample' at 'Max allowed sample rate'.
-	IT	StdIn (es. Qobuz) abilitato in windows, verr� utilizzato Il ricampionamento al massimo sample rate supportato.
+	EN	StdIn (es. Qobuz) enabled in windows, fault back to 'Always upsample' at 'Max allowed sample rate'.
+	IT	StdIn (es. Qobuz) abilitato in windows, verrà utilizzato Il ricampionamento al massimo sample rate supportato.
 
 PLUGIN_C3PO_STATUS_SERVER_502
-	EN	StdIn (es. Qobuz) enabled in windows, faulf back to 'Always upsample' at 'Max allowed sample rate' (see players).
+	EN	StdIn (es. Qobuz) enabled in windows, fault back to 'Always upsample' at 'Max allowed sample rate' (see players).
 	IT	StdIn (es. Qobuz) abilitato in windows, verr� utilizzato Il ricampionamento al massimo sample rate supportato (controllare in player).
 
 PLUGIN_C3PO_STATUS_CLIENT_503
 	EN	StdIn (es. Qobuz) and Seek (cue sheet) capability selected for the same codec. Seek will be ignored.
-	IT	StdIn (es. Qobuz) e Ricerca(cue sheet) selezionati per lo stesso formato. Ricerca verr� ignorato.
+	IT	StdIn (es. Qobuz) e Ricerca(cue sheet) selezionati per lo stesso formato. Ricerca verrà ignorato.
 
 PLUGIN_C3PO_STATUS_SERVER_503
 	EN	StdIn (es. Qobuz) and Seek (cue sheet) capability selected for the same codec. Seek will be ignored (see players).
-	IT	StdIn (es. Qobuz) e Ricerca(cue sheet) selezionati per lo stesso formato. Ricerca verr� ignorato (controllare in players).
+	IT	StdIn (es. Qobuz) e Ricerca(cue sheet) selezionati per lo stesso formato. Ricerca verrà ignorato (controllare in players).
 
 PLUGIN_C3PO_STATUS_CLIENT_504
 	EN	Apple lossless is always decoded when resampled.
@@ -818,15 +818,15 @@ PLUGIN_C3PO_STATUS_CLIENT_504
 	
 PLUGIN_C3PO_STATUS_CLIENT_521
 	EN	Player is not Squeezelite, assuming is compliant.
-	IT	Il player non � Squeezelite, si assume sia compatibile.
+	IT	Il player non è Squeezelite, si assume sia compatibile.
 
 PLUGIN_C3PO_STATUS_SERVER_522
 	EN	Squeezelite version is non R2, assuming is compliant.
-	IT	La versione di Squeezelite non � R2, si assume sia compatibile.
+	IT	La versione di Squeezelite non è R2, si assume sia compatibile.
 
 PLUGIN_C3PO_STATUS_SERVER_522
 	EN	Squeezelite version is non R2, assuming is compliant. See players.
-	IT	La versione di Squeezelite non � R2, si assume sia compatibile. Vedi Lettori.
+	IT	La versione di Squeezelite non è R2, si assume sia compatibile. Vedi Lettori.
 
 PLUGIN_C3PO_STATUS_601
 	EN	C-3PO transcoder is downloading, please wait. Reload page to see changes.
@@ -858,7 +858,7 @@ PLUGIN_C3PO_STATUS_CLIENT_921
 
 PLUGIN_C3PO_STATUS_ALL_951
 	EN	SOX version is outdated, Replace it with a newer version to enable more transcoding capibilities.
-	IT	La versione di SOX in uso non � aggiornata, sostituirla con una pi� recente per abilitare ulteriori funzionalit�.
+	IT	La versione di SOX in uso non è aggiornata, sostituirla con una pi� recente per abilitare ulteriori funzionalit�.
 
 PLUGIN_C3PO_STATUS_CLIENT_952
 	EN	Your player can play the DSD format, the SOX version in use not. See: www.audiodigitale.eu
