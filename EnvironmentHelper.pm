@@ -252,6 +252,25 @@ sub soxEffects{
 	return	$SoxEffects;
 }
 
+sub getC3POcommand{
+    my $self    = shift;
+    my $command = shift;
+    
+    $command= qq($command -d --nodebuglog  --noinfolog);
+	$command= Plugins::C3PO::Shared::finalizeCommand($command);
+	
+	my $ret= `$command`;
+	my $err=$?;
+	
+	if (!$err==0){
+		$log->warn('WARNING: '.$err.$ret);
+    
+    }elsif (main::DEBUGLOG && $log->is_debug) {
+			 $log->debug($ret);
+	}
+	return ($err, $ret);
+    
+}
 ####################################################################################################
 # Private
 #

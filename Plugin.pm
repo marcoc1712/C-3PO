@@ -75,6 +75,7 @@ use Plugins::C3PO::PreferencesHelper;
 use Plugins::C3PO::CapabilityHelper;
 use Plugins::C3PO::EnvironmentHelper;
 use Plugins::C3PO::LMSTranscodingHelper;
+use Plugins::C3PO::LMSSongHelper;
 use Plugins::C3PO::Logger;
 use Plugins::C3PO::Transcoder;
 use Plugins::C3PO::OsHelper;
@@ -85,6 +86,7 @@ use Plugins::C3PO::SoxHelper;
 use Plugins::C3PO::Utils::Config;
 use Plugins::C3PO::Utils::File;
 use Plugins::C3PO::Utils::Log;
+use Plugins::C3PO::Utils::Time;
 
 use Plugins::C3PO::Formats::Format;
 use Plugins::C3PO::Formats::Wav;
@@ -128,6 +130,8 @@ my $LMSTranscodingHelper;
 #
 my $C3POwillStart;
 my $C3POisDownloading;
+
+my %lastCommands=();
 
 ################################################################################
 # required methods
@@ -226,20 +230,59 @@ sub shutdownPlugin {
 sub newSong{
     my $request = shift;
     
-    if (main::INFOLOG && $log->is_info) {
-        # $log->info("newSong request received");
-	}
+    
 
 	if ( my $id = $request->clientid()) {
+        
+        main::INFOLOG && $log->info("newSong request received from client ".$id);
+	
 		my $client = Slim::Player::Client::getClient($id);
         my $controller = $client->controller();
         my $songStreamController = $controller->songStreamController();
         my $song = $songStreamController->song();
         
-        #dump $song;
-	}
+        my $songHelper=Plugins::C3PO::LMSSongHelper->new($class, $song);
+        
+        my $transcoder =$songHelper->getTranscoder();
+        my $tokenized = $transcoder->{'tokenized'};
+        my $command = $transcoder->{'command'};
+        my $profile = $transcoder->{'profile'};
+        
+        my ($binOk,%binaries) = $LMSTranscodingHelper->getBinaries($profile);
+        
+        $lastCommands{$id}{'client'}    = $client;
+        $lastCommands{$id}{'time'}      = Utils::Time::getNiceTimeString();
+        $lastCommands{$id}{'tokenized'} = $tokenized;
+        
+        $lastCommands{$id}{'msg'} = "\n".
+                                       "At: ".$lastCommands{$id}{'time'}."\n". 
+                                       "    Command: \n".
+                                       "    ".$lastCommands{$id}{'tokenized'}."\n";
 
-    return 1
+        if ($C3POwillStart && $binOk && ($binaries{'C-3PO'} || $binaries{'perl'})){
+
+            if (index($tokenized,"|") ge 0){
+                $tokenized = substr($tokenized,0, index($tokenized,"|"));
+            }
+            my ($err, $C3POtokenized)= $EnvironmentHelper->getC3POcommand($tokenized);
+            
+            $lastCommands{$id}{'C-3PO'} = $err ? $err.($C3POtokenized ? $C3POtokenized :'') : $C3POtokenized;
+            
+            $lastCommands{$id}{'msg'} = $lastCommands{$id}{'msg'}."\n".
+                                           "    trasformed by C-3PO in : \n".
+                                           "    ".$lastCommands{$id}{'C-3PO'}."\n";
+        } 
+        
+        if (main::INFOLOG && $log->is_info) {
+            
+            $log->info($lastCommands{$id}{'msg'});
+        }
+        
+        return 1;
+	}
+    
+    $log->warning ("missing client in new song request");
+    return 0;
 }
 
 sub fileTypesChanged{
@@ -528,7 +571,7 @@ sub setWinExecutablesStatus{
 	} elsif ($status->{'code'} == 0){ #download Ok;
 	
 		$class->initPlugin();
-		settingsChanged();
+		$class->settingsChanged();
 		
 	} # else is downloading.
 	

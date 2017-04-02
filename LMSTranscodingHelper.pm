@@ -113,8 +113,7 @@ sub prettyPrintConversionCapabilities{
         $out = $out."\n".$line."\n";
 
     }
-    
-     
+
     for my $profile (sort keys %$conv){
         
         my ($inputtype, $outputtype, $clienttype, $clientid) = _inspectProfile($profile);
@@ -127,12 +126,8 @@ sub prettyPrintConversionCapabilities{
                 
         my $enabled     = $self->isProfileEnabled($profile);
         
-        my %backup      = %Slim::Player::TranscodingHelper::binaries;
-        %Slim::Player::TranscodingHelper::binaries=();
-        my $binOK       = Slim::Player::TranscodingHelper::checkBin($profile,0);
-        my %binaries    = %Slim::Player::TranscodingHelper::binaries;
-        %Slim::Player::TranscodingHelper::binaries = %backup;
-        
+        my ($binOK, %binaries) =$self->getBinaries($profile);
+
         my $transcoder="";
         my $separator="";
         
@@ -350,7 +345,18 @@ sub enableProfile{
     }
 
 }
-
+sub getBinaries{
+    my $self = shift;
+    my $profile = shift;
+    
+    my %backup      = %Slim::Player::TranscodingHelper::binaries;
+    %Slim::Player::TranscodingHelper::binaries=();
+    my $binOK       = Slim::Player::TranscodingHelper::checkBin($profile,0);
+    my %binaries    = %Slim::Player::TranscodingHelper::binaries;
+    %Slim::Player::TranscodingHelper::binaries = %backup;
+    
+    return ($binOK, %binaries);
+}
 ####################################################################################################
 # Private
 #
@@ -406,4 +412,5 @@ sub _disableProfile{
 		$serverPreferences->savenow();
 	}
 }
+
 1;

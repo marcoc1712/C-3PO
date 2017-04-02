@@ -713,7 +713,7 @@ sub _checkResample{
 		my $isFilesDsd = ($bitsPerSample && ($bitsPerSample == 1)) ? 1 :0;
 		
 		Plugins::C3PO::Logger::infoMessage('file samplerate: '.$fileSamplerate);
-		Plugins::C3PO::Logger::infoMessage('bits Per Sample: '.$bitsPerSample);
+		Plugins::C3PO::Logger::infoMessage('bits Per Sample: '.($bitsPerSample ? 1 : 0 ));
 		
 		if (($isDsdInput && !$isFilesDsd) || (!$isDsdInput && $isFilesDsd)){
 		

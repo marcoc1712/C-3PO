@@ -402,7 +402,7 @@ sub executeCommand{
 	
 	if ($main::isDebug){
 	
-		return $command;
+		print $command;
 	
 	} else {
 	
