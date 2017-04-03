@@ -185,6 +185,9 @@ sub handler {
 	$params->{'fileTypeTable'}= $plugin->prettyPrintConversionCapabilities(0,'',$client);
     $params->{'resultingCommands'}= $plugin->prettyPrintConversionCapabilities(1,'',$client);
     
+    my $lastCommand=$plugin->getLastCommand($client->id());
+    $params->{'lastCommand'}=$lastCommand->{'msg'};
+    
 	if (main::DEBUGLOG && $log->is_debug) {
 			$log->debug(dump("PREF CODECS after: "));
 			$log->debug(dump($prefCodecs));

@@ -521,8 +521,8 @@ sub _splitResampleAndTranscode{
 sub _splitAndTranscode{
 	my $transcodeTable = shift;
 	
-	if (isLMSInfo()) {
-		$log->info('Start _splitAndTranscode')
+	if (isLMSDebug()) {
+		$log->debug('Start _splitAndTranscode')
 	} else{
 		Plugins::C3PO::Logger::debugMessage('Start _splitAndTranscode');
 	}
@@ -545,8 +545,8 @@ sub _splitAndTranscode{
 		$transcodeTable->{'command'}=$commandString;
 	}
 	
-	if (isLMSInfo()) {
-		$log->info('Is transcoding Required? '.isTranscodingRequired($transcodeTable));
+	if (isLMSDebug()) {
+		$log->debug('Is transcoding Required? '.isTranscodingRequired($transcodeTable));
 	} else{
 		Plugins::C3PO::Logger::debugMessage('Is transcoding Required? '.isTranscodingRequired($transcodeTable));
 	}
@@ -568,8 +568,8 @@ sub _splitAndTranscode{
 sub _transcodeOnly{
 	my $transcodeTable = shift;
 	
-	if (isLMSInfo()) {
-		$log->info('Start transcode Only')
+	if (isLMSDebug()) {
+		$log->debug('Start transcode Only')
 	} else{
 		Plugins::C3PO::Logger::debugMessage('Start transcode Only');
 	}
@@ -1176,10 +1176,11 @@ sub _isResamplingRequested{
 	
 	Plugins::C3PO::Logger::debugMessage('resampleWhen: '.$transcodeTable->{'resampleWhen'});
 	
+    if ($outCodec eq 'dsf'  || $outCodec eq 'dff') {return 1;} 
+    if ($transcodeTable->{'resampleWhen'} eq 'N') {return 0};
 	if ($transcodeTable->{'enableResample'}->{$inCodec}) {return 1;}
-	if ($outCodec eq 'dsf'  || $outCodec eq 'dff') {return 1;} 
-	
-	return !($transcodeTable->{'resampleWhen'} eq 'N');
+
+	return 0;
 }
 sub isTranscodingRequired{
 	my $transcodeTable =shift;

@@ -46,7 +46,7 @@ sub resample{
 	my $outCodec			=Plugins::C3PO::Transcoder::getOutputCodec($transcodeTable);
 	
 	my $exe					=$transcodeTable->{'pathToSox'};
-	my $soxVersion			=$transcodeTable->{'soxVersion'};
+	my $soxVersion			=$transcodeTable->{'soxVersion'} || 0;
 	my $isSoxDsdCapable		=$transcodeTable->{'isSoxDsdCapable'};
 	
 	my $command				=$transcodeTable->{'command'};
@@ -259,7 +259,7 @@ sub resample{
 	
 		$sdm = $sdm.' sdm -f '.$sdmFilterType;
 	}
-
+    ############################################################################
 	my $commandString;
 	
 	if ($isRuntime){

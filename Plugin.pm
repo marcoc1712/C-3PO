@@ -229,8 +229,6 @@ sub shutdownPlugin {
 }
 sub newSong{
     my $request = shift;
-    
-    
 
 	if ( my $id = $request->clientid()) {
         
@@ -274,8 +272,10 @@ sub newSong{
         } 
         
         if (main::INFOLOG && $log->is_info) {
+            #$log->info($lastCommands{$id}{'msg'});
             
-            $log->info($lastCommands{$id}{'msg'});
+            my $lastCommand=$class->getLastCommand($id);
+            $log->info($lastCommand->{'msg'});  
         }
         
         return 1;
@@ -435,7 +435,12 @@ sub initClientCodecs{
 	
 	return ($codecList);
 }
-
+sub getLastCommand{
+    my $self = shift;
+    my $clientId =shift;
+    
+    return $lastCommands{$clientId};
+}
 sub settingsChanged{
 	my $class = shift;
 	my $client=shift;
@@ -1079,6 +1084,13 @@ sub _calcStatus{
 		$ref = _getStatusLine('012','all',$ref);
 
 	}
+    if ($EnvironmentHelper->pathToSox() && 
+        !$EnvironmentHelper->soxVersion()){
+		
+		$ref = _getStatusLine('022','all',$ref);
+
+	}
+    
 	if (($prefs->get('extra_before_rate') && !($prefs->get('extra_before_rate') eq "") ) ||
 		($prefs->get('extra_after_rate') && !($prefs->get('extra_after_rate') eq "") )) {
 		
@@ -1086,17 +1098,19 @@ sub _calcStatus{
 	
 	}
 	
-	if ($EnvironmentHelper->soxVersion() < 140400){
+	if ($EnvironmentHelper->pathToSox() && $EnvironmentHelper->soxVersion() && 
+        $EnvironmentHelper->soxVersion() < 140400){
 	
 		$ref = _getStatusLine('951','all',$ref);
 		
 	} 
-	
-	if (!$EnvironmentHelper->isSoxDsdCapable){
+
+	if ($EnvironmentHelper->pathToSox() && $EnvironmentHelper->soxVersion() &&
+        !$EnvironmentHelper->isSoxDsdCapable){
 		
 		$ref = _getStatusLine('952','server',$ref);
 	}
-	
+
 	###########################################################################
 	# Client
 	#
@@ -1183,7 +1197,8 @@ sub _calcStatus{
 				$ref = _getStatusLine('905',$client,$ref);
 			}
 			
-			if ($CapabilityHelper->isDsdCapable($client) && !$EnvironmentHelper->isSoxDsdCapable ){
+			if ($EnvironmentHelper->pathToSox() && $EnvironmentHelper->soxVersion() &&
+                $CapabilityHelper->isDsdCapable($client) && !$EnvironmentHelper->isSoxDsdCapable ){
 		
 				$ref = _getStatusLine('952',$client,$ref);
 			}

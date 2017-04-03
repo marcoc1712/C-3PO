@@ -35,6 +35,10 @@ PLUGIN_C3PO_HELPER_APPLICATIONS_NOT_FOUND
 	EN	Not found. See Information, Helper Application Folder.
 	IT	Non trovato. Vedi Informazioni, Helper Application Folder.
 
+PLUGIN_C3PO_HELPER_APPLICATIONS_MISSING_SOX_VERSION
+	EN	Either not a valid version or can't run sox.
+	IT	Versione di sox non valida o impossibile eseguire sox.
+
 PLUGIN_C3PO_SOX
 	EN	- SOX
 	IT	- SOX
@@ -748,6 +752,11 @@ PLUGIN_C3PO_FILE_TYPES
 PLUGIN_C3PO_RESULTING_COMMANDS
 	EN	RESULTING COMMANDS
 	IT	COMANDI RISULTANTI
+
+PLUGIN_C3PO_LAST_COMMAND
+	EN	LAST EXECUTED COMMAND
+	IT	ULTIMO COMANDO ESEGUITO
+
 PLUGIN_C3PO_STATUS
 	EN	STATUS
 	IT	STATUS
@@ -791,7 +800,11 @@ PLUGIN_C3PO_STATUS_CLIENT_021
 PLUGIN_C3PO_STATUS_SERVER_021
 	EN	Squeezelite version is non compliant (Squeezelite-R2). See players.
 	IT	La versione di Squeezelite non è compatibile (Squeezelite-R2). Vedi Lettori.
-	
+
+PLUGIN_C3PO_STATUS_ALL_022
+	EN	SOX version is non compliant or can't execute SOX.
+	IT	La versione di SOX  non è compatibile o è impossibile eseguire SOX.
+
 PLUGIN_C3PO_STATUS_101
 	EN	Unable to run C-3PO transcoder, fault back to PERL. See server log.
 	IT	Impossibile eseguire C-3PO transcoder, verr� utilizzato PERL. Verificare il log del server.
@@ -830,15 +843,15 @@ PLUGIN_C3PO_STATUS_SERVER_522
 
 PLUGIN_C3PO_STATUS_601
 	EN	C-3PO transcoder is downloading, please wait. Reload page to see changes.
-	IT	C-3PO transcoder � in download, attendere qualche secondo e ricaricare la pagina per verificare l'avanzamento.
+	IT	C-3PO transcoder è in download, attendere qualche secondo e ricaricare la pagina per verificare l'avanzamento.
 	
 PLUGIN_C3PO_STATUS_701
 	EN	C-3PO transcoder is downloading. Using PERL instead. Reload page to see changes.
-	IT	C-3PO transcoder � in download, viene temporaneamente utilizzato PERL. Ricaricare la pagina per verificare l'avanzamento.
+	IT	C-3PO transcoder è in download, viene temporaneamente utilizzato PERL. Ricaricare la pagina per verificare l'avanzamento.
 	
 PLUGIN_C3PO_STATUS_903
 	EN	FFMPEG not found, fault back to FLAC.
-	IT	FFMPEG non è stato trovato, verr� utilizzato FLAC.
+	IT	FFMPEG non è stato trovato, verrà utilizzato FLAC.
 
 PLUGIN_C3PO_STATUS_CLIENT_904
 	EN	FLAC is always decoded before resampling.
@@ -858,7 +871,7 @@ PLUGIN_C3PO_STATUS_CLIENT_921
 
 PLUGIN_C3PO_STATUS_ALL_951
 	EN	SOX version is outdated, Replace it with a newer version to enable more transcoding capibilities.
-	IT	La versione di SOX in uso non è aggiornata, sostituirla con una pi� recente per abilitare ulteriori funzionalit�.
+	IT	La versione di SOX in uso non è aggiornata, sostituirla con una più recente per abilitare ulteriori funzionalità.
 
 PLUGIN_C3PO_STATUS_CLIENT_952
 	EN	Your player can play the DSD format, the SOX version in use not. See: www.audiodigitale.eu

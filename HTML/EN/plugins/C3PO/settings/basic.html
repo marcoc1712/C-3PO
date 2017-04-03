@@ -34,17 +34,31 @@
     [% END %]
     
     [% WRAPPER setting title="PLUGIN_C3PO_SOX" desc="" %]
-          [% pathToSox %] 
-	[% END %]
-    [% WRAPPER setting title="PLUGIN_C3PO_SOX_VERSION" desc="" %]
-		
-        [% soxVersion %] 
-        [% IF isSoxDsdCapable %]
-            dsd capable
+         
+        [% IF pathToSox != "" %]
+           [% pathToSox %] 
         [% ELSE %]
-            NOT dsd capable
+           [% "PLUGIN_C3PO_HELPER_APPLICATIONS_NOT_FOUND" | string %] 
         [% END %]
         
+	[% END %]
+    [% WRAPPER setting title="PLUGIN_C3PO_SOX_VERSION" desc="" %]
+        
+        [% IF pathToSox != "" %]
+            [% IF soxVersion != "" %]
+                [% soxVersion %] 
+
+                [% IF isSoxDsdCapable %]
+                    dsd capable
+                [% ELSE %]
+                    NOT dsd capable
+                [% END %]
+
+            [% ELSE %]
+               [% "PLUGIN_C3PO_HELPER_APPLICATIONS_MISSING_SOX_VERSION" | string %] 
+            [% END %]
+        [% END %]
+                
 	[% END %]
     [% WRAPPER setting title="PLUGIN_C3PO_SOX_MULTITHREAD" desc="PLUGIN_C3PO_SOX_MULTITHREAD_DESC" %]
 		<input name="pref_soxMultithread" type="checkbox" [% IF prefs.soxMultithread %] checked [% END %]
