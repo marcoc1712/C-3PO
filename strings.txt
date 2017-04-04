@@ -266,9 +266,11 @@ PLUGIN_C3PO_OUT_ENCODING_DESC
 PLUGIN_C3PO_OUT_ENCODING_S
 	EN	signed-integer
 	IT	signed-integer
+
 PLUGIN_C3PO_OUT_ENCODING_U
 	EN	unsigned-integer
 	IT	unsigned-integer
+
 PLUGIN_C3PO_OUT_ENCODING_F
 	EN	floating-point
 	IT	floating-point
@@ -745,6 +747,10 @@ PLUGIN_C3PO_LOG_C3PO
 	EN	Log file position
 	IT	Posizione del file di log.
 
+PLUGIN_C3PO_SETTINGS
+	EN	SETTINGS
+	IT	IMPOSTAZIONI
+
 PLUGIN_C3PO_FILE_TYPES
 	EN	FILE TYPE TRANSCODING TABLE
 	IT	TABELLA DELLE CONVERSIONI DI FORMATO
@@ -880,4 +886,3 @@ PLUGIN_C3PO_STATUS_CLIENT_952
 PLUGIN_C3PO_STATUS_SERVER_952
 	EN	The SOX version in use does not handle DSD formats. See instructions here:www.audiodigitale.eu.
 	IT	La versione di SOX in uso non gestisce i formati DSD. Vedi le istruzioni qui: www.audiodigitale.eu.
-

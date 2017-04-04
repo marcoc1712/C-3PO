@@ -34,7 +34,7 @@ my @clientPrefNamesHash	  = qw(	sampleRates dsdRates);
 my @clientPrefNames= @clientPrefNamesScalar;
 push @clientPrefNames, @clientPrefNamesHash;
 
-my @sharedPrefNames		  = qw(	enable 
+my @sharedPrefNames		  = qw(	enable panel
 								resampleWhen resampleTo outCodec 
 								outBitDepth 
 								

@@ -2,12 +2,21 @@
 <style>
 .c3poMessage {
     margin-left: 50px
-}   
+} 
+table {
+    font-family: arial, sans-serif;
+}
+td, th {
+    text-align: left;
+}
 </style>
 </head>
 <body>
-[% WRAPPER setting title="PLUGIN_C3PO_FILE_TYPES" desc="" %]
-[% END %]
-<div class="c3poMessage">
-    [% fileTypeTable %]
-</div>
+    [% WRAPPER setting title="PLUGIN_C3PO_FILE_TYPES" desc="" %]
+    [% END %]
+    <div class="c3poMessage">
+        <table>
+            [% fileTypeTable %]
+        </table>
+    </div>
+</body>
