@@ -182,11 +182,15 @@ sub handler {
 	}
 	# END SaveSettings ########################################################
     
-	$params->{'fileTypeTable'}= $plugin->prettyPrintConversionCapabilities(0,'',$client);
-    $params->{'resultingCommands'}= $plugin->prettyPrintConversionCapabilities(1,'',$client);
+	$params->{'fileTypeTable'}= $plugin->getHtmlConversionTable(0,$client);
+    $params->{'resultingCommands'}= $plugin->getHtmlConversionTable(1,$client);
     
     my $lastCommand=$plugin->getLastCommand($client->id());
-    $params->{'lastCommand'}=$lastCommand->{'msg'};
+    $params->{'lastCommand_time'}=$lastCommand->{'time'};
+    $params->{'lastCommand_profile'}=$lastCommand->{'profile'};
+    $params->{'lastCommand_command'}=$lastCommand->{'command'};
+    $params->{'lastCommand_tokenized'}=$lastCommand->{'tokenized'};
+    $params->{'lastCommand_C3PO'}=$lastCommand->{'C-3PO'};
     
 	if (main::DEBUGLOG && $log->is_debug) {
 			$log->debug(dump("PREF CODECS after: "));

@@ -1,5 +1,37 @@
+<head>
+<style>
+.c3poMessage {
+    margin-left: 50px
+}   
+</style>
+</head>
+<body>
 [% WRAPPER setting title="PLUGIN_C3PO_LAST_COMMAND" desc="" %]
-<pre>
-        <table width="50%">[% lastCommand %]</table>
-</pre>
-[% END %]
+[% END %] 
+
+<div class="c3poMessage">
+    <h2>At: [% lastCommand_time %]</h2>
+    <p>&nbsp;</p>
+    <h3> Profile:</h3>
+    <p>&nbsp;</p>
+    <p>[% lastCommand_profile %]</p>
+    <p>&nbsp;</p>
+    <h3> Command:</h3>
+    <p>&nbsp;</p>
+    <p>[% lastCommand_command %]</p>
+    <p>&nbsp;</p>
+    <h3> Tokenized command:</h3>
+    <p>&nbsp;</p>
+    <p>[% lastCommand_tokenized %]</p>
+    [% IF lastCommand_C3PO != "" %]
+        <p>&nbsp;</p>
+        <h3>Trasformed by C-3PO in:</h3>
+        <p>&nbsp;</p>
+        <p>[% lastCommand_C3PO %]</p>
+    [% END %]
+    <p>&nbsp;</p>
+</div>
+
+
+
+</body>

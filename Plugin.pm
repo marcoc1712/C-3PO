@@ -250,13 +250,16 @@ sub newSong{
         
         $lastCommands{$id}{'client'}    = $client;
         $lastCommands{$id}{'time'}      = Utils::Time::getNiceTimeString();
+        $lastCommands{$id}{'profile'}   = $profile;
+        $lastCommands{$id}{'command'}   = $command;
         $lastCommands{$id}{'tokenized'} = $tokenized;
+        $lastCommands{$id}{'C-3PO'}     = "";
         
         $lastCommands{$id}{'msg'} = "\n".
                                        "At: ".$lastCommands{$id}{'time'}."\n". 
                                        "    Command: \n".
                                        "    ".$lastCommands{$id}{'tokenized'}."\n";
-
+                                        
         if ($C3POwillStart && $binOk && ($binaries{'C-3PO'} || $binaries{'perl'})){
 
             if (index($tokenized,"|") ge 0){
@@ -559,6 +562,14 @@ sub prettyPrintConversionCapabilities{
     my $client = shift;
     
     return $LMSTranscodingHelper->prettyPrintConversionCapabilities($details,$message,$client);
+}
+sub getHtmlConversionTable{
+    my $class = shift;
+    my $details = shift;
+    my $message = shift;
+    my $client = shift;
+    
+    return $LMSTranscodingHelper->getHtmlConversionTable($details,$message,$client);
 }
 #callback for windows downloader
 sub setWinExecutablesStatus{
