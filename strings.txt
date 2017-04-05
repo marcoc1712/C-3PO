@@ -625,12 +625,12 @@ PLUGIN_C3PO_DITHER_PRECISION
 	IT	Profondità in bit del Dithering
 
 PLUGIN_C3PO_DITHER_PRECISION-
-	EN	- Dithering target bit depth
-	IT	- Profondità in bit alla quale � applicato il dithering
+	EN	- Target precision
+	IT	- Precisione
 	
 PLUGIN_C3PO_DITHER_PRECISION_DESC
 	EN	Override the target precision. Please note that any value greater than 24 or the output bit deph means NO ovverride.
-	IT	Utilizza una profondità in bit (precisione) diversa da quella del formato di output. Valori superiori a 24 o alla profondit� dello stream di output, vengono ignorati. 
+	IT	Utilizza una profondità in bit (precisione) diversa da quella del formato di output. Valori superiori a 24 o alla profondità dello stream di output, vengono ignorati. 
 	
 PLUGIN_C3PO_DITHER_PRECISION_IGNORE
 	EN	Same as output.

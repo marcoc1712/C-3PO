@@ -176,6 +176,10 @@ sub getHtmlConversionTable {
                 $out=$out.'<td><b>'.$inputtype.'</b></td>';
                 $prevInputtype = $inputtype;
             }
+            if (!$transcoderString){
+                
+                dump $conversionTable->{$profile};
+            }
             $out=$out.'<td>'.$outputtype.'</td>'.
                             '<td>'.$transcoderString.'</td>'.
                             '<td>'.$clienttype.'</td>'.
@@ -436,17 +440,18 @@ sub _getConversionTable{
     
         my ($inputtype, $outputtype, $clienttype, $clientid) = _inspectProfile($profile);
 
+        if ($client ){
+            
+            if (!($clientid eq '*') && !($client->id() eq $clientid)) {next}
+            if (!($clienttype eq '*') && !($client->model() eq $clienttype)) {next}
+        }
+        
         $out{$profile}{'inputtype'}     =$inputtype;
         $out{$profile}{'outputtype'}    =$outputtype;
         $out{$profile}{'clienttype'}    =$clienttype;
         $out{$profile}{'clientid'}      =$clientid;
         $out{$profile}{'command'}       =$conv->{$profile};
         
-        if ($client ){
-            
-            if (!($clientid eq '*') && !($client->id() eq $clientid)) {next}
-            if (!($clienttype eq '*') && !($client->model() eq $clienttype)) {next}
-        }
         my $enabled = $self->isProfileEnabled($profile);
         $out{$profile}{'enabled'} = $enabled;
          

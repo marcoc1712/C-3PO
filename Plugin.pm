@@ -617,8 +617,8 @@ sub _clientCalback{
 	
 	my $samplerateList= _initSampleRates($client);
 	my $dsdrateList= _initDsdRates($client);
-	
-	my $class->initClientCodecs($client);
+
+	$class->initClientCodecs($client);
     my $codecsCli = join ' ', sort keys $preferences->client($client)->get('codecsCli');
 	
 	if (main::INFOLOG && $log->is_info) {
