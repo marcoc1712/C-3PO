@@ -111,7 +111,7 @@ td, th {
                                 <input type="checkbox" name="pref_dsdRates[% rate.key %]" 
                                        id="dsdRates_[% rate.key %]" value="1" [% rate.value ? "checked" : "" %]
 
-                                [% FOREACH r2 IN disabledSampleRates %]
+                                [% FOREACH r2 IN disabledDsdRates %]
                                     [% IF rate.key == r2.key %] 
                                         [% IF r2.value %] disabled [% END %]
                                         [% LAST %]   
