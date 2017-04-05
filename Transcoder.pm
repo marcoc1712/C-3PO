@@ -1176,11 +1176,11 @@ sub _isResamplingRequested{
 	
 	Plugins::C3PO::Logger::debugMessage('resampleWhen: '.$transcodeTable->{'resampleWhen'});
 	
-    if ($outCodec eq 'dsf'  || $outCodec eq 'dff') {return 1;} 
-    if ($transcodeTable->{'resampleWhen'} eq 'N') {return 0};
-	if ($transcodeTable->{'enableResample'}->{$inCodec}) {return 1;}
-
-	return 0;
+    if ($transcodeTable->{'enableResample'}->{$inCodec}) {return 1;}
+	if ($outCodec eq 'dsf'  || $outCodec eq 'dff') {return 1;} 
+	
+	return !($transcodeTable->{'resampleWhen'} eq 'N');
+    
 }
 sub isTranscodingRequired{
 	my $transcodeTable =shift;

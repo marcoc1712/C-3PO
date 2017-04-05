@@ -14,12 +14,27 @@ td, th {
     <table>
         <tr>
             [% FOREACH codec IN prefs.codecs %]
-                <td>
-                    <input type="checkbox" name="pref_codecs[% codec.key %]" id="codecs[% codec.key %]" value="1" [% codec.value ? "checked" : "" %]
-                    disabled>
-                
-                    <label for="pref_codecs[% codec.key %]">[% codec.key | string %]&nbsp;&nbsp;</label>
-                </td>
+                [% IF  codec.value %]
+                    <td>
+                        <input type="checkbox" name="pref_codecs[% codec.key %]" id="codecs[% codec.key %]" value="1" [% codec.value ? "checked" : "" %]
+                        disabled>
+
+                        <label for="pref_codecs[% codec.key %]">[% codec.key | string %] </label>
+                    </td>
+                [% END %]
             [% END %]
+        </tr>
+        <tr>
+            [% FOREACH codec IN prefs.codecs %]
+                [% IF !codec.value %]
+                    <td>
+                        <input type="checkbox" name="pref_codecs[% codec.key %]" id="codecs[% codec.key %]" value="1" [% codec.value ? "checked" : "" %]
+                        disabled>
+
+                        <label for="pref_codecs[% codec.key %]">[% codec.key | string %] </label>
+                    </td>
+                [% END %]
+            [% END %]
+        </tr>
     </table>
 [% END %]

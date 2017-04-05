@@ -1,12 +1,3 @@
-[% WRAPPER setting title="PLUGIN_C3PO_CODEC_SELECTION_TITLE" desc="PLUGIN_C3PO_CODEC_SELECTION_PLAYER_DESC" %]
-    [% FOREACH codec IN prefs.codecs %]
-        <td style="text-align:center;">
-            <input type="checkbox" name="pref_codecs[% codec.key %]" id="codecs[% codec.key %]" value="1" [% codec.value ? "checked" : "" %]
-            disabled
-        </td>
-        <td colspan="15"> <label for="pref_codecs[% codec.key %]">[% codec.key | string %]&nbsp;&nbsp;</label></td>
-    [% END %]
-[% END %]
 [% WRAPPER setting title="PLUGIN_C3PO_ENABLE_SEEK_TITLE" desc="PLUGIN_C3PO_ENABLE_SEEK_DESC" %]
     [% FOREACH seek IN prefs.enableSeek %]
         <input type="checkbox" name="pref_enableSeek[% seek.key %]" id="enableSeek[% seek.key %]" value="1" [% seek.value ? "checked" : "" %]

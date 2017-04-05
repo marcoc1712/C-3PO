@@ -1,0 +1,137 @@
+<head>
+<style>
+.mytable {
+    font-family: arial, sans-serif;
+    max-width: 1200px;
+    margin-left: 20px;
+    
+}
+.columnA {
+    text-align: left;
+    width: 210px;
+    padding-left: 10px; 
+}
+.cell{
+    text-align: center;
+    width: 80px;
+}
+</style>
+</head>
+[% WRAPPER setting title="PLUGIN_C3P0_FUNCTION_CODECS_CAPTION" desc="PLUGIN_C3P0_FUNCTION_CODECS_CAPTION_DESC" %]   
+<table> 
+    
+</table>
+[% END %]
+<table class="mytable">
+    <tr>
+        <td class="columnA"> <b>&nbsp;</b>
+            [% FOREACH codec IN prefs.codecs %]
+            [% FOREACH c2 IN disabledCodecs %]
+                [% disabled = 0 %]
+                [% IF codec.key == c2.key %] 
+                    [% IF c2.value %] 
+                        [% disabled = 1 %]
+                    [% END %]
+                    [% LAST %]
+                [% END %]
+            [% END %]
+            [% IF !disabled %]
+                <td class= "cell" {
+                    <label>[% codec.key | string %]</label>
+                </td>
+            [% END %]
+        [% END %]
+    </tr>
+    <tr>        
+        <td class="columnA"> <b>[% "PLUGIN_C3PO_ENABLE_SEEK_TITLE" | string %]</b>
+        [% FOREACH codec IN prefs.enableSeek %]
+            [% FOREACH c2 IN disabledCodecs %]
+                [% disabled = 0 %]
+                [% IF codec.key == c2.key %] 
+                    [% IF c2.value %] 
+                        [% disabled = 1 %]
+                    [% END %]
+                    [% LAST %]
+                [% END %]
+            [% END %]
+
+            [% IF !disabled %]
+                <td class="cell">    
+                    <input type="checkbox" name="pref_enableSeek[% codec.key %]" 
+                           id="enableSeek[% codec.key %]" value="1" 
+                           [% codec.value ? "checked" : "" %]>
+                    </input>
+                </td>
+            [% END %]
+        [% END %]
+    </tr>
+    <tr>
+        <td class="columnA"> <b>[% "PLUGIN_C3PO_ENABLE_STDIN_TITLE" | string %]</b></td>    
+        [% FOREACH codec IN prefs.enableStdin %]
+        [% FOREACH c2 IN disabledCodecs %]
+            [% disabled = 0 %]
+            [% IF codec.key == c2.key %] 
+                [% IF c2.value %] 
+                    [% disabled = 1 %]
+                [% END %]
+                [% LAST %]
+            [% END %]
+        [% END %]
+
+        [% IF !disabled %]
+            <td class="cell">    
+                <input type="checkbox" name="pref_enableStdin[% codec.key %]" 
+                       id="enableStdin[% codec.key %]" value="1" 
+                       [% codec.value ? "checked" : "" %]>
+                </input>
+            </td>
+        [% END %]
+    [% END %]
+    </tr>
+    <tr>
+        <td class="columnA"> <b>[% "PLUGIN_C3PO_CONVERT_TITLE" | string %]</b></td>
+        [% FOREACH codec IN prefs.enableConvert %]
+            [% FOREACH c2 IN disabledCodecs %]
+                [% disabled = 0 %]
+                [% IF codec.key == c2.key %] 
+                    [% IF c2.value %] 
+                        [% disabled = 1 %]
+                    [% END %]
+                    [% LAST %]
+                [% END %]
+            [% END %]
+
+            [% IF !disabled %]
+               <td class="cell">    
+                    <input type="checkbox" name="pref_enableConvert[% codec.key %]" 
+                           id="convert[% codec.key %]" value="1" 
+                           [% codec.value ? "checked" : "" %]>
+                    </input>
+                </td>
+            [% END %]
+        [% END %]
+    </tr>
+    <tr>
+        <td class="columnA"><b>[% "PLUGIN_C3PO_RESAMPLE_TITLE" | string %]</b></td>
+        [% FOREACH codec IN prefs.enableResample %]
+            [% FOREACH c2 IN disabledCodecs %]
+                [% disabled = 0 %]
+                [% IF codec.key == c2.key %] 
+                    [% IF c2.value %] 
+                        [% disabled = 1 %]
+                    [% END %]
+                    [% LAST %]
+                [% END %]
+            [% END %]
+
+            [% IF !disabled %]
+                <td class="cell">    
+                    <input type="checkbox" name="pref_enableResample[% codec.key %]" 
+                           id="resample[% codec.key %]" value="1" 
+                           [% codec.value ? "checked" : "" %]>
+                    </input>
+                </td>
+            [% END %]
+        [% END %]
+    </tr>
+</table>

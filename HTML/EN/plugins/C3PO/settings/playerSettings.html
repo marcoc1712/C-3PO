@@ -25,22 +25,22 @@
     [% WRAPPER setting title="PLUGIN_C3PO_TRANSCODER_TITLE" desc="" %]
     [% END %]
     
-    [% PROCESS 'plugins/C3PO/settings/codecs.html' %]
+    [% PROCESS 'plugins/C3PO/settings/functionsPerCodecs.html' %]
+    
+    [% WRAPPER setting title="PLUGIN_C3PO_GAIN" desc="PLUGIN_C3PO_GAIN" %]
+	<input type="text" class="stdedit sliderInput_0_16" name="pref_gain" id="gain" 
+		value="[% prefs.gain %]" size="5"
+		[% IF prefs.useGlogalSettings %] disabled [% END %]>
+    [% END %]
+
+    [% WRAPPER setting title="PLUGIN_C3PO_HEADROOM" desc="PLUGIN_C3PO_HEADROOM_DESC" %]
+        <input name="pref_headroom" type="checkbox" 
+            [% IF prefs.headroom %] checked [% END %]
+            [% IF prefs.useGlogalSettings %] disabled [% END %]>
+    [% END %]
 
     [% IF 0  %]
-        [% WRAPPER setting title="PLUGIN_C3PO_USE_GLOBAL" desc="PLUGIN_C3PO_USE_GLOBAL_DESC" %]
-            <div class="prefDesc">
-                <input name="pref_useGlogalSettings" type="checkbox" [% IF prefs.useGlogalSettings %] checked [% END %]>
-                <input name=useGlogalSettingsButton type="submit" class="stdclick" value= "[% "PLUGIN_C3PO_APPLY_BUTTON" | string %]">
-            </div>
-        [% END %]
-
-        [% WRAPPER setting title="PLUGIN_C3PO_SHOW_DETAILS" desc="PLUGIN_C3PO_SHOW_DETAILS_DESC" %]
-            <div class="prefDesc">
-                <input name="pref_showDetails" type="checkbox" [% IF prefs.showDetails %] checked [% END %]>
-                <input name=showDetailsButton type="submit" class="stdclick" value= "[% "PLUGIN_C3PO_APPLY_BUTTON" | string %]">
-            </div>
-        [% END %]
+        [% PROCESS 'plugins/C3PO/settings/useGlobal.html' %]
     [% END %]
     
     [% IF prefs.showDetails %]
