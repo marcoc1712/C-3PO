@@ -619,7 +619,7 @@ sub _clientCalback{
 	my $dsdrateList= _initDsdRates($client);
 
 	$class->initClientCodecs($client);
-    my $codecsCli = join ' ', sort keys $preferences->client($client)->get('codecsCli');
+    my $codecsCli = join ' ', sort keys %{$preferences->client($client)->get('codecsCli')};
 	
 	if (main::INFOLOG && $log->is_info) {
 

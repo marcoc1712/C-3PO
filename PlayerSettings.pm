@@ -69,7 +69,7 @@ sub handler {
 
 	my $prefs=$plugin->getPreferences($client);
     
-    $params->{'clientCodecList'} =join ' ', sort keys $prefs->client($client)->get('codecsCli');
+    $params->{'clientCodecList'} =join ' ', sort keys %{$prefs->client($client)->get('codecsCli')};
     
 	$params->{'soxVersion'} =$prefs->get('soxVersion');
 	$params->{'isSoxDsdCapable'} =$prefs->get('isSoxDsdCapable');

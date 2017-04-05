@@ -3,13 +3,17 @@
 	[% IF displayStatus %]
 		[% PROCESS 'plugins/C3PO/settings/status.html' %]
 	[% END %]
-
+    
+     <hr>
+     
 	[% WRAPPER setting title="PLUGIN_C3PO_GENERAL_SETTINGS_TITLE" desc="" %]
 		
 	[% END %]
 	[% WRAPPER setting title="PLUGIN_C3PO_CODEC_SELECTION_TITLE" desc="PLUGIN_C3PO_CODEC_SELECTION_DESC" %]
 		[% FOREACH codec IN prefs.codecs %]
-			<input type="checkbox" name="pref_codecs[% codec.key %]" id="codecs[% codec.key %]" value="1" [% codec.value ? "checked" : "" %]
+			<input type="checkbox" name="pref_codecs[% codec.key %]" 
+                   id="codecs[% codec.key %]" value="1" 
+                   [% codec.value ? "checked" : "" %]
 			[% FOREACH c2 IN supportedCodecs %]
 				[% IF codec.key == c2.key %] 
 					[% IF !c2.value %] disabled [% END %]
@@ -20,8 +24,10 @@
 	[% END %]
 	[% WRAPPER setting title="PLUGIN_C3PO_ENABLE_TITLE" desc="PLUGIN_C3PO_ENABLE_DESC" %]
 		<input name="pref_enable" type="checkbox" [% IF prefs.enable %] checked [% END %]>
-	[% END %]&nbsp;&nbsp;</label></td>
+	[% END %]
     
+     <hr>
+ 
     [% WRAPPER setting title="PLUGIN_C3PO_HELPER_APPLICATIONS" desc="" %]
     [% END %]
     
@@ -52,10 +58,12 @@
         [% END %]
                 
 	[% END %]
+    
     [% WRAPPER setting title="PLUGIN_C3PO_SOX_MULTITHREAD" desc="PLUGIN_C3PO_SOX_MULTITHREAD_DESC" %]
 		<input name="pref_soxMultithread" type="checkbox" [% IF prefs.soxMultithread %] checked [% END %]
                [% IF soxVersion < 140402 %] disabled [% END %]>
 	[% END %]
+    
     [% WRAPPER setting title="PLUGIN_C3PO_SOX_BUFFER" desc="PLUGIN_C3PO_SOX_BUFFER_DESC" %]
         <input type="text" class="stdedit sliderInput_8_128" name="pref_soxBuffer" id="soxBuffer" 
                value="[% prefs.soxBuffer %]" size="5"
@@ -70,15 +78,17 @@
            [% "PLUGIN_C3PO_HELPER_APPLICATIONS_NOT_FOUND" | string %] 
         [% END %]
         
-	[% END %]&nbsp;&nbsp;</label></td>
+	[% END %]
     
+ <hr>
+ 
 	[% IF 0 %]
 		[% PROCESS 'plugins/C3PO/settings/common.html' %]
 	[% END %]
-	[% WRAPPER setting title="" desc="" %][% END %]
-	
+		
 	[% IF isSoxDsdCapable %]
-		[% WRAPPER setting title="PLUGIN_C3PO_ADVANCED_OPTIONS" desc="PLUGIN_C3PO_ADVANCED_OPTIONS_DESC" %]
+		
+        [% WRAPPER setting title="PLUGIN_C3PO_ADVANCED_OPTIONS" desc="PLUGIN_C3PO_ADVANCED_OPTIONS_DESC" %]
 			[% "PLUGIN_C3PO_ADVANCED_OPTIONS_DESC" | string %]
 		[% END %]
 	
@@ -87,8 +97,9 @@
 			[% IF prefs.unlimitedDsdRate %] checked [% END %]
 				[% IF !prefs.codecs.dsf && ! prefs.codecs.dff %] disabled [% END %]>
 		[% END %]
-		[% WRAPPER setting title="" desc="" %][% END %]
-		
+
+         <hr>
+        
 	[% END %]
 	
 	[% WRAPPER setting title="PLUGIN_C3PO_LOG_C3PO" desc="" %]
