@@ -1,0 +1,135 @@
+<head>
+<style>
+table {
+    font-family: arial, sans-serif;
+    max-width: 1000px;
+}
+td, th {
+    width: 80px;
+    text-align: left;
+}
+</style>
+</head>
+[% WRAPPER setting title="PLUGIN_C3PO_PCM_SAMPLE_RATE_LIST" desc="PLUGIN_C3PO_PCM_SAMPLE_RATE_LIST_DESC" %]
+    <table>
+        <tr>
+            [% FOREACH rate IN prefs.sampleRates %]
+                [% FOREACH r3 IN OrderedPcmSampleRates %]
+                    [% IF rate.key == r3.key %] 
+                        [% IF r3.value && r3.value < 40000 && r3.value mod 8000 == 0 %]
+                            <td>
+
+                                <input type="checkbox" name="pref_sampleRates[% rate.key %]" 
+                                       id="sampleRates_[% rate.key %]" value="1" [% rate.value ? "checked" : "" %]
+
+                                [% FOREACH r2 IN disabledSampleRates %]
+                                    [% IF rate.key == r2.key %] 
+                                        [% IF r2.value %] disabled [% END %]
+                                        [% LAST %]   
+                                    [% END %]
+                                [% END %]>
+
+                                <label for="pref_sampleRates_[% rate.key %]"> [% r3.value %]
+                                
+                                </label> 
+
+                            </td>
+                        [% END %]
+                        [% LAST %]
+                    [% END %]
+                [% END %] 
+            [% END %]
+        </tr>
+        <tr>
+            [% FOREACH rate IN prefs.sampleRates %]
+                [% FOREACH r3 IN OrderedPcmSampleRates %]
+                    [% IF rate.key == r3.key %] 
+                        [% IF r3.value && r3.value > 40000 && r3.value mod 11025 == 0 %]
+                            <td>
+
+                                <input type="checkbox" name="pref_sampleRates[% rate.key %]" 
+                                       id="sampleRates_[% rate.key %]" value="1" [% rate.value ? "checked" : "" %]
+
+                                [% FOREACH r2 IN disabledSampleRates %]
+                                    [% IF rate.key == r2.key %] 
+                                        [% IF r2.value %] disabled [% END %]
+                                        [% LAST %]   
+                                    [% END %]
+                                [% END %]>
+
+                                <label for="pref_sampleRates_[% rate.key %]"> [% r3.value %]
+                                
+                                </label> 
+
+                            </td>
+                        [% END %]
+                        [% LAST %]
+                    [% END %]
+                [% END %] 
+            [% END %]
+        </tr>
+        <tr>
+            [% FOREACH rate IN prefs.sampleRates %]
+                [% FOREACH r3 IN OrderedPcmSampleRates %]
+                    [% IF rate.key == r3.key %] 
+                        [% IF r3.value && r3.value > 40000 && r3.value mod 12000 == 0 %]
+                            <td>
+
+                                <input type="checkbox" name="pref_sampleRates[% rate.key %]" 
+                                       id="sampleRates_[% rate.key %]" value="1" [% rate.value ? "checked" : "" %]
+
+                                [% FOREACH r2 IN disabledSampleRates %]
+                                    [% IF rate.key == r2.key %] 
+                                        [% IF r2.value %] disabled [% END %]
+                                        [% LAST %]   
+                                    [% END %]
+                                [% END %]>
+
+                                <label for="pref_sampleRates_[% rate.key %]"> [% r3.value %]
+                               
+                                </label> 
+
+                            </td>
+                        [% END %]
+                        [% LAST %]
+                    [% END %]
+                [% END %] 
+            [% END %]
+        </tr>
+    </table>
+[% END %]
+
+[% WRAPPER setting title="PLUGIN_C3PO_DSD_SAMPLE_RATE_LIST" desc="PLUGIN_C3PO_DSD_SAMPLE_RATE_LIST_DESC" %]
+    <table>
+        <tr>
+            [% FOREACH rate IN prefs.dsdRates %]
+                [% FOREACH r3 IN OrderedDsdRates %]
+                    [% IF rate.key == r3.key %] 
+                        [% IF r3.value %]
+                            <td>  
+
+                                <input type="checkbox" name="pref_dsdRates[% rate.key %]" 
+                                       id="dsdRates_[% rate.key %]" value="1" [% rate.value ? "checked" : "" %]
+
+                                [% FOREACH r2 IN disabledSampleRates %]
+                                    [% IF rate.key == r2.key %] 
+                                        [% IF r2.value %] disabled [% END %]
+                                        [% LAST %]   
+                                    [% END %]
+                                [% END %]>
+                                
+                                <label for="pref_dsdRates_[% rate.key %]"> [% r3.value %]
+                                
+                                </label> 
+
+                            </td>
+                        [% END %]
+                        [% LAST %]
+                    [% END %]
+                [% END %] 
+            [% END %]
+        </tr>
+    </table>
+[% END %]
+
+

@@ -103,6 +103,10 @@ PLUGIN_C3PO_CODEC_SELECTION_PLAYER_DESC
 	EN	List of input formats (aka codecs) supported by the Player. Greyed formats could - and should - be handled outside C-3PO.
 	IT	Elenco dei formati (o codec) supportati in ingresso. I formati disbilitati, possono essere gestiti al di fuori di C-3PO.
 
+PLUGIN_C3PO_TRANSCODER_TITLE
+	EN	TRANSCODER SETTINGS
+	IT	IMPOSTAZIONI DI DECODIFICA
+
 PLUGIN_C3PO_ENABLE_SEEK_TITLE
 	EN	Enable seek (cue sheet)
 	IT	Abilita ricerca (cue sheet).
@@ -753,7 +757,7 @@ PLUGIN_C3PO_SETTINGS
 
 PLUGIN_C3PO_FILE_TYPES
 	EN	FILE TYPE TRANSCODING TABLE
-	IT	TABELLA DELLE CONVERSIONI DI FORMATO
+	IT	CONVERSIONI DI FORMATO
 
 PLUGIN_C3PO_RESULTING_COMMANDS
 	EN	RESULTING COMMANDS

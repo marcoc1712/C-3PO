@@ -1,13 +1,7 @@
 <head>
     <style>
-        .c3poMessage {
-            margin-left: 50px
-        } 
-        table {
-            font-family: arial, sans-serif;
-        }
-        td, th {
-            text-align: left;
+        .buttons {
+            margin-left: 25px
         }
     </style>
     <script>
@@ -22,39 +16,49 @@
         function show(what) {
 
         document.getElementById("panel").value = what; 
+        
+        id = what+'Button';
+        var list = document.getElementsByClassName("stdclick");
+		for (var i = 0; i < list.length; i++) {
+        	list[i].style.background = "";
+            list[i].style.color = "";
+		}
+        document.getElementById(id).style.background = "darkgrey";
+        document.getElementById(id).style.color = "black";
      }
     </script>
 </head>
 
-<body>
-    [% PROCESS settings/header.html %]
+[% PROCESS settings/header.html %]
 
-        <input name="showSettingsButton" id="showSettingsButton" type="submit" class="stdclick" value="[% "PLUGIN_C3PO_SETTINGS" | string %]" 
+    <div class="buttons">
+        <input name="settingsButton" id="settingsButton" type="submit" class="stdclick" value="[% "PLUGIN_C3PO_SETTINGS" | string %] " 
                 onclick="show('settings')" >
 
-        <input name="showFileTypesButton" id="showFileTypesButton" type="submit" class="stdclick" value="[% "PLUGIN_C3PO_FILE_TYPES" | string %]" 
+        <input name="fileTypesButton" id="fileTypesButton" type="submit" class="stdclick" value="[% "PLUGIN_C3PO_FILE_TYPES" | string %]" 
                 onclick="show('fileTypes')" >
 
-        <input name="showResultingCommandsButton" id="showResultingCommandsButton" type="submit" class="stdclick" value="[% "PLUGIN_C3PO_RESULTING_COMMANDS" | string %]" 
+        <input name="resultingCommandsButton" id="resultingCommandsButton" type="submit" class="stdclick" value="[% "PLUGIN_C3PO_RESULTING_COMMANDS" | string %]" 
                 onclick="show('resultingCommands')" >
 
-        <input name="showLastCommandButton" id="showLastCommandButton" type="submit" class="stdclick" value="[% "PLUGIN_C3PO_LAST_COMMAND" | string %]" 
+        <input name="lastCommandButton" id="lastCommandButton" type="submit" class="stdclick" value="[% "PLUGIN_C3PO_LAST_COMMAND" | string %]" 
                 onclick="show('lastCommand')" >
 
-        <input type="text" class="stdedit" name="pref_panel" id="panel" value="[% prefs.panel | html %]" size="50" maxlength="100" >
+                <input type="text" class="stdedit" name="pref_panel" id="panel" value="[% prefs.panel | html %]" size="50" maxlength="100" hidden >
+    </div>
 
-        [% IF prefs.panel == 'settings' %]
-            [% PROCESS 'plugins/C3PO/settings/PlayerSettings.html' %]
-        [% END %]
-        [% IF prefs.panel == 'fileTypes' %]
-            [% PROCESS 'plugins/C3PO/settings/fileTypes.html' %]
-        [% END %]
-        [% IF prefs.panel == 'resultingCommands' %]
-            [% PROCESS 'plugins/C3PO/settings/resultingCommands.html' %]
-        [% END %]
-        [% IF prefs.panel == 'lastCommand' %]
-            [% PROCESS 'plugins/C3PO/settings/lastCommand.html' %]
-        [% END %]
+    [% IF prefs.panel == 'settings' %]
+        [% PROCESS 'plugins/C3PO/settings/PlayerSettings.html' %]
+    [% END %]
+    [% IF prefs.panel == 'fileTypes' %]
+        [% PROCESS 'plugins/C3PO/settings/fileTypes.html' %]
+    [% END %]
+    [% IF prefs.panel == 'resultingCommands' %]
+        [% PROCESS 'plugins/C3PO/settings/resultingCommands.html' %]
+    [% END %]
+    [% IF prefs.panel == 'lastCommand' %]
+        [% PROCESS 'plugins/C3PO/settings/lastCommand.html' %]
+    [% END %]
 
-    [% PROCESS settings/footer.html %]
-</body>
+[% PROCESS settings/footer.html %]
+
