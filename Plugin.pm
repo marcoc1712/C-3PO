@@ -397,7 +397,7 @@ sub initClientCodecs{
 	my $prefEnableStdin;
 	my $prefEnableConvert;
 	my $prefEnableResample;
-
+    
 	if (!defined($prefs->client($client)->get('codecs'))){
 	
 		($supportedCli, $prefCodecs, $prefEnableSeek,$prefEnableStdin,
@@ -618,7 +618,8 @@ sub _clientCalback{
 	my $samplerateList= _initSampleRates($client);
 	my $dsdrateList= _initDsdRates($client);
 	
-	my $clientCodecList= $class->initClientCodecs($client);
+	my $class->initClientCodecs($client);
+    my $codecsCli = join ' ', sort keys $preferences->client($client)->get('codecsCli');
 	
 	if (main::INFOLOG && $log->is_info) {
 
@@ -632,7 +633,7 @@ sub _clientCalback{
 				   "max dsd resolution:     $maxSupportedDsdrate \n".
 				   "supported sample rates: $samplerateList \n".
 				   "supported dsd rates:    $dsdrateList \n".
-				   "supported codecs :      $clientCodecList".
+				   "supported codecs :      $codecsCli".
 				   "");
 	}
 	#register the new client in preferences.
@@ -809,7 +810,7 @@ sub _defaultClientCodecs{
 	my $supported=();
 	
 	#add all the codecs supported by the client.
-	for my $codec ($CapabilityHelper->clientSupportedFormats($client)) {
+	for my $codec (keys %{$CapabilityHelper->clientSupportedFormats($client)}) {
 		$supported->{$codec} = 0;
 		$supportedCli->{$codec}=1;
 		
@@ -898,7 +899,7 @@ sub _refreshClientCodecs{
 	my $supportedCli=();
 	
 	#add all the codecs supported by the client.
-	for my $codec ($CapabilityHelper->clientSupportedFormats($client)) {
+	for my $codec (keys %{$CapabilityHelper->clientSupportedFormats($client)}) {
 		$supported->{$codec} = 0;
 		$supportedCli->{$codec} = 1;
 	}
@@ -1324,7 +1325,7 @@ sub _buildTranscoderTable{
 	my $client=shift;
 	
 	#make sure codecs are up to date for the client:
-	my $clientCodecList=$class->initClientCodecs($client);
+	$class->initClientCodecs($client);
 	
 	my $prefs= $class->getPreferences($client);
 	

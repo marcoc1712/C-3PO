@@ -1,0 +1,15 @@
+
+[% WRAPPER setting title="PLUGIN_C3PO_SPECIAL" desc="" %]
+[% END %]
+
+[% IF isSoxDsdCapable %]
+
+	[% WRAPPER setting title="PLUGIN_C3PO_PCM_TITLE" %] [% END %]
+    [% PROCESS 'plugins/C3PO/settings/dither.html' %]
+
+	[% WRAPPER setting title="PLUGIN_C3PO_DSD_TITLE" %] [% END %]
+	[% PROCESS 'plugins/C3PO/settings/sdm.html' %]
+
+	[% PROCESS 'plugins/C3PO/settings/dsdLowPass.html' %]
+
+[% END %]

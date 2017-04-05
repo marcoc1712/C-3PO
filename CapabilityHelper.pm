@@ -160,9 +160,9 @@ sub isDsdCapable{
 	my $self = shift;  
 	my $client = shift || die;
 	
-	my %formats = map { $_ => 1 } $self->clientSupportedFormats($client);
+	my $formats = $self->clientSupportedFormats($client);
 	
-	return $formats{'dff'} && $formats{'dsf'} ? 1 : 0;
+	return $formats->{'dff'} && $formats->{'dsf'} ? 1 : 0;
 }
 sub maxSupportedSamplerate{
 	my $self = shift;  
@@ -303,9 +303,15 @@ sub supportedCodecs{
 sub clientSupportedFormats{
 	my $self = shift;
 	my $client = shift;
-
-	return Slim::Player::CapabilitiesHelper::supportedFormats($client);
-	
+    
+    # my $supported= Slim::Player::CapabilitiesHelper::supportedFormats($client);
+    my %formats = map { $_ => 1 } Slim::Player::CapabilitiesHelper::supportedFormats($client);
+    
+    if (exists $formats{'pcm'} && !exists $formats{'wav'}){
+        $formats{'wav'} = $formats{'pcm'};
+    }
+    
+	return \%formats;
 }
 ####################################################################################################
 # Private

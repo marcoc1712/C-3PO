@@ -1,15 +1,7 @@
 [% PROCESS settings/header.html %]
+
 	[% IF displayStatus %]
-		[% WRAPPER setting title=status desc=status_msg %]
-			[% status_msg | string %]
-		[% END %]
-		[% WRAPPER setting title="" desc="" %]
-			<table width="100%">
-			[% FOREACH detail IN status_details %]
-				<p>[% detail.value | string %]</p>
-			[% END %]
-			</table>
-		[% END %]
+		[% PROCESS 'plugins/C3PO/settings/status.html' %]
 	[% END %]
 
 	[% WRAPPER setting title="PLUGIN_C3PO_GENERAL_SETTINGS_TITLE" desc="" %]

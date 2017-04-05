@@ -63,12 +63,14 @@ sub handler {
 	
 	#refresh capabilities, to see chamge in the global options.
 	#refresh the codec list.
-	my $clientCodecList=$plugin->initClientCodecs($client);
-	
+	$plugin->initClientCodecs($client);
+
 	my @prefList=$plugin->getSharedPrefNameList();
 
 	my $prefs=$plugin->getPreferences($client);
-	
+    
+    $params->{'clientCodecList'} =join ' ', sort keys $prefs->client($client)->get('codecsCli');
+    
 	$params->{'soxVersion'} =$prefs->get('soxVersion');
 	$params->{'isSoxDsdCapable'} =$prefs->get('isSoxDsdCapable');
        

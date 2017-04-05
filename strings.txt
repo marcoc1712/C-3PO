@@ -23,6 +23,18 @@ PLUGIN_C3PO_ENABLE_DESC
 	EN	Enable C-3PO. Default choice for new player.
 	IT	Abilita C-3PO, default per i nuovi players. 
 
+PLUGIN_C3PO_CODEC_SELECTION_TITLE
+	EN	Input formats
+	IT	Formati in ingresso.
+
+PLUGIN_C3PO_CODEC_SELECTION_DESC
+	EN	List of input formats (aka codecs).  'Lossy' formats are not supported. PCM is WAV
+	IT	Elenco dei formati (o codec) supportati in ingresso. I formati 'lossy' non sono gestiti.
+
+PLUGIN_C3PO_CODEC_SELECTION_PLAYER_DESC
+	EN	List of input formats (aka codecs) supported by the player.
+	IT	Elenco dei formati (o codec) supportati dal lettore.
+
 PLUGIN_C3PO_HELPER_APPLICATIONS
 	EN	HELPER APPLICATIONS
 	IT	APPLICAZIONI A SUPPORTO
@@ -91,17 +103,6 @@ PLUGIN_C3PO_PLAYER_ENABLE_DESC
 	EN	Enable C-3PO for this player.
 	IT	Abilita C-3PO per questo player. 
 	
-PLUGIN_C3PO_CODEC_SELECTION_TITLE
-	EN	Input formats.
-	IT	Formati in ingresso.
-	
-PLUGIN_C3PO_CODEC_SELECTION_DESC
-	EN	List of input formats (aka codecs).  'Lossy' formats are not supported. PCM is WAV
-	IT	Elenco dei formati (o codec) supportati in ingresso. I formati 'lossy' non sono gestiti.
-
-PLUGIN_C3PO_CODEC_SELECTION_PLAYER_DESC
-	EN	List of input formats (aka codecs) supported by the Player. Greyed formats could - and should - be handled outside C-3PO.
-	IT	Elenco dei formati (o codec) supportati in ingresso. I formati disbilitati, possono essere gestiti al di fuori di C-3PO.
 
 PLUGIN_C3PO_PCM_SAMPLE_RATE_LIST
 	EN	Sample Rates (PCM)
@@ -144,8 +145,8 @@ PLUGIN_C3PO_MODULE_NAME
 	IT	C-3PO Transcoding Helper
 	
 PLUGIN_C3PO_PLAYER_TITLE
-	EN	PLAYER SETTINGS
-	IT	IMPOSTAZIONI LETTORE
+	EN	PLAYER CAPABILITIES
+	IT	CARATTERISTICHE DEL LETTORE
 
 PLUGIN_C3PO_PLAYER_TITLE_DESC
 	EN	Remember to apply changes.
@@ -202,6 +203,22 @@ PLUGIN_C3PO_EFFECTS_TITLE
 PLUGIN_C3PO_EFFECTS_DESC
 	EN	Apply additional Effects
 	IT	Applica gli effetti aggiuntivi.
+
+PLUGIN_C3PO_CONVERT
+	EN	CONVERT
+	IT	CONVERSIONE DI FORMATO
+
+PLUGIN_C3PO_RESAMPLE
+	EN	RESAMPLE
+	IT	RICAMPIONAMENTO
+
+PLUGIN_C3PO_EFFECTS
+	EN	ADDITIONAL EFFECTS
+	IT	EFFETTI AGGIUNTIVI
+
+PLUGIN_C3PO_SPECIAL
+	EN	SPECIAL CASES
+	IT	CASI PARTICOLARI
 
 PLUGIN_C3PO_RESAMPLE_WHEN
 	EN	When
