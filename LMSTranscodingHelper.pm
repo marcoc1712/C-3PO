@@ -484,7 +484,7 @@ sub _getConversionTable{
         }
         $out{$profile}{'capLine'}= $capLine;
         
-        my $status = $enabled ? $binOK ? '' : '[UNAVAILLABLE]' : '[DISABLED]';
+        my $status = $enabled ? $binOK ? '' : '[UNAVAILABLE]' : '[DISABLED]';
         $out{$profile}{'status'}= $status;
         
         my $transcoderString = $status ? $status : $bynaryString eq '[]' ? '[Native]' : $bynaryString;

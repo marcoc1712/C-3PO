@@ -32,9 +32,12 @@ use Data::Dump qw(dump pp);
 
 sub resample{
 	my $transcodeTable = shift;
-	my $outSamplerate= shift;
-	
-	my $isRuntime = Plugins::C3PO::Transcoder::isRuntime($transcodeTable);
+
+    ############################################################################
+    #  get values
+    #
+
+    my $isRuntime = Plugins::C3PO::Transcoder::isRuntime($transcodeTable);
 	
 	my $isTranscodingRequired = 
 		Plugins::C3PO::Transcoder::isTranscodingRequired($transcodeTable);
@@ -50,23 +53,8 @@ sub resample{
 	my $isSoxDsdCapable		=$transcodeTable->{'isSoxDsdCapable'};
 	
 	my $command				=$transcodeTable->{'command'};
-	
-	$inCodec=_translateCodec($inCodec);
-	
-	if ($isTranscodingRequired &&
-		$useSoxToEncodeWhenResampling){
-		
-		$outCodec=_translateCodec($outCodec);
-		
-	} else{
-	
-		$outCodec=$inCodec;
-	}
-	
-	############################################################################
-
-    my $soxMultithread      = $transcodeTable->{'soxMultithread'};
-    my $soxBuffer           = $transcodeTable->{'soxBuffer'};
+    
+    my $outSamplerate       =$transcodeTable->{'targetSamplerate'};
     
 	my $outBitDepth			=$transcodeTable->{'outBitDepth'};
 	my $outCompression		=$transcodeTable->{'outCompression'};
@@ -77,14 +65,7 @@ sub resample{
 	my $highPrecisionClock	=$transcodeTable->{'highPrecisionClock'};
 	my $bandwidth			=$transcodeTable->{'bandwidth'};
 	my $smallRollOff		=$transcodeTable->{'smallRollOff'};
-	my $headroom			=$transcodeTable->{'headroom'};
-	my $gain				=$transcodeTable->{'gain'};
-	my $loudnessGain		=$transcodeTable->{'loudnessGain'};
-	my $loudnessRef			=$transcodeTable->{'loudnessRef'};
-	my $remixLeft			=$transcodeTable->{'remixLeft'};
-	my $remixRight			=$transcodeTable->{'remixRight'};
-	my $flipChannels		=$transcodeTable->{'flipChannels'};
-		
+
 	my $extra_before_rate	=$transcodeTable->{'extra_before_rate'};
 	my $extra_after_rate	=$transcodeTable->{'extra_after_rate'};
 
@@ -111,156 +92,36 @@ sub resample{
 	my $file				=$transcodeTable->{'options'}->{'file'};
 	
 	Plugins::C3PO::Logger::verboseMessage('Start sox resample');
-
-	my $outFormatSpec="";
-
-	# -b 24 -C 8
-
-	if (($outCodec eq "dsf") || ($outCodec eq "dff")){
-		
-		$outFormatSpec = ' -b 1';
-	
-	} elsif ($outBitDepth){
-		
-		$outFormatSpec= ' -b '.$outBitDepth*8;
-	}
-	
-	if ($outCompression){$outFormatSpec= $outFormatSpec.' -C '.$outCompression};
     
-	############################################################################
-	# LOWPASS filter to be applied when input is DSD 
-	
-	my $lowpass="";
-	
-	$lowpass = $lowpass.'lowpass -'.$dsdLowpass1Order.' '.$dsdLowpass1Value*1000;
-
-	if ($dsdLowpass2Active){
-		$lowpass = $lowpass.' lowpass -'.$dsdLowpass2Order.' '.$dsdLowpass2Value*1000;
-	}
-	if ($dsdLowpass3Active){
-		$lowpass = $lowpass.' lowpass -'.$dsdLowpass3Order.' '.$dsdLowpass3Value*1000;
-	}
-	if ($dsdLowpass4Active){
-		$lowpass = $lowpass.' lowpass -'.$dsdLowpass4Order.' '.$dsdLowpass4Value*1000;
-	}
-	############################################################################
-	my 	$rateString= ' rate';
-	
-	$aliasing					= $aliasing ? "a" : undef;
-	$noIOpt						= $noIOpt ? "n" : undef;
-	$highPrecisionClock			= $highPrecisionClock ? "t" : undef;
-	$smallRollOff				= $smallRollOff? "f" : undef;
-	
-	$bandwidth					=($bandwidth/10)."";
-	
-	# rate -v -L -n -t -a -b 90.7 -f 192000
-	if ($quality){$rateString= $rateString.' -'.$quality};
-	if ($phase){$rateString= $rateString.' -'.$phase};
-	if (($soxVersion > 140401) && $noIOpt){$rateString= $rateString.' -'.$noIOpt};
-	if (($soxVersion > 140401) && $highPrecisionClock){$rateString= $rateString.' -'.$highPrecisionClock};
-	if ($aliasing){$rateString= $rateString.' -'.$aliasing};
-	if ($bandwidth){$rateString= $rateString.' -b '.$bandwidth};
-	if (($soxVersion > 140401) && $smallRollOff){$rateString= $rateString.' -'.$smallRollOff};
-	if ($outSamplerate){$rateString= $rateString.' '.$outSamplerate};
-	
-	# effects gain -h -3 loudness -6 65 remix -m 1v0.94 2
-	my $effects="";
-	
-    if ($headroom && $gain){$effects= $effects.' gain -h -'.$gain;}
-    
-	elsif ($headroom){$effects= $effects.' gain -h';}
-	
-	elsif ($gain){$effects= $effects.' gain -'.$gain;}
-	
-	if ($loudnessGain){$effects= $effects.' loudness '.$loudnessGain.' '.$loudnessRef};
-	
-	my $leftCh = 1;
-	my $rightCh = 2;
-	
-	if ($flipChannels){
-	
-		$leftCh = 2;
-		$rightCh = 1;
-	
-	}
-	
-	my $leftVol		= $remixLeft  < 100 ? $leftCh.'v'.$remixLeft/100 : "";
-	my $rightVol	= $remixRight < 100 ? $rightCh.'v'.$remixRight/100 : "";
-	
-	if (!($leftVol eq "") && !($rightVol eq "")){
-		
-		$effects= $effects.' remix -m '.$leftVol.' '.$rightVol;
-		
-	} elsif (!($leftVol eq "")){
-	
-		$effects= $effects.' remix -m '.$leftVol.' '.$rightCh;
-		
-	} elsif (!($rightVol eq "")){
-	
-		$effects= $effects.' remix -m '.$leftCh.' '.$rightVol;
-		
-	} elsif ($flipChannels){ #already flipped
-	
-		$effects= $effects.' remix -m '.$leftCh.' '.$rightCh;
-	}
-	#nothing to add if not flipped.
-    
-    ###########################################################################
-	# DITHER, yo be applied only when OUTPUT IS PCM.
-
-	#if (!defined $dither){$effects= $effects.' -D'};
-	my $dither='';
-	
-	if (! $ditherType || ($ditherType eq -1)) {
-		$dither = ' -D'; #disabled
-	} elsif ($ditherType eq 1 ){
-		# nothing to add, auto.
-	}elsif ($ditherType eq 2 ){
-		$dither = ' dither'; #default
-	}elsif ($ditherType eq 3 ){
-		$dither = ' dither -S';
-	}elsif ($ditherType eq 4 ){
-		$dither = ' dither -s';
-	}elsif ($ditherType eq 5 ){
-		$dither = ' dither -f lipshitz';
-	}elsif ($ditherType eq 6 ){
-		$dither = ' dither -f f-weighted';
-	}elsif ($ditherType eq 7 ){
-		$dither = ' dither -f modified-e-weighted';
-	}elsif ($ditherType eq 8 ){
-		$dither = ' dither -f improved-e-weighted';
-	}elsif ($ditherType eq 9 ){
-		$dither = ' dither -f gesemann';
-	}elsif ($ditherType eq 'A' ){
-		$dither = ' dither -f shibata';
-	}elsif ($ditherType eq 'B' ){
-		$dither = ' dither -f low-shibata';
-	}elsif ($ditherType eq 'C' ){
-		$dither = ' dither -f high-shibata';
-	}
-
-	if ($ditherType && $ditherPrecision && ($ditherPrecision > 0) && ($soxVersion > 140400)){
-		$dither = $dither.' -p '.$ditherPrecision;
-	}
-	############################################################################
-	# SDM to by applied only to DSD output
-	
-	my $sdm='';
-	
-	if (!$sdmFilterType || ($sdmFilterType eq -1) ){
-		
-		$sdm = $sdm.''; #no sdm 
-		
-	} elsif ($sdmFilterType eq 'auto'){
-		
-		$sdm = $sdm.' sdm'; #auto
-		
-	} else {
-	
-		$sdm = $sdm.' sdm -f '.$sdmFilterType;
-	}
     ############################################################################
-	my $commandString;
+	# Multithread option and buffer
+    
+    my $execOptions= _execOptions($transcodeTable);
+   
+    ###########################################################################è
+	# gain -h -3
+    #
+    my $gain= _gain($transcodeTable);
+    
+	############################################################################
+    # translate codecs into sox language
+    #
+	$inCodec =_translateCodec($inCodec);
+	
+	if ($isTranscodingRequired &&
+		$useSoxToEncodeWhenResampling){
+		
+		$outCodec=_translateCodec($outCodec);
+		
+	} else{
+	
+		$outCodec=$inCodec;
+	}
+	
+    ############################################################################
+	# Preparing commandline
+    #
+    my $commandString;
 	
 	if ($isRuntime){
 	
@@ -288,22 +149,133 @@ sub resample{
 		$commandString = $commandString.qq(-q -t $inCodec - -t );
 
 	}
-	$transcodeTable->{'transitCodec'}= _translateCodec($outCodec);
-	
-	############################################################################
-	# Multithread option and buffer
     
-    $soxBuffer = $soxBuffer ? $soxBuffer : 8;
-    my $execOptions = "--buffer ".$soxBuffer*1024;
-    my $multiOptions = qq(--multi-threaded);
+	$transcodeTable->{'transitCodec'}= _translateCodec($outCodec);
 
-    if ($soxMultithread) {
+    ############################################################################
+    # compression -C 8
+    #
+	my $outFormatSpec="";
+	if ($outCompression){$outFormatSpec= '-C '.$outCompression};
+    
+    my $outBitDepthSpec='';
+    my $lowpass='';
+    my $rateString='';
+    my $dither='';
+    my $sdm='';
+    
+    Plugins::C3PO::Logger::infoMessage('SOX output samplerate: '.($outSamplerate ? $outSamplerate : 'undef'));
+    
+    if ($outSamplerate){ #no rate to apply.
+
+        ############################################################################
+        # LOWPASS filter to be applied when input is DSD 
+        #
+        $lowpass = $lowpass.'lowpass -'.$dsdLowpass1Order.' '.$dsdLowpass1Value*1000;
+
+        if ($dsdLowpass2Active){
+            $lowpass = $lowpass.' lowpass -'.$dsdLowpass2Order.' '.$dsdLowpass2Value*1000;
+        }
+        if ($dsdLowpass3Active){
+            $lowpass = $lowpass.' lowpass -'.$dsdLowpass3Order.' '.$dsdLowpass3Value*1000;
+        }
+        if ($dsdLowpass4Active){
+            $lowpass = $lowpass.' lowpass -'.$dsdLowpass4Order.' '.$dsdLowpass4Value*1000;
+        }
+        ############################################################################
+        # RATE (resamling command) # rate -v -L -n -t -a -b 90.7 -f 192000
+        #
+        $rateString= ' rate';
+
+        $aliasing					= $aliasing ? "a" : undef;
+        $noIOpt						= $noIOpt ? "n" : undef;
+        $highPrecisionClock			= $highPrecisionClock ? "t" : undef;
+        $smallRollOff				= $smallRollOff? "f" : undef;
+
+        $bandwidth					=($bandwidth/10)."";
+
+        if ($quality){$rateString= $rateString.' -'.$quality};
+        if ($phase){$rateString= $rateString.' -'.$phase};
+        if (($soxVersion > 140401) && $noIOpt){$rateString= $rateString.' -'.$noIOpt};
+        if (($soxVersion > 140401) && $highPrecisionClock){$rateString= $rateString.' -'.$highPrecisionClock};
+        if ($aliasing){$rateString= $rateString.' -'.$aliasing};
+        if ($bandwidth){$rateString= $rateString.' -b '.$bandwidth};
+        if (($soxVersion > 140401) && $smallRollOff){$rateString= $rateString.' -'.$smallRollOff};
+        if ($outSamplerate){$rateString= $rateString.' '.$outSamplerate};
         
-        $execOptions = qq ($execOptions $multiOptions);
-    } 
-   
-   ############################################################################# 
-	my $chain="";
+        ############################################################################
+        # SDM to by applied only to DSD output
+
+        if (!$sdmFilterType || ($sdmFilterType eq -1) ){
+
+            $sdm = $sdm.''; #no sdm 
+
+        } elsif ($sdmFilterType eq 'auto'){
+
+            $sdm = $sdm.' sdm'; #auto
+
+        } else {
+
+            $sdm = $sdm.' sdm -f '.$sdmFilterType;
+        }
+    
+    } # end if (!$outSamplerate).
+    
+    ############################################################################
+    # bit depth -b 24
+    #
+
+    if (($outCodec eq "dsf") || ($outCodec eq "dff")){
+
+        $outBitDepthSpec = '-b 1';
+
+    } elsif ($outBitDepth){
+
+        $outBitDepthSpec= '-b '.$outBitDepth*8;
+    }
+    ###########################################################################è
+    # effects loudness -6 65 remix -m 1v0.94 2
+    #
+	my $effects=_effects($transcodeTable);
+    
+    ###########################################################################
+    # DITHER, yo be applied only when OUTPUT IS PCM.
+
+    if (! $ditherType || ($ditherType eq -1)) {
+        $dither = ' -D'; #disabled
+    } elsif ($ditherType eq 1 ){
+        # nothing to add, auto.
+    }elsif ($ditherType eq 2 ){
+        $dither = ' dither'; #default
+    }elsif ($ditherType eq 3 ){
+        $dither = ' dither -S';
+    }elsif ($ditherType eq 4 ){
+        $dither = ' dither -s';
+    }elsif ($ditherType eq 5 ){
+        $dither = ' dither -f lipshitz';
+    }elsif ($ditherType eq 6 ){
+        $dither = ' dither -f f-weighted';
+    }elsif ($ditherType eq 7 ){
+        $dither = ' dither -f modified-e-weighted';
+    }elsif ($ditherType eq 8 ){
+        $dither = ' dither -f improved-e-weighted';
+    }elsif ($ditherType eq 9 ){
+        $dither = ' dither -f gesemann';
+    }elsif ($ditherType eq 'A' ){
+        $dither = ' dither -f shibata';
+    }elsif ($ditherType eq 'B' ){
+        $dither = ' dither -f low-shibata';
+    }elsif ($ditherType eq 'C' ){
+        $dither = ' dither -f high-shibata';
+    }
+
+    if ($ditherType && $ditherPrecision && ($ditherPrecision > 0) && ($soxVersion > 140400)){
+        $dither = $dither.' -p '.$ditherPrecision;
+    }
+    ############################################################################ 
+    # build the command chain
+    #
+    my $chain="";
 	
 	if (($inCodec eq "dsf") || ($inCodec eq "dff")) {
 	
@@ -312,6 +284,11 @@ sub resample{
 			$chain	= $lowpass;
 		}
 		
+        if ($gain && !($gain eq "")){
+	
+			$chain = $chain.' '.$gain;
+		}
+        
 		if ($effects && !($effects eq "")){
 	
 			$chain = $chain.' '.$effects;
@@ -330,6 +307,7 @@ sub resample{
 		}
 
 	} else {
+        
 		if ($effects && !($effects eq "")){
 	
 			$chain = $effects;
@@ -362,7 +340,7 @@ sub resample{
 	} 
 	############################################################################
 
-	$commandString = $commandString.qq($outCodec$outFormatSpec $execOptions - $chain);
+	$commandString = $commandString.qq($outCodec $outFormatSpec $outBitDepthSpec $execOptions - $chain);
 	
 	return $commandString;
 
@@ -371,6 +349,18 @@ sub resample{
 sub transcode{
 	my $transcodeTable = shift;
 	
+    ############################################################################
+	# Multithread option and buffer
+    
+    my $execOptions= _execOptions($transcodeTable);
+    
+    ###########################################################################è
+	# gain -h -3
+    #
+    my $gain= _gain($transcodeTable);
+    
+    ############################################################################
+    
 	my $isRuntime		= Plugins::C3PO::Transcoder::isRuntime($transcodeTable);
 	
 	my $inCodec			= $transcodeTable->{'transitCodec'};
@@ -415,8 +405,92 @@ sub transcode{
 	
 		$commandString = '[sox] '.$commandString;
 	}
-	$commandString = $commandString."-";
+    
+	$commandString = qq($commandString - $execOptions $gain);
 	return $commandString;
+}
+
+sub _execOptions{
+    my $transcodeTable = shift;
+
+    my $soxMultithread      = $transcodeTable->{'soxMultithread'};
+    my $soxBuffer           = $transcodeTable->{'soxBuffer'};
+    
+    $soxBuffer = $soxBuffer ? $soxBuffer : 8;
+    my $execOptions = "--buffer ".$soxBuffer*1024;
+    my $multiOptions = qq(--multi-threaded);
+
+    if ($soxMultithread) {
+        
+        $execOptions = qq ($execOptions $multiOptions);
+    } 
+    
+    return $execOptions;
+}
+sub _gain{
+    my $transcodeTable = shift;
+    
+    my $headroom			=$transcodeTable->{'headroom'};
+	my $gain				=$transcodeTable->{'gain'};
+    
+    my $effects="";
+    
+    if ($headroom && $gain){$effects= $effects.' gain -h -'.$gain;}
+    
+	elsif ($headroom){$effects= $effects.' gain -h';}
+	
+	elsif ($gain){$effects= $effects.' gain -'.$gain;}
+    
+    return $effects;
+    
+}
+
+sub _effects{
+    my $transcodeTable = shift;
+    
+    my $loudnessGain		=$transcodeTable->{'loudnessGain'};
+	my $loudnessRef			=$transcodeTable->{'loudnessRef'};
+	my $remixLeft			=$transcodeTable->{'remixLeft'};
+	my $remixRight			=$transcodeTable->{'remixRight'};
+	my $flipChannels		=$transcodeTable->{'flipChannels'};
+
+    my $effects="";
+
+	if ($loudnessGain){$effects= $effects.' loudness '.$loudnessGain.' '.$loudnessRef};
+	
+	my $leftCh = 1;
+	my $rightCh = 2;
+	
+	if ($flipChannels){
+	
+		$leftCh = 2;
+		$rightCh = 1;
+	
+	}
+    
+	my $leftVol		= $remixLeft  < 100 ? $leftCh.'v'.$remixLeft/100 : "";
+	my $rightVol	= $remixRight < 100 ? $rightCh.'v'.$remixRight/100 : "";
+	
+	if (!($leftVol eq "") && !($rightVol eq "")){
+		
+		$effects= $effects.' remix -m '.$leftVol.' '.$rightVol;
+		
+	} elsif (!($leftVol eq "")){
+	
+		$effects= $effects.' remix -m '.$leftVol.' '.$rightCh;
+		
+	} elsif (!($rightVol eq "")){
+	
+		$effects= $effects.' remix -m '.$leftCh.' '.$rightVol;
+		
+	} elsif ($flipChannels){ #already flipped
+	
+		$effects= $effects.' remix -m '.$leftCh.' '.$rightCh;
+	}
+	#nothing to add if not flipped.
+    
+    return $effects;
+
 }
 sub _translateCodec{
 	my $codec= shift;

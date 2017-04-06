@@ -218,12 +218,6 @@ sub transcode {
 ################################################################################
 # public methods to be overridden by subclasses
 ################################################################################
-sub native {
-	my $self = shift;
-	my $transcodeTable=shift;
-	Plugins::C3PO::Logger::errorMessage('$self: native MUST be define for any and each format');
-	die;
-}
 sub splitBeforeResampling {
 	my $self = shift;
 	my $transcodeTable=shift;
@@ -324,6 +318,16 @@ sub _splitUsingFlac{
 	return $commandString;
 }
 
+sub native{
+    my $self = shift; 
+    my $transcodeTable = shift;
+    
+    # does not work in windows.
+    #return$self->_dummyTranscoder($transcodeTable); 
+
+    return Plugins::C3PO::SoxHelper::transcode($transcodeTable);
+}
+
 ################################################################################
 # protected methods to be overridden by subclasses
 ################################################################################
@@ -376,6 +380,47 @@ sub compareCodecs{
 ################################################################################
 # Private methods.
 ################################################################################
+
+sub _dummyTranscoder{ # does not works in windows.
+    my $self = shift; 
+    my $transcodeTable = shift;
+	
+	my $willStart				 = $transcodeTable->{'C3POwillStart'};
+	my $pathToPerl				 = $transcodeTable->{'pathToPerl'};
+	
+	my $pathToHeaderRestorer_pl	 = $transcodeTable->{'pathToC3PO_pl'};
+	my $pathToHeaderRestorer_exe = $transcodeTable->{'pathToC3PO_exe'} || "";
+
+	my $prefFile				 = $transcodeTable->{'pathToPrefFile'};
+	my $logFolder				 = $transcodeTable->{'logFolder'};
+	my $serverFolder			 = $transcodeTable->{'serverFolder'};
+
+	my $commandString= "";
+
+	if ($willStart eq 'pl'){
+		
+			$commandString =  qq("$pathToPerl" "$pathToHeaderRestorer_pl" );
+							  
+			
+	} else {
+			
+			$commandString =  qq("$pathToHeaderRestorer_exe" );
+	}
+
+	$commandString = $commandString
+					 .qq(-b -p "$prefFile" -l "$logFolder" -x "$serverFolder");
+	
+	#Copy debug settngs.
+	if (! main::DEBUGLOG) {
+		$commandString = $commandString." --nodebuglog";
+	}
+	
+	if (! main::INFOLOG) {
+		$commandString = $commandString." --noinfolog";
+	}
+
+    return $commandString;
+}
 
 
 1;
