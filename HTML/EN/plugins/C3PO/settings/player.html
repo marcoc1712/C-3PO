@@ -46,7 +46,9 @@
 
                 <input type="text" class="stdedit" name="pref_panel" id="panel" value="[% prefs.panel | html %]" size="50" maxlength="100" hidden >
     </div>
-
+    
+    <hr>
+    
     [% IF prefs.panel == 'settings' %]
         [% PROCESS 'plugins/C3PO/settings/playerSettings.html' %]
     [% END %]

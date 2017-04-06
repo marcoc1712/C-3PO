@@ -91,6 +91,8 @@ sub handler {
 	$params->{'isSoxDsdCapable'}    =	$prefs->get('isSoxDsdCapable');
     
     $params->{'pathToFFmpeg'}       =	$prefs->get('pathToFFmpeg');
+    $params->{'pathToFaad'}         =	$prefs->get('pathToFaad');
+    $params->{'pathToFlac'}         =	$prefs->get('pathToFlac');
 	
 	
 	my $status= $plugin->getStatus();

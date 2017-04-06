@@ -2,14 +2,17 @@
     <input name="pref_enable" type="checkbox" [% IF prefs.enable %] checked [% END %] >
 [% END %]
 
+ <hr>
+    
 [% IF prefs.enable %]
 
     [% IF displayStatus %]
         [% PROCESS 'plugins/C3PO/settings/status.html' %]
+        
+        <hr>
+    
     [% END %]
-    
-    <hr>
-    
+
     [% WRAPPER setting title="PLUGIN_C3PO_PLAYER_TITLE" desc="" %]
     [% END %]
 

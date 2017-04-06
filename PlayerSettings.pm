@@ -329,11 +329,12 @@ sub _getdisabledDsdRates{
 	for my $rate (sort keys %$enabledRates){
 		
 		#disable first enable, so it could not be removed.
-		if ($first && $enabledRates->{$rate}){
-			$first=0;
-			$out->{$rate} = 1;	
-		} elsif (!($enabledRates->{$rate})){
-		
+		#if ($first && $enabledRates->{$rate}){
+		#	$first=0;
+		#	$out->{$rate} = 1;	
+		#} elsif (!($enabledRates->{$rate})){
+            
+		if (!($enabledRates->{$rate})){
 			$out->{$rate} = 1;
 		}
 	} 

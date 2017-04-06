@@ -80,6 +80,26 @@
         
 	[% END %]
     
+    [% WRAPPER setting title="PLUGIN_C3PO_FAAD" desc="" %]
+     
+        [% IF pathToFaad != "" %]
+           [% pathToFaad %] 
+        [% ELSE %]
+           [% "PLUGIN_C3PO_HELPER_APPLICATIONS_NOT_FOUND" | string %] 
+        [% END %]
+        
+	[% END %]
+
+    [% WRAPPER setting title="PLUGIN_C3PO_FLAC" desc="" %]
+     
+        [% IF pathToFlac != "" %]
+           [% pathToFlac %] 
+        [% ELSE %]
+           [% "PLUGIN_C3PO_HELPER_APPLICATIONS_NOT_FOUND" | string %] 
+        [% END %]
+        
+	[% END %]
+    
  <hr>
  
 	[% IF 0 %]
