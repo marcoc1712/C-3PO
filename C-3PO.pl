@@ -130,6 +130,7 @@ use constant NOMYSB       => 1;
 #######################################################################
 require Logger;
 require Transcoder;
+require AudioFile;
 require Shared;
 require OsHelper;
 

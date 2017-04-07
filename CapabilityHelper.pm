@@ -310,7 +310,9 @@ sub clientSupportedFormats{
     if (exists $formats{'pcm'} && !exists $formats{'wav'}){
         $formats{'wav'} = $formats{'pcm'};
     }
-    
+    if (exists $formats{'aac'} && !exists $formats{'alac'}){
+        $formats{'alac'} = $formats{'aac'};
+    }
 	return \%formats;
 }
 ####################################################################################################

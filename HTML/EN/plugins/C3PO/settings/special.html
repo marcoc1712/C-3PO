@@ -1,11 +1,27 @@
+[% IF !isSoxDsdCapable %]
 
-[% WRAPPER setting title="PLUGIN_C3PO_SPECIAL" desc="" %]
-[% END %]
+    [% PROCESS 'plugins/C3PO/settings/dither.html' %]
 
-[% IF isSoxDsdCapable %]
+[% ELSE %]
+
+    [% WRAPPER setting title="PLUGIN_C3PO_SPECIAL" desc="" %]
+    [% END %]
 
 	[% WRAPPER setting title="PLUGIN_C3PO_PCM_TITLE" %] [% END %]
-    [% PROCESS 'plugins/C3PO/settings/dither.html' %]
+    
+        [% WRAPPER setting title="PLUGIN_C3PO_OUT_BITDEPTH-" desc="PLUGIN_C3PO_OUT_BITDEPTH_DESC-" %]
+            [% PROCESS 'plugins/C3PO/settings/bitDepth.html' %]
+        [% END %]
+
+        [% WRAPPER setting title="PLUGIN_C3PO_DITHER_TYPE-" desc="PLUGIN_C3PO_DITHER_TYPE_DESC" %]
+            [% PROCESS 'plugins/C3PO/settings/ditherType.html' %]
+        [% END %]
+
+        [% IF soxVersion > 140400 %]
+            [% WRAPPER setting title="PLUGIN_C3PO_DITHER_PRECISION-" desc="PLUGIN_C3PO_DITHER_PRECISION_DESC" %]
+                [% PROCESS 'plugins/C3PO/settings/ditherPrecision.html' %]
+            [% END %]
+        [% END %]
 
 	[% WRAPPER setting title="PLUGIN_C3PO_DSD_TITLE" %] [% END %]
 	[% PROCESS 'plugins/C3PO/settings/sdm.html' %]

@@ -87,108 +87,6 @@ sub isProfileEnabled{
     return Slim::Player::TranscodingHelper::enabledFormat($profile);
 }
 
-
-sub prettyPrintConversionCapabilities{
-    my $self = shift;
-    my $details = shift || 0;
-    my $message = shift || "";
-    my $client = shift || undef;
-
-    my $out="";
-    if ($message && !($message eq '')){
-        
-        $out="\n\n".$message."\n";
-    }
-
-    if (!$details){
-    
-        my $line = sprintf("%-5s %-5s %-30s %-20s %-20s\n", 'in', 'out', "[transcoder]", 'model', 'player');
-        $out = $out."\n".$self->_getPrintConversionCapabilitiesHeader($details)."\n";
-    }
-    
-    $out = $out.$self->_getPrintConversionCapabilitiesBody($details, $client)."\n";
-    
-    return $out;
-}
-sub getHtmlConversionTable {
-    my $self = shift;
-    my $details = shift || 0;
-    my $client = shift || undef;
-    
-    my $out="";
-    
-    my $conversionTable =$self->_getConversionTable($client);
-    my $prevInputtype="";
-    
-    if (!$details){
-    
-        $out=$out.'<tr>'.
-                    '<td width="10%"><b>In</b></td>'.
-                    '<td width="10%"><b>Out</b></td>'.
-                    '<td width="40%"><b>[Transcoder]</b></td>'.
-                    '<td width="20%"><b>Model</b></td>'.
-                    '<td width="20%"><b>Player Id</b></td>'.
-                   '</tr>'."\n";
-    }
-    
-    for my $profile (sort keys %$conversionTable){
-        
-        my $inputtype           = $conversionTable->{$profile}->{'inputtype'};
-        my $outputtype          = $conversionTable->{$profile}->{'outputtype'};
-        my $command             = $conversionTable->{$profile}->{'command'};
-        my $clienttype          = $conversionTable->{$profile}->{'clienttype'};
-        my $clientid            = $conversionTable->{$profile}->{'clientid'};                
-        my $enabled             = $conversionTable->{$profile}->{'enabled'};
-        my $binOK               = $conversionTable->{$profile}->{'binOK'};
-        my $bynaryString        = $conversionTable->{$profile}->{'bynaryString'};
-        my $c3poString          = $conversionTable->{$profile}->{'c3poString'};
-        my $capLine             = $conversionTable->{$profile}->{'capLine'};
-        my $status              = $conversionTable->{$profile}->{'status'};
-        my $transcoderString    = $conversionTable->{$profile}->{'transcoderString'};
-
-        if ($details){
-
-            my $line1= qq($inputtype $outputtype $clienttype $clientid $status);
-            my $line2= qq(  $capLine);
-            my $line3= qq(  $command);
-        
-            $out=$out.'<b>'.$line1.'</b>'.
-                            '<p class="tab">'.$line2.'</p>'.
-                            '<p class="tab">'.$line3.'</p>'.
-                       '<p>&nbsp;</p>';
-           
-        } else{
-            
-            $out=$out.'<tr>';
-            if ($prevInputtype eq $inputtype){
-                
-                $out=$out.'<td>'.''.'</td>';
-
-            } else{
-                
-                $out=$out.'<tr>'.
-                            '<td>'.'<p>&nbsp;</p>'.'</td>'.
-                            '<td>'.'<p>&nbsp;</p>'.'</td>'.
-                            '<td>'.'<p>&nbsp;</p>'.'</td>'.
-                            '<td>'.'<p>&nbsp;</p>'.'</td>'.
-                          '</tr>'."\n"; 
-                  
-                $out=$out.'<td><b>'.$inputtype.'</b></td>';
-                $prevInputtype = $inputtype;
-            }
-            if (!$transcoderString){
-                
-                dump $conversionTable->{$profile};
-            }
-            $out=$out.'<td>'.$outputtype.'</td>'.
-                            '<td>'.$transcoderString.'</td>'.
-                            '<td>'.$clienttype.'</td>'.
-                            '<td>'.$clientid.'</td>'.
-                      '</tr>'."\n";
-        }
-    }
-    return $out;
-}
 sub disableProfiles{
     my $self = shift;
 	my $client = shift;
@@ -370,6 +268,107 @@ sub getBinaries{
     return ($binOK, %binaries);
 }
 
+sub prettyPrintConversionCapabilities{
+    my $self = shift;
+    my $details = shift || 0;
+    my $message = shift || "";
+    my $client = shift || undef;
+
+    my $out="";
+    if ($message && !($message eq '')){
+        
+        $out="\n\n".$message."\n";
+    }
+
+    if (!$details){
+    
+        my $line = sprintf("%-5s %-5s %-30s %-20s %-20s\n", 'in', 'out', "[transcoder]", 'model', 'player');
+        $out = $out."\n".$self->_getPrintConversionCapabilitiesHeader($details)."\n";
+    }
+    
+    $out = $out.$self->_getPrintConversionCapabilitiesBody($details, $client)."\n";
+    
+    return $out;
+}
+sub getHtmlConversionTable {
+    my $self = shift;
+    my $details = shift || 0;
+    my $client = shift || undef;
+    
+    my $out="";
+    
+    my $conversionTable =$self->_getConversionTable($client);
+    my $prevInputtype="";
+    
+    if (!$details){
+    
+        $out=$out.'<tr>'.
+                    '<td width="10%"><b>In</b></td>'.
+                    '<td width="10%"><b>Out</b></td>'.
+                    '<td width="40%"><b>[Transcoder]</b></td>'.
+                    '<td width="20%"><b>Model</b></td>'.
+                    '<td width="20%"><b>Player Id</b></td>'.
+                   '</tr>'."\n";
+    }
+    
+    for my $profile (sort keys %$conversionTable){
+        
+        my $inputtype           = $conversionTable->{$profile}->{'inputtype'};
+        my $outputtype          = $conversionTable->{$profile}->{'outputtype'};
+        my $command             = $conversionTable->{$profile}->{'command'};
+        my $clienttype          = $conversionTable->{$profile}->{'clienttype'};
+        my $clientid            = $conversionTable->{$profile}->{'clientid'};                
+        my $enabled             = $conversionTable->{$profile}->{'enabled'};
+        my $binOK               = $conversionTable->{$profile}->{'binOK'};
+        my $bynaryString        = $conversionTable->{$profile}->{'bynaryString'};
+        my $c3poString          = $conversionTable->{$profile}->{'c3poString'};
+        my $capLine             = $conversionTable->{$profile}->{'capLine'};
+        my $status              = $conversionTable->{$profile}->{'status'};
+        my $transcoderString    = $conversionTable->{$profile}->{'transcoderString'};
+
+        if ($details){
+
+            my $line1= qq($inputtype $outputtype $clienttype $clientid $status);
+            my $line2= qq(  $capLine);
+            my $line3= qq(  $command);
+        
+            $out=$out.'<b>'.$line1.'</b>'.
+                            '<p class="tab">'.$line2.'</p>'.
+                            '<p class="tab">'.$line3.'</p>'.
+                       '<p>&nbsp;</p>';
+           
+        } else{
+            
+            $out=$out.'<tr>';
+            if ($prevInputtype eq $inputtype){
+                
+                $out=$out.'<td>'.''.'</td>';
+
+            } else{
+                
+                $out=$out.'<tr>'.
+                            '<td>'.'<p>&nbsp;</p>'.'</td>'.
+                            '<td>'.'<p>&nbsp;</p>'.'</td>'.
+                            '<td>'.'<p>&nbsp;</p>'.'</td>'.
+                            '<td>'.'<p>&nbsp;</p>'.'</td>'.
+                          '</tr>'."\n"; 
+                  
+                $out=$out.'<td><b>'.$inputtype.'</b></td>';
+                $prevInputtype = $inputtype;
+            }
+            if (!$transcoderString){
+                
+                dump $conversionTable->{$profile};
+            }
+            $out=$out.'<td>'.$outputtype.'</td>'.
+                            '<td>'.$transcoderString.'</td>'.
+                            '<td>'.$clienttype.'</td>'.
+                            '<td>'.$clientid.'</td>'.
+                      '</tr>'."\n";
+        }
+    }
+    return $out;
+}
 ####################################################################################################
 # Private
 #

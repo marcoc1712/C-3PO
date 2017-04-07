@@ -22,6 +22,7 @@ package Plugins::C3PO::Transcoder;
 use strict;
 use warnings;
 use Data::Dump qw(dump pp);
+
 my $logger;
 my $log;
 
@@ -680,7 +681,6 @@ sub _checkResample{
 	my $resampleTo= $transcodeTable->{'resampleTo'};
 
 	my $file = $transcodeTable->{'options'}->{'file'};
-	my $fileInfo;
 	my $fileSamplerate;
 	
 	my $filedsdRate;
@@ -698,21 +698,22 @@ sub _checkResample{
 			Plugins::C3PO::Logger::debugMessage('testfile: '.$testfile);
 			$transcodeTable->{'testfile'}=$testfile;
 		}
-		Plugins::C3PO::Logger::infoMessage('testfile: '.$testfile);
-		$fileInfo= Audio::Scan->scan($testfile);
-		
-		Plugins::C3PO::Logger::infoMessage('AudioScan: '.Data::Dump::dump ($fileInfo));
-		
-		$transcodeTable->{'fileInfo'}=$fileInfo;
-		$fileSamplerate=$fileInfo->{info}->{samplerate};
-		
-		my $bitsPerSample=$fileInfo->{info}->{bits_per_sample};
-		my $isFilesDsd = ($bitsPerSample && ($bitsPerSample == 1)) ? 1 :0;
-		
-		Plugins::C3PO::Logger::infoMessage('file samplerate: '.$fileSamplerate);
+        
+        Plugins::C3PO::Logger::infoMessage('testfile: '.$testfile);
+        my $audioFile = Plugins::C3PO::AudioFile->new($testfile,$logger,$log); 
+        
+        $transcodeTable->{'fileInfo'}=$audioFile->getFileInfo();
+        
+        Plugins::C3PO::Logger::infoMessage('AudioScan: '.Data::Dump::dump ($transcodeTable->{'fileInfo'}));
+    
+        $fileSamplerate     = $audioFile->getSamplerate();
+        my $bitsPerSample   = $audioFile->_getBitsPerSample();
+        my $isFilesDsd      = $audioFile->isDsd();
+        
+        Plugins::C3PO::Logger::infoMessage('file samplerate: '.$fileSamplerate);
 		Plugins::C3PO::Logger::infoMessage('bits Per Sample: '.($bitsPerSample ? $bitsPerSample : 0 ));
-		
-		if (($isDsdInput && !$isFilesDsd) || (!$isDsdInput && $isFilesDsd)){
+        
+        if (($isDsdInput && !$isFilesDsd) || (!$isDsdInput && $isFilesDsd)){
 		
 			Plugins::C3PO::Logger::WarningMessage("Inputtype is: ".$inCodec. 
 				" bit per sample is: ".$bitsPerSample );
@@ -798,7 +799,7 @@ sub _checkResample{
 	
 	$transcodeTable->{'targetSamplerate'}=$targetSamplerate;
 	
-	Plugins::C3PO::Logger::infoMessage('Target Sample rate :          '.($targetSamplerate ? $targetSamplerate : "undef"));
+	Plugins::C3PO::Logger::infoMessage('Target Sample rate :         '.($targetSamplerate ? $targetSamplerate : "undef"));
 	
 	return $transcodeTable;
 	

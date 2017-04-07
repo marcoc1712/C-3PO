@@ -78,6 +78,7 @@ use Plugins::C3PO::LMSTranscodingHelper;
 use Plugins::C3PO::LMSSongHelper;
 use Plugins::C3PO::Logger;
 use Plugins::C3PO::Transcoder;
+use Plugins::C3PO::AudioFile;
 use Plugins::C3PO::OsHelper;
 use Plugins::C3PO::FfmpegHelper;
 use Plugins::C3PO::FlacHelper;
