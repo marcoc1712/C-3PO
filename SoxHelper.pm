@@ -281,52 +281,32 @@ sub resample{
 	
 		if ($lowpass && !($lowpass eq "")){
 		
-			$chain	= $lowpass;
+			$chain	= $chain.' '.$lowpass;
 		}
-		
-        if ($gain && !($gain eq "")){
-	
-			$chain = $chain.' '.$gain;
-		}
-        
-		if ($effects && !($effects eq "")){
-	
-			$chain = $chain.' '.$effects;
-		}
-		
-		if ($extra_before_rate && !($extra_before_rate eq "")){
-	
-			$chain = $chain.' '.$extra_before_rate;
-		}
-		
-		$chain=$chain.$rateString;
-		
-		if ($extra_after_rate && !($extra_after_rate eq "")){
-	
-			$chain = $chain." ".$extra_after_rate;
-		}
+	}	
+    
+    if ($gain && !($gain eq "")){
 
-	} else {
-        
-		if ($effects && !($effects eq "")){
-	
-			$chain = $effects;
-		}
-		
-		if ($extra_before_rate && !($extra_before_rate eq "")){
-	
-			$chain = $chain.' '.$extra_before_rate;
-		}
-	
-		$chain=$chain.$rateString;
-		
-		if ($extra_after_rate && !($extra_after_rate eq "")){
-	
-			$chain = $chain." ".$extra_after_rate;
-		}
-		
-	}  
-	
+        $chain = $chain.' '.$gain;
+    }
+
+    if ($effects && !($effects eq "")){
+
+        $chain = $chain.' '.$effects;
+    }
+
+    if ($extra_before_rate && !($extra_before_rate eq "")){
+
+        $chain = $chain.' '.$extra_before_rate;
+    }
+
+    $chain=$chain.$rateString;
+
+    if ($extra_after_rate && !($extra_after_rate eq "")){
+
+        $chain = $chain." ".$extra_after_rate;
+    }
+
 	if ((($outCodec eq "dsf") || ($outCodec eq "dff")) &&
 		($sdm && !($sdm eq ""))){
 		
@@ -336,12 +316,12 @@ sub resample{
 			 $dither && !($dither eq "")){
 	
 		$chain= $chain.' '.$dither;
-	
 	} 
+    
 	############################################################################
 
 	$commandString = $commandString.qq($outCodec $outFormatSpec $outBitDepthSpec $execOptions - $chain);
-	
+
 	return $commandString;
 
 }
@@ -407,6 +387,7 @@ sub transcode{
 	}
     
 	$commandString = qq($commandString - $execOptions $gain);
+
 	return $commandString;
 }
 

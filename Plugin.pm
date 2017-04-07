@@ -234,23 +234,38 @@ sub newSong{
 	if ( my $id = $request->clientid()) {
         
         main::INFOLOG && $log->info("newSong request received from client ".$id);
-	
+
+        $lastCommands{$id}=undef;
+        $lastCommands{$id}{'time'}      = Utils::Time::getNiceTimeString();
+        $lastCommands{$id}{'client'}    = undef;
+        $lastCommands{$id}{'profile'}   = undef;
+        $lastCommands{$id}{'command'}   = "unable to get last command from lms";
+        $lastCommands{$id}{'tokenized'} = undef;
+        $lastCommands{$id}{'C-3PO'}     = undef;
+        $lastCommands{$id}{'msg'}       = "unable to get last command from lms";
+                
 		my $client = Slim::Player::Client::getClient($id);
+        if (!$client) {return 0;}
+        $lastCommands{$id}{'client'}    = $client;
+        
         my $controller = $client->controller();
+        if (!$controller) {return 0;}
+        
         my $songStreamController = $controller->songStreamController();
+        if (!$songStreamController) {return 0;}
+          
         my $song = $songStreamController->song();
+        if (!$song) {return 0;}
         
         my $songHelper=Plugins::C3PO::LMSSongHelper->new($class, $song);
-        
         my $transcoder =$songHelper->getTranscoder();
+        
         my $tokenized = $transcoder->{'tokenized'};
         my $command = $transcoder->{'command'};
         my $profile = $transcoder->{'profile'};
         
         my ($binOk,%binaries) = $LMSTranscodingHelper->getBinaries($profile);
-        
-        $lastCommands{$id}{'client'}    = $client;
-        $lastCommands{$id}{'time'}      = Utils::Time::getNiceTimeString();
+
         $lastCommands{$id}{'profile'}   = $profile;
         $lastCommands{$id}{'command'}   = $command;
         $lastCommands{$id}{'tokenized'} = $tokenized;
@@ -273,7 +288,10 @@ sub newSong{
             $lastCommands{$id}{'msg'} = $lastCommands{$id}{'msg'}."\n".
                                            "    trasformed by C-3PO in : \n".
                                            "    ".$lastCommands{$id}{'C-3PO'}."\n";
-        } 
+        } else{
+            
+            $lastCommands{$id}{'msg'} ="";
+        }
         
         if (main::INFOLOG && $log->is_info) {
             #$log->info($lastCommands{$id}{'msg'});
