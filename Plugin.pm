@@ -416,17 +416,19 @@ sub initClientCodecs{
 	my $prefEnableStdin;
 	my $prefEnableConvert;
 	my $prefEnableResample;
-    
+    my $prefEnableEffects;
+     
 	if (!defined($prefs->client($client)->get('codecs'))){
 	
 		($supportedCli, $prefCodecs, $prefEnableSeek,$prefEnableStdin,
-		 $prefEnableConvert,$prefEnableResample) = _defaultClientCodecs($client);
+		 $prefEnableConvert, $prefEnableResample, $prefEnableEffects) = _defaultClientCodecs($client);
 
 	} else {
 		
 		($supportedCli, $prefCodecs, $prefEnableSeek,$prefEnableStdin,
-		 $prefEnableConvert,$prefEnableResample) = _refreshClientCodecs($client);
+		 $prefEnableConvert, $prefEnableResample, $prefEnableEffects) = _refreshClientCodecs($client);
 	}
+    
 	#build the complete list string
 	for my $codec (keys %$prefCodecs){
 
@@ -442,7 +444,8 @@ sub initClientCodecs{
 	$prefs->client($client)->set('enableStdin', $prefEnableStdin);
 	$prefs->client($client)->set('enableConvert', $prefEnableConvert);
 	$prefs->client($client)->set('enableResample', $prefEnableResample);
-	
+    $prefs->client($client)->set('enableEffects', $prefEnableEffects);
+
 	$prefs->writeAll();
 	$prefs->savenow();
 	
@@ -824,6 +827,7 @@ sub _defaultClientCodecs{
 	my $prefEnableStdin =();
 	my $prefEnableConvert =();
 	my $prefEnableResample =();
+    my $prefEnableEffects =();
 	
 	my $supportedCli=();
 	my $supported=();
@@ -848,7 +852,8 @@ sub _defaultClientCodecs{
 		$prefEnableStdin->{$codec}=undef;
 		$prefEnableConvert->{$codec}=undef;
 		$prefEnableResample->{$codec}=undef;
-		
+        $prefEnableEffects->{$codec}=undef;
+       
 		if ($supported->{$codec}){
 
 			$prefCodecs->{$codec}="on";
@@ -873,9 +878,11 @@ sub _defaultClientCodecs{
 			 $log->debug("Enable Stdin for : ".dump($prefEnableStdin));
 			 $log->debug("Enable Convert for : ".dump($prefEnableConvert));
 			 $log->debug("Enable Resample for : ".dump($prefEnableResample));
+             $log->debug("Enable Effects for : ".dump($prefEnableEffects));
+             
 	}
 	return ($supportedCli, $prefCodecs, $prefEnableSeek, $prefEnableStdin,
-	        $prefEnableConvert,$prefEnableResample);
+	        $prefEnableConvert,$prefEnableResample, $prefEnableEffects);
 }
 
 sub _refreshClientCodecs{
@@ -893,6 +900,7 @@ sub _refreshClientCodecs{
 	my $prefEnableStdinRef = $prefs->client($client)->get('enableStdin');
 	my $prefEnableConvertRef = $prefs->client($client)->get('enableConvert');
 	my $prefEnableResampleRef = $prefs->client($client)->get('enableResample');
+    my $prefEnableEffectsRef = $prefs->client($client)->get('enableEffects');
 	
 	if (main::DEBUGLOG && $log->is_debug) {
 			 $log->debug("pref cli              : ".dump($prefCli));
@@ -900,7 +908,8 @@ sub _refreshClientCodecs{
 			 $log->debug("ptef seek enabled     : ".dump($prefEnableSeekRef));
 			 $log->debug("ptef stdin enabled    : ".dump($prefEnableStdinRef));
 			 $log->debug("ptef convert enabled  : ".dump($prefEnableConvertRef));
-			 $log->debug("pref resample enabled : ".dump($prefEnableResampleRef));			 
+			 $log->debug("pref resample enabled : ".dump($prefEnableResampleRef));	
+             $log->debug("pref effects enabled  : ".dump($prefEnableEffectsRef));	
 	}
 
 	my $caps= $CapabilityHelper->codecs();
@@ -913,6 +922,7 @@ sub _refreshClientCodecs{
 	my $prefEnableStdin=();
 	my $prefEnableConvert =();
 	my $prefEnableResample =();
+    my $prefEnableEffects =();
 	
 	my $supported=();
 	my $supportedCli=();
@@ -935,19 +945,20 @@ sub _refreshClientCodecs{
 
 		if ($prefRef->{$codec} && $codecs->{$codec}){
 
-			$prefCodecs->{$codec}=$prefRef->{$codec};
-			$prefEnableSeek->{$codec}=$prefEnableSeekRef->{$codec};
-			$prefEnableStdin->{$codec}=$prefEnableStdinRef->{$codec};
-			$prefEnableConvert->{$codec}=$prefEnableConvertRef->{$codec};
-			$prefEnableResample->{$codec}=$prefEnableResampleRef->{$codec};
-		
+			$prefCodecs->{$codec}           =$prefRef->{$codec};
+			$prefEnableSeek->{$codec}       =$prefEnableSeekRef->{$codec};
+			$prefEnableStdin->{$codec}      =$prefEnableStdinRef->{$codec};
+			$prefEnableConvert->{$codec}    =$prefEnableConvertRef->{$codec};
+			$prefEnableResample->{$codec}   =$prefEnableResampleRef->{$codec};
+            $prefEnableEffects->{$codec}    =$prefEnableEffectsRef->{$codec};
+
 		} elsif ($codecs->{$codec}){
 		
 			# codec was suported but disabled for player.
 			$prefCodecs->{$codec}="on";
 			$prefEnableConvert->{$codec}="on";
 			$prefEnableResample->{$codec}="on";
-			
+			$prefEnableEffects->{$codec}="on";
 			
 			if ($caps->{$codec}->{'defaultEnableSeek'}){
 
@@ -969,6 +980,7 @@ sub _refreshClientCodecs{
 			$prefEnableStdin->{$codec}=undef;
 			$prefEnableConvert->{$codec}=undef;
 			$prefEnableResample->{$codec}=undef;
+            $prefEnableEffects->{$codec}=undef;
 		}
 	}
 	for my $codec (keys %$supported){
@@ -985,7 +997,8 @@ sub _refreshClientCodecs{
 				$prefCodecs->{$codec}="on";
 				$prefEnableConvert->{$codec}="on";
 				$prefEnableResample->{$codec}="on";
-
+                $prefEnableEffects->{$codec}="on";
+                
 				if ($caps->{$codec}->{'defaultEnableSeek'}){
 
 					$prefEnableSeek->{$codec}="on";
@@ -1007,6 +1020,7 @@ sub _refreshClientCodecs{
 			$prefEnableStdin->{$codec}=undef;
 			$prefEnableConvert->{$codec}=undef;
 			$prefEnableResample->{$codec}=undef;
+            $prefEnableEffects->{$codec}=undef;
 		}
 	}
 	if (main::DEBUGLOG && $log->is_debug) {
@@ -1015,10 +1029,11 @@ sub _refreshClientCodecs{
 			 $log->debug("Refreshed seek enabled    : ".dump($prefEnableSeek));
 			 $log->debug("Refreshed stdin enabled:  : ".dump($prefEnableStdin));
 			 $log->debug("Refreshed Convert enabled : ".dump($prefEnableConvert));
-			 $log->debug("Refreshed Resample enable : ".dump($prefEnableResample));			 
+			 $log->debug("Refreshed Resample enable : ".dump($prefEnableResample));		
+             $log->debug("Refreshed Effects enable  : ".dump($prefEnableEffects));		
 	}
 	return ($supportedCli, $prefCodecs,$prefEnableSeek, $prefEnableStdin,
-	        $prefEnableConvert,$prefEnableResample);
+	        $prefEnableConvert,$prefEnableResample,$prefEnableEffects);
 }
 
 sub _testC3PO{
@@ -1186,6 +1201,7 @@ sub _calcStatus{
 		my $prefEnableStdinRef		= $prefs->client($client)->get('enableStdin');
 		my $prefEnableConvertRef	= $prefs->client($client)->get('enableConvert');
 		my $prefEnableResampleRef	= $prefs->client($client)->get('enableResample');
+        my $prefEnableEffectsRef    = $prefs->client($client)->get('enableEffects');
 		
 		for my $codec (keys %$prefEnableSeekRef){
 			
@@ -1213,7 +1229,7 @@ sub _calcStatus{
 				$ref = _getStatusLine('503',$client,$ref);
 
 			}
-			if ($prefEnableResampleRef->{$codec} && !$prefEnableConvertRef->{$codec}){
+			if (($prefEnableResampleRef->{$codec} || $prefEnableEffectsRef->{$codec})&& !$prefEnableConvertRef->{$codec}){
 			
 				if ($codec eq 'alc'){
 					$ref = _getStatusLine('504',$client,$ref);

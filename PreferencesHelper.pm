@@ -312,7 +312,23 @@ sub _migratePrefs{
                  $self->{preferences}->set('soxMultithread','');
                  $self->{preferences}->set('soxBuffer',8);
             }
+        }
+        if ($prefVersion < 20105){
         
+            if ($client) {
+                my $prefEnableResample = $self->{preferences}->client($client)->get('enableResample');
+                my $prefEnableEffects = ();
+                $self->{preferences}->client($client)->set('enableEffects', $prefEnableEffects);
+                
+                for my $codec (keys %$prefEnableResample){
+                    
+                    my $selected =$prefEnableResample->{$codec};
+                    $prefEnableEffects->{$codec} = $selected ? 'on' : undef;
+                
+                }
+                
+                $self->{preferences}->client($client)->set('enableEffects', $prefEnableEffects);
+            }
         }
         #here next versions additionals migration fetures
 	}

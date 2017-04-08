@@ -134,4 +134,27 @@
             [% END %]
         [% END %]
     </tr>
+    <tr>
+        <td class="columnA"><b>[% "PLUGIN_C3PO_EFFECTS_TITLE" | string %]</b></td>
+        [% FOREACH codec IN prefs.enableEffects %]
+            [% FOREACH c2 IN disabledCodecs %]
+                [% disabled = 0 %]
+                [% IF codec.key == c2.key %] 
+                    [% IF c2.value %] 
+                        [% disabled = 1 %]
+                    [% END %]
+                    [% LAST %]
+                [% END %]
+            [% END %]
+
+            [% IF !disabled %]
+                <td class="cell">    
+                    <input type="checkbox" name="pref_enableEffects[% codec.key %]" 
+                           id="effects[% codec.key %]" value="1" 
+                           [% codec.value ? "checked" : "" %]>
+                    </input>
+                </td>
+            [% END %]
+        [% END %]
+    </tr>
 </table>

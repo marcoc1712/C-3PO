@@ -26,7 +26,7 @@ use Data::Dump qw(dump pp);
 my @clientPrefNamesScalar = qw(	id macaddress model modelName name 
 								maxSupportedSamplerate maxSupportedDsdrate
 								enableSeek enableStdin 
-								enableConvert enableResample
+								enableConvert enableResample enableEffects
 								showDetails);
 								
 my @clientPrefNamesHash	  = qw(	sampleRates dsdRates);

@@ -80,8 +80,9 @@ sub handler {
 	my $prefStdin    = $prefs->client($client)->get('enableStdin');
 	my $prefConvert  = $prefs->client($client)->get('enableConvert');
 	my $prefResample = $prefs->client($client)->get('enableResample');
-	
-	my $prefSampleRates = $plugin->translateSampleRates(
+    my $prefEffects  = $prefs->client($client)->get('enableEffects');
+   
+   my $prefSampleRates = $plugin->translateSampleRates(
 							$prefs->client($client)->get('sampleRates'));
 	my $prefDsdRates = $plugin->translateDsdRates(
 							$prefs->client($client)->get('dsdRates'));
@@ -158,6 +159,13 @@ sub handler {
                    $prefResample->{$codec} = $selected ? 'on' : undef;
                }
                $prefs->client($client)->set('enableResample', $prefResample);
+
+               for my $codec (keys %$prefEffects){
+
+                   my $selected = $params->{'pref_enableEffects'.$codec};
+                   $prefEffects->{$codec} = $selected ? 'on' : undef;
+               }
+               $prefs->client($client)->set('enableEffects', $prefEffects);
 
                for my $rate (keys %$prefSampleRates){
 
@@ -236,9 +244,11 @@ sub handler {
 	$params->{'prefs'}->{'enableStdin'}=$prefStdin; 
 	$params->{'prefs'}->{'enableConvert'}=$prefConvert; 
 	$params->{'prefs'}->{'enableResample'}=$prefResample; 
+    $params->{'prefs'}->{'enableEffects'}=$prefEffects;
 	$params->{'prefs'}->{'sampleRates'}=$prefSampleRates; 
 	$params->{'prefs'}->{'dsdRates'}=$prefDsdRates; 
 	
+    
 	# copy here params that are not preference.
 	
 	$params->{'disabledCodecs'}= _getdisabledCodecs($client, $prefCodecs);

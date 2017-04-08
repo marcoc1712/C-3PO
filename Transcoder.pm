@@ -496,7 +496,7 @@ sub _splitResampleAndTranscode{
 		Plugins::C3PO::Logger::debugMessage('Split Command: '.$commandString);
 	}
 
-	my $resampleString = Plugins::C3PO::SoxHelper::resample($transcodeTable);
+    my $resampleString = Plugins::C3PO::SoxHelper::resample($transcodeTable);
 
 	$transcodeTable->{resample}=$resampleString;
 	
@@ -1186,13 +1186,18 @@ sub _isResamplingRequested{
 	
 	Plugins::C3PO::Logger::debugMessage('In codec '.$inCodec);
 	Plugins::C3PO::Logger::debugMessage('In codec '.$outCodec);
-	Plugins::C3PO::Logger::debugMessage('enableResample: '.
+	Plugins::C3PO::Logger::debugMessage('enableEffects: '.
+		($transcodeTable->{'enableEffects'}->{$inCodec} ? 
+			$transcodeTable->{'enableEffects'}->{$inCodec} : 0));
+    Plugins::C3PO::Logger::debugMessage('enableResample: '.
 		($transcodeTable->{'enableResample'}->{$inCodec} ? 
 			$transcodeTable->{'enableResample'}->{$inCodec} : 0));
 	
 	Plugins::C3PO::Logger::debugMessage('resampleWhen: '.$transcodeTable->{'resampleWhen'});
 	
     if ($transcodeTable->{'enableResample'}->{$inCodec}) {return 1;}
+    if ($transcodeTable->{'enableEffects'}->{$inCodec}) {return 1;}
+    
 	if ($outCodec eq 'dsf'  || $outCodec eq 'dff') {return 1;} 
 	
 	return !($transcodeTable->{'resampleWhen'} eq 'N');
@@ -1246,6 +1251,9 @@ sub getOutputCodec{
 	if ($transcodeTable->{'enableConvert'}->{$inCodec}){return $outCodec;}
 	
 	if ($transcodeTable->{'enableResample'}->{$inCodec} && 
+	    compareCodecs($inCodec, 'alc')){return $outCodec;}
+        
+    if ($transcodeTable->{'enableEffects'}->{$inCodec} && 
 	    compareCodecs($inCodec, 'alc')){return $outCodec;}
 
 	return $inCodec;
