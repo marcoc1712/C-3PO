@@ -2,6 +2,21 @@
 [% WRAPPER setting title="PLUGIN_C3PO_EFFECTS" desc="" %]
 [% END %]
 
+[% WRAPPER setting title="PLUGIN_C3PO_EFFECTS_WHEN" desc="PLUGIN_C3PO_EFFECTS_WHEN_DESC" %]
+	<select class="stdedit" name="pref_effectsWhen" id="effectsWhen" 
+		[% IF needsClient &&  prefs.useGlogalSettings %] disabled [% END %] >
+		<option [% IF prefseffectsWhen == "A" %]selected="selected" [% END %]value="A">
+			[% 'PLUGIN_C3PO_EFFECTS_WHEN_ALWAYS' | string %]
+		</option>
+		<option [% IF prefs.prefseffectsWhen == "N" %]selected="selected" [% END %]value="N">
+			[% 'PLUGIN_C3PO_EFFECTS_WHEN_NEVER' | string %]
+		</option>
+		<option [% IF prefs.prefseffectsWhen == "E" %]selected="selected" [% END %]value="R">
+			[% 'PLUGIN_C3PO_EFFECTS_ONLY_WHEN_RESAMPLING' | string %]
+		</option>
+	</select>
+[% END %]
+
 [% WRAPPER setting title="PLUGIN_C3PO_LOUDNESS_GAIN" desc="PLUGIN_C3PO_LOUDNESS_GAIN_DESC" %]
 	<input type="text" class="stdedit sliderInput_-50_15" name="pref_loudnessGain" id="loudnessGain" 
 		value="[% prefs.loudnessGain %]" size="5"

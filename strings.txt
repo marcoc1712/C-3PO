@@ -396,6 +396,26 @@ PLUGIN_C3PO_GAIN_DESC
 	EN	Gain reduction (in dB) to avoid clipping induced by transcoding or resampling. Some standards bodies recommend as much as 9dB headroom, but in most cases, 3dB is enough.
 	IT	Riduzione del guadagno (in dB) ad evitare distorsioni di clipping causate dal ricampionamento. Alcuni standard raccomandano 9 dB di headroom, ma i molti casi, 3 dB sono sufficienti.
 
+PLUGIN_C3PO_EFFECTS_WHEN
+	EN	When
+	IT	Quando
+	
+PLUGIN_C3PO_EFFECTS_WHEN_DESC
+	EN	Ask the server to apply effects always, never or only when a resample is already involved.
+	IT	Chiede al server di applicare gli effetti sempre, mai o solo quando è già richiesto anche un ricampionamento.
+
+PLUGIN_C3PO_EFFECTS_WHEN_ALWAYS
+	EN	Always
+	IT	Sempre
+	
+PLUGIN_C3PO_EFFECTS_WHEN_NEVER
+	EN	Never
+	IT	Mai
+	
+PLUGIN_C3PO_EFFECTS_ONLY_WHEN_RESAMPLING
+	EN	Only when a resample is involved
+	IT	Solo quando è già richiesto anche un ricampionamento
+
 PLUGIN_C3PO_REMIX_LEFT
 	EN	Left channel volume (%)
 	IT	Volume del canale sinistro (in %)
@@ -550,16 +570,20 @@ PLUGIN_C3PO_EXTRA_AFTER_RATE_DESC
 
 PLUGIN_C3PO_PCM_TITLE
 	EN	PCM out
-	IT	PCM out
+	IT	Uscita in PCM
 
 PLUGIN_C3PO_PCM_TITLE_DESC
 	EN	PCM output only settings.
-	IT	Impostazioni valide solo per uscita in PCM 
+	IT	Impostazioni valide solo per uscita in PCM (qualsiasi formato, compresso o meno).
 	
 PLUGIN_C3PO_DITHER
+	EN	- DITHERING
+	IT	- DITHERING
+
+PLUGIN_C3PO_DITHER-
 	EN	- Dithering
 	IT	- Dithering
-	
+
 PLUGIN_C3PO_DITHER_DESC
 	EN	Enable the automatic ditehering
 	IT	Abilita il dithering automatico
@@ -646,7 +670,7 @@ PLUGIN_C3PO_DITHER_PRECISION_IGNORE
 
 PLUGIN_C3PO_DSD_TITLE
 	EN	DSD out
-	IT	DSD out
+	IT	Uscita in DSD
 
 PLUGIN_C3PO_DSD_TITLE_DESC
 	EN	DSD output only settings.
