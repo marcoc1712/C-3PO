@@ -39,6 +39,7 @@ my @sharedPrefNames		  = qw(	enable panel
 								outBitDepth 
 								
 								headroom gain 
+                                effectsWhen
 								loudnessGain loudnessRef 
 								remixLeft remixRight flipChannels
 		

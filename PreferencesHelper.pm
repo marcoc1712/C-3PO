@@ -328,6 +328,11 @@ sub _migratePrefs{
                 }
                 
                 $self->{preferences}->client($client)->set('enableEffects', $prefEnableEffects);
+                $self->{preferences}->client($client)->set('effectsWhen',"A");
+                
+            } else {
+            
+                $self->{preferences}->set('effectsWhen',"A");
             }
         }
         #here next versions additionals migration fetures
@@ -403,6 +408,7 @@ sub _initDefaultPrefs{
 			#outChannels				=> 2,
 			headroom                    => "1",
 			gain                        => 0,
+            effectsWhen                 => "A",
 			loudnessGain				=> 0,
 			loudnessRef                 => 65,
 			remixLeft                   => 100,

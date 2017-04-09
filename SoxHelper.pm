@@ -437,11 +437,15 @@ sub _gain{
 
 sub _effects{
     my $transcodeTable = shift;
-    my $inCodec	=$transcodeTable->{'inCodec'};
-    # BE SURE not to use transitCodec here.
-   
-    if (!$transcodeTable->{'enableEffects'}->{$inCodec}){return '';}
     
+    # BE SURE not to use transitCodec here.
+    my $inCodec             =$transcodeTable->{'inCodec'};
+    my $outSamplerate       =$transcodeTable->{'targetSamplerate'};
+    
+    if (!$transcodeTable->{'enableEffects'}->{$inCodec}){return '';}
+    if ($transcodeTable->{'effectsWhen'} eq "N"){return '';}
+    if ($transcodeTable->{'effectsWhen'} eq "R" && !$outSamplerate){return '';}
+   
     my $loudnessGain		=$transcodeTable->{'loudnessGain'};
 	my $loudnessRef			=$transcodeTable->{'loudnessRef'};
 	my $remixLeft			=$transcodeTable->{'remixLeft'};

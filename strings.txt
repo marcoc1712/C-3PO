@@ -190,7 +190,7 @@ PLUGIN_C3PO_ENABLE_STDIN_DESC
 
 PLUGIN_C3PO_CONVERT_TITLE
 	EN	Convert
-	IT	Conversione.
+	IT	Conversione di formato.
 	
 PLUGIN_C3PO_CONVERT_DESC
 	EN	Enable transcoding to the selected 'output format'.
