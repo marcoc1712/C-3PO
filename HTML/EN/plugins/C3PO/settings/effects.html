@@ -5,13 +5,13 @@
 [% WRAPPER setting title="PLUGIN_C3PO_EFFECTS_WHEN" desc="PLUGIN_C3PO_EFFECTS_WHEN_DESC" %]
 	<select class="stdedit" name="pref_effectsWhen" id="effectsWhen" 
 		[% IF needsClient &&  prefs.useGlogalSettings %] disabled [% END %] >
-		<option [% IF prefseffectsWhen == "A" %]selected="selected" [% END %]value="A">
+		<option [% IF prefs.effectsWhen == "A" %]selected="selected" [% END %]value="A">
 			[% 'PLUGIN_C3PO_EFFECTS_WHEN_ALWAYS' | string %]
 		</option>
-		<option [% IF prefs.prefseffectsWhen == "N" %]selected="selected" [% END %]value="N">
+		<option [% IF prefs.effectsWhen == "N" %]selected="selected" [% END %]value="N">
 			[% 'PLUGIN_C3PO_EFFECTS_WHEN_NEVER' | string %]
 		</option>
-		<option [% IF prefs.prefseffectsWhen == "E" %]selected="selected" [% END %]value="R">
+		<option [% IF prefs.effectsWhen == "R" %]selected="selected" [% END %]value="R">
 			[% 'PLUGIN_C3PO_EFFECTS_ONLY_WHEN_RESAMPLING' | string %]
 		</option>
 	</select>
