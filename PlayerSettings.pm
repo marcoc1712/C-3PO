@@ -63,12 +63,14 @@ sub handler {
 	
 	#refresh capabilities, to see chamge in the global options.
 	#refresh the codec list.
-	my $clientCodecList=$plugin->initClientCodecs($client);
-	
+	$plugin->initClientCodecs($client);
+
 	my @prefList=$plugin->getSharedPrefNameList();
 
 	my $prefs=$plugin->getPreferences($client);
-	
+    
+    $params->{'clientCodecList'} =join ' ', sort keys %{$prefs->client($client)->get('codecsCli')};
+    
 	$params->{'soxVersion'} =$prefs->get('soxVersion');
 	$params->{'isSoxDsdCapable'} =$prefs->get('isSoxDsdCapable');
        
@@ -78,8 +80,9 @@ sub handler {
 	my $prefStdin    = $prefs->client($client)->get('enableStdin');
 	my $prefConvert  = $prefs->client($client)->get('enableConvert');
 	my $prefResample = $prefs->client($client)->get('enableResample');
-	
-	my $prefSampleRates = $plugin->translateSampleRates(
+    my $prefEffects  = $prefs->client($client)->get('enableEffects');
+   
+   my $prefSampleRates = $plugin->translateSampleRates(
 							$prefs->client($client)->get('sampleRates'));
 	my $prefDsdRates = $plugin->translateDsdRates(
 							$prefs->client($client)->get('dsdRates'));
@@ -109,81 +112,104 @@ sub handler {
 	$params->{'status_details'}	= $status->{'details'};
 	
 	my $disabledDsdRates=_getdisabledDsdRates($client,$prefDsdRates);
-
+    
+    my $panel = $prefs->client($client)->get('panel');
+    if (!$panel) {
+         $prefs->client($client)->set('panel', 'settings');
+    }
 	# SaveSettings pressed #####################################################	
-	if ($params->{'saveSettings'}){
+	
+    if ($params->{'saveSettings'}){
         
         # Don't copy into prefs from disabled or not showed  parameters, 
         # it will result in a complete erasure of preferences.
         
-        if ($params->{'pref_enable'} && ($params->{'pref_resampleWhen'})){
+        if ($panel eq 'settings'){
+            
+            if ($params->{'pref_enable'} && ($params->{'pref_resampleWhen'})){
 
-            for my $item (@prefList){
-                _copyParamsToPrefs($client,$params,$item);
-            }
+                for my $item (@prefList){
+                    _copyParamsToPrefs($client,$params,$item);
+                }
 
-           for my $codec (keys %$prefSeeks){
+               for my $codec (keys %$prefSeeks){
 
-               my $selected = $params->{'pref_enableSeek'.$codec};
-               $prefSeeks->{$codec} = $selected ? 'on' : undef;
-           }
-           $prefs->client($client)->set('enableSeek', $prefSeeks);
-
-           for my $codec (keys %$prefStdin){
-
-               my $selected = $params->{'pref_enableStdin'.$codec};
-               $prefStdin->{$codec} = $selected ? 'on' : undef;
-           }
-           $prefs->client($client)->set('enableStdin', $prefStdin);
-
-           for my $codec (keys %$prefConvert){
-
-               my $selected = $params->{'pref_enableConvert'.$codec};
-               $prefConvert->{$codec} = $selected ? 'on' : undef;
-           }
-           $prefs->client($client)->set('enableConvert', $prefConvert);
-
-           for my $codec (keys %$prefResample){
-
-               my $selected = $params->{'pref_enableResample'.$codec};
-               $prefResample->{$codec} = $selected ? 'on' : undef;
-           }
-           $prefs->client($client)->set('enableResample', $prefResample);
-
-           for my $rate (keys %$prefSampleRates){
-
-               my $selected = $params->{'pref_sampleRates'.$rate};
-               $prefSampleRates->{$rate} = $selected ? 'on' : undef;
-           }
-           $prefs->client($client)->set( 'sampleRates', 
-                   $plugin->translateSampleRates($prefSampleRates));
-
-           for my $rate (keys %$prefDsdRates){
-
-               #don't copy form disabled!!!!
-               if (!$disabledDsdRates->{$rate}){		
-                   my $selected = $params->{'pref_dsdRates'.$rate};
-                   $prefDsdRates->{$rate} = $selected ? 'on' : undef;
+                   my $selected = $params->{'pref_enableSeek'.$codec};
+                   $prefSeeks->{$codec} = $selected ? 'on' : undef;
                }
-           }
-           $prefs->client($client)->set( 'dsdRates', 
-                                         $plugin->translateDsdRates($prefDsdRates));
-        }   
-        _copyParamsToPrefs($client,$params,'enable');
-        
-		$prefs->writeAll();
-		$prefs->savenow();
-		
-		$plugin->getPreferences($client);
-		$class->SUPER::handler( $client, $params );
-		$plugin->settingsChanged($client);
-		
-		$prefs->savenow();
-	}
+               $prefs->client($client)->set('enableSeek', $prefSeeks);
+
+               for my $codec (keys %$prefStdin){
+
+                   my $selected = $params->{'pref_enableStdin'.$codec};
+                   $prefStdin->{$codec} = $selected ? 'on' : undef;
+               }
+               $prefs->client($client)->set('enableStdin', $prefStdin);
+
+               for my $codec (keys %$prefConvert){
+
+                   my $selected = $params->{'pref_enableConvert'.$codec};
+                   $prefConvert->{$codec} = $selected ? 'on' : undef;
+               }
+               $prefs->client($client)->set('enableConvert', $prefConvert);
+
+               for my $codec (keys %$prefResample){
+
+                   my $selected = $params->{'pref_enableResample'.$codec};
+                   $prefResample->{$codec} = $selected ? 'on' : undef;
+               }
+               $prefs->client($client)->set('enableResample', $prefResample);
+
+               for my $codec (keys %$prefEffects){
+
+                   my $selected = $params->{'pref_enableEffects'.$codec};
+                   $prefEffects->{$codec} = $selected ? 'on' : undef;
+               }
+               $prefs->client($client)->set('enableEffects', $prefEffects);
+
+               for my $rate (keys %$prefSampleRates){
+
+                   my $selected = $params->{'pref_sampleRates'.$rate};
+                   $prefSampleRates->{$rate} = $selected ? 'on' : undef;
+               }
+               $prefs->client($client)->set( 'sampleRates', 
+                       $plugin->translateSampleRates($prefSampleRates));
+
+               for my $rate (keys %$prefDsdRates){
+
+                   #don't copy form disabled!!!!
+                   if (!$disabledDsdRates->{$rate}){		
+                       my $selected = $params->{'pref_dsdRates'.$rate};
+                       $prefDsdRates->{$rate} = $selected ? 'on' : undef;
+                   }
+               }
+               $prefs->client($client)->set( 'dsdRates', 
+                                             $plugin->translateDsdRates($prefDsdRates));
+            }   
+            _copyParamsToPrefs($client,$params,'enable');
+        } 
+        _copyParamsToPrefs($client,$params,'panel');
+
+        $prefs->writeAll();
+        $prefs->savenow();
+
+        $plugin->getPreferences($client);
+        $class->SUPER::handler( $client, $params );
+        $plugin->settingsChanged($client);
+
+        $prefs->savenow();
+    }
 	# END SaveSettings ########################################################
     
-	$params->{'fileTypeTable'}= $plugin->prettyPrintConversionCapabilities(0,'',$client);
-    $params->{'resultingCommands'}= $plugin->prettyPrintConversionCapabilities(1,'',$client);
+	$params->{'fileTypeTable'}= $plugin->getHtmlConversionTable(0,$client);
+    $params->{'resultingCommands'}= $plugin->getHtmlConversionTable(1,$client);
+    
+    my $lastCommand=$plugin->getLastCommand($client->id());
+    $params->{'lastCommand_time'}=$lastCommand->{'time'};
+    $params->{'lastCommand_profile'}=$lastCommand->{'profile'};
+    $params->{'lastCommand_command'}=$lastCommand->{'command'};
+    $params->{'lastCommand_tokenized'}=$lastCommand->{'tokenized'};
+    $params->{'lastCommand_C3PO'}=$lastCommand->{'C-3PO'};
     
 	if (main::DEBUGLOG && $log->is_debug) {
 			$log->debug(dump("PREF CODECS after: "));
@@ -218,9 +244,11 @@ sub handler {
 	$params->{'prefs'}->{'enableStdin'}=$prefStdin; 
 	$params->{'prefs'}->{'enableConvert'}=$prefConvert; 
 	$params->{'prefs'}->{'enableResample'}=$prefResample; 
+    $params->{'prefs'}->{'enableEffects'}=$prefEffects;
 	$params->{'prefs'}->{'sampleRates'}=$prefSampleRates; 
 	$params->{'prefs'}->{'dsdRates'}=$prefDsdRates; 
 	
+    
 	# copy here params that are not preference.
 	
 	$params->{'disabledCodecs'}= _getdisabledCodecs($client, $prefCodecs);
@@ -311,11 +339,12 @@ sub _getdisabledDsdRates{
 	for my $rate (sort keys %$enabledRates){
 		
 		#disable first enable, so it could not be removed.
-		if ($first && $enabledRates->{$rate}){
-			$first=0;
-			$out->{$rate} = 1;	
-		} elsif (!($enabledRates->{$rate})){
-		
+		#if ($first && $enabledRates->{$rate}){
+		#	$first=0;
+		#	$out->{$rate} = 1;	
+		#} elsif (!($enabledRates->{$rate})){
+            
+		if (!($enabledRates->{$rate})){
 			$out->{$rate} = 1;
 		}
 	} 

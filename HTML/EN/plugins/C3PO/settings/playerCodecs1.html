@@ -1,0 +1,37 @@
+<head>
+<style>
+table {
+    font-family: arial, sans-serif;
+    max-width: 1000px;
+}
+td, th {
+    width: 80px;
+    text-align: left;
+}
+</style>
+</head>
+[% WRAPPER setting title="PLUGIN_C3PO_CODEC_SELECTION_TITLE" desc="PLUGIN_C3PO_CODEC_SELECTION_PLAYER_DESC" %]
+    <table>
+        <tr>
+            [% FOREACH codec IN prefs.codecsCli %]
+                [% IF  codec.value %]
+                    <td>
+                        <label for="pref_codecs[% codec.key %]">[% codec.key %] </label>
+                    </td>
+                [% END %]
+            [% END %]
+        </tr>
+        <tr>
+            [% FOREACH codec IN prefs.codecsCli %]
+                [% IF !codec.value %]
+                    <td>
+                        <input type="checkbox" name="pref_codecs[% codec.key %]" id="codecs[% codec.key %]" value="1" [% codec.value ? "checked" : "" %]
+                        disabled>
+
+                        <label for="pref_codecs[% codec.key %]">[% codec.key | string %] </label>
+                    </td>
+                [% END %]
+            [% END %]
+        </tr>
+    </table>
+[% END %]

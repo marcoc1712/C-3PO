@@ -1,0 +1,95 @@
+
+[% WRAPPER setting title="PLUGIN_C3PO_RESAMPLE" desc="" %]
+[% END %]
+
+[% WRAPPER setting title="PLUGIN_C3PO_RESAMPLE_WHEN" desc="PLUGIN_C3PO_RESAMPLE_WHEN_DESC" %]
+	<select class="stdedit" name="pref_resampleWhen" id="resampleWhen" 
+		[% IF needsClient &&  prefs.useGlogalSettings %] disabled [% END %] >
+		<option [% IF prefs.resampleWhen == "A" %]selected="selected" [% END %]value="A">
+			[% 'PLUGIN_C3PO_RESAMPLE_WHEN_ALWAYS' | string %]
+		</option>
+		<option [% IF prefs.resampleWhen == "N" %]selected="selected" [% END %]value="N">
+			[% 'PLUGIN_C3PO_RESAMPLE_WHEN_NEVER' | string %]
+		</option>
+		<option [% IF prefs.resampleWhen == "E" %]selected="selected" [% END %]value="E">
+			[% 'PLUGIN_C3PO_RESAMPLE_WHEN_NOT_SUPPORTED' | string %]
+		</option>
+	</select>
+[% END %]
+
+[% WRAPPER setting title="PLUGIN_C3PO_RESAMPLE_TO" desc="PLUGIN_C3PO_RESAMPLE_TO_DESC" %]
+	<select class="stdedit" name="pref_resampleTo" id="resampleTo"
+		[% IF needsClient &&  prefs.useGlogalSettings %] disabled [% END %] >
+		<option [% IF prefs.resampleTo == "X" %]selected="selected" [% END %]value="X">
+			[% 'PLUGIN_C3PO_RESAMPLE_TO_MAX' | string %]
+		</option>
+		<option [% IF prefs.resampleTo == "S" %]selected="selected" [% END %]value="S">
+			[% 'PLUGIN_C3PO_RESAMPLE_TO_MAX_SYNC' | string %]
+		</option>
+	</select>
+[% END %]
+
+[% WRAPPER setting title="PLUGIN_C3PO_OUT_QUALITY" desc="PLUGIN_C3PO_OUT_QUALITY_DESC" %]
+	<select class="stdedit" name="pref_quality" id="quality"
+		[% IF needsClient &&  prefs.useGlogalSettings %] disabled [% END %]>
+		<option [% IF prefs.quality == "q" %]selected="selected" [% END %]value="q">
+			[% 'PLUGIN_C3PO_OUT_QUALITY_Q' | string %]
+		</option>
+		<option [% IF prefs.quality == "l" %]selected="selected" [% END %]value="l">
+			[% 'PLUGIN_C3PO_OUT_QUALITY_L' | string %]
+		</option>
+		<option [% IF prefs.quality == "m" %]selected="selected" [% END %]value="m">
+			[% 'PLUGIN_C3PO_OUT_QUALITY_M' | string %]
+		</option>
+		<option [% IF prefs.quality == "h" %]selected="selected" [% END %]value="h">
+			[% 'PLUGIN_C3PO_OUT_QUALITY_H' | string %]
+		</option>
+		<option [% IF prefs.quality == "v" %]selected="selected" [% END %]value="v">
+			[% 'PLUGIN_C3PO_OUT_QUALITY_V' | string %]
+		</option>
+	</select>
+[% END %]
+
+[% WRAPPER setting title="PLUGIN_C3PO_OUT_PHASE" desc="PLUGIN_C3PO_OUT_PHASE_DESC" %]
+	<select class="stdedit" name="pref_phase" id="phase"
+		[% IF needsClient &&  prefs.useGlogalSettings %] disabled [% END %]>
+		<option [% IF prefs.phase == "M" %]selected="selected" [% END %]value="M">
+			[% 'PLUGIN_C3PO_OUT_PHASE_M' | string %]
+		</option>
+		<option [% IF prefs.phase == "I" %]selected="selected" [% END %]value="I">
+			[% 'PLUGIN_C3PO_OUT_PHASE_I' | string %]
+		</option>
+		<option [% IF prefs.phase == "L" %]selected="selected" [% END %]value="L">
+			[% 'PLUGIN_C3PO_OUT_PHASE_L' | string %]
+		</option>
+	</select>
+[% END %]
+[% WRAPPER setting title="PLUGIN_C3PO_ALIASING" desc="PLUGIN_C3PO_ALIASING_DESC" %]
+	<input name="pref_aliasing" type="checkbox" 
+		[% IF prefs.aliasing %] checked [% END %]
+		[% IF prefs.useGlogalSettings %] disabled [% END %]>
+[% END %]
+[% IF soxVersion > 140401 %]
+	[% WRAPPER setting title="PLUGIN_C3PO_NOIOPT" desc="PLUGIN_C3PO_NOIOPT_DESC" %]
+		<input name="pref_noIOpt" type="checkbox" 
+			[% IF prefs.noIOpt %] checked [% END %]
+			[% IF prefs.useGlogalSettings %] disabled [% END %]>
+	[% END %]
+	[% WRAPPER setting title="PLUGIN_C3PO_HI_PRECISION_CLOCK" desc="PLUGIN_C3PO_HI_PRECISION_CLOCK_DESC" %]
+		<input name="pref_highPrecisionClock" type="checkbox" 
+			[% IF prefs.highPrecisionClock %] checked [% END %]
+			[% IF prefs.useGlogalSettings %] disabled [% END %]>
+	[% END %]
+[% END %]
+[% WRAPPER setting title="PLUGIN_C3PO_BANDWIDTH" desc="PLUGIN_C3PO_BANDWIDTH_DESC" %]
+	<input type="text" class="stdedit sliderInput_740_997" name="pref_bandwidth" id="bandwidth" 
+		value="[% prefs.bandwidth %]" size="5"
+		[% IF prefs.useGlogalSettings %] disabled [% END %]>
+[% END %]
+[% IF soxVersion > 140401 %]
+	[% WRAPPER setting title="PLUGIN_C3PO_SMALLROLLOFF" desc="PLUGIN_C3PO_SMALLROLLOFF_DESC" %]
+		<input name="pref_smallRollOff" type="checkbox" 
+			[% IF prefs.smallRollOff %] checked [% END %]
+			[% IF prefs.useGlogalSettings %] disabled [% END %]>
+	[% END %]
+[% END %]	

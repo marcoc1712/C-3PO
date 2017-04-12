@@ -1,0 +1,38 @@
+[% WRAPPER setting title="PLUGIN_C3PO_PLAYER_ENABLE_TITLE" desc="PLUGIN_C3PO_PLAYER_ENABLE_DESC" %]
+    <input name="pref_enable" type="checkbox" [% IF prefs.enable %] checked [% END %] >
+[% END %]
+
+ <hr>
+    
+[% IF prefs.enable %]
+
+    [% IF displayStatus %]
+        [% PROCESS 'plugins/C3PO/settings/status.html' %]
+        
+        <hr>
+    
+    [% END %]
+
+    [% WRAPPER setting title="PLUGIN_C3PO_PLAYER_TITLE" desc="" %]
+    [% END %]
+
+    [% PROCESS 'plugins/C3PO/settings/sampleRates.html' %]
+    [% PROCESS 'plugins/C3PO/settings/playerCodecs.html' %]
+    
+    <hr>
+    
+    [% WRAPPER setting title="PLUGIN_C3PO_TRANSCODER_TITLE" desc="" %]
+    [% END %]
+    
+    [% PROCESS 'plugins/C3PO/settings/functionsPerCodecs.html' %]
+
+    [% IF 0  %]
+        [% PROCESS 'plugins/C3PO/settings/useGlobal.html' %]
+    [% END %]
+    
+    [% IF prefs.showDetails %]
+        [% PROCESS 'plugins/C3PO/settings/common.html' %]
+    [% END %]
+
+[% END %]
+

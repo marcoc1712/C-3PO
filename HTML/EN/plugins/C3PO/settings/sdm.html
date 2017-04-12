@@ -1,0 +1,44 @@
+
+[% WRAPPER setting title="PLUGIN_C3PO_SDM_FILTER_TYPE" desc="PLUGIN_C3PO_SDM_FILTER_TYPE_DESC" %]
+    <select class="stdedit" name="pref_sdmFilterType" id="sdmFilterType"
+        [% IF  (needsClient &&  prefs.useGlogalSettings) ||
+              (!prefs.codecsCli.dsf && !prefs.codecsCli.dff)
+        %] disabled [% END %]
+        <option [% IF prefs.sdmFilterType == "0" %]selected="selected" [% END %]value="-1">
+            [% 'PLUGIN_C3PO_SDM_FILTER_TYPE_DISABLED' | string %]
+        </option>
+        <option [% IF prefs.sdmFilterType == "auto" %]selected="selected" [% END %]value="auto">
+            [% 'PLUGIN_C3PO_SDM_FILTER_TYPE_AUTO' | string %]
+        </option>
+        <option [% IF prefs.sdmFilterType == "sdm-4" %]selected="selected" [% END %]value="sdm-4">
+            [% 'PLUGIN_C3PO_SDM_TYPE_SDM_4' | string %]
+        </option>
+        <option [% IF prefs.sdmFilterType == "sdm-5" %]selected="selected" [% END %]value="sdm-5">
+            [% 'PLUGIN_C3PO_SDM_TYPE_SDM_5' | string %]
+        </option>
+        <option [% IF prefs.sdmFilterType == "sdm-6" %]selected="selected" [% END %]value="sdm-6">
+            [% 'PLUGIN_C3PO_SDM_TYPE_SDM_6' | string %]
+        </option>
+        <option [% IF prefs.sdmFilterType == "sdm-7" %]selected="selected" [% END %]value="sdm-7">
+            [% 'PLUGIN_C3PO_SDM_TYPE_SDM_7' | string %]
+        </option>
+        <option [% IF prefs.sdmFilterType == "sdm-8" %]selected="selected" [% END %]value="sdm-8">
+            [% 'PLUGIN_C3PO_SDM_TYPE_SDM_8' | string %]
+        </option>
+        <option [% IF prefs.sdmFilterType == "clans-4" %]selected="selected" [% END %]value="clans-4">
+            [% 'PLUGIN_C3PO_SDM_TYPE_CLANS_4' | string %]
+        </option>
+        <option [% IF prefs.sdmFilterType == "clans-5" %]selected="selected" [% END %]value="clans-5">
+            [% 'PLUGIN_C3PO_SDM_TYPE_CLANS_5' | string %]
+        </option>
+        <option [% IF prefs.sdmFilterType == "clans-6" %]selected="selected" [% END %]value="clans-6">
+            [% 'PLUGIN_C3PO_SDM_TYPE_CLANS_6' | string %]
+        </option>
+        <option [% IF prefs.sdmFilterType == "clans-7" %]selected="selected" [% END %]value="clans-7">
+            [% 'PLUGIN_C3PO_SDM_TYPE_CLANS_7' | string %]
+        </option>
+        <option [% IF prefs.sdmFilterType == "clans-8" %]selected="selected" [% END %]value="clans-8">
+            [% 'PLUGIN_C3PO_SDM_TYPE_CLANS_8' | string %]
+        </option>
+    </select>	
+[% END %]

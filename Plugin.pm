@@ -75,8 +75,10 @@ use Plugins::C3PO::PreferencesHelper;
 use Plugins::C3PO::CapabilityHelper;
 use Plugins::C3PO::EnvironmentHelper;
 use Plugins::C3PO::LMSTranscodingHelper;
+use Plugins::C3PO::LMSSongHelper;
 use Plugins::C3PO::Logger;
 use Plugins::C3PO::Transcoder;
+use Plugins::C3PO::AudioFile;
 use Plugins::C3PO::OsHelper;
 use Plugins::C3PO::FfmpegHelper;
 use Plugins::C3PO::FlacHelper;
@@ -85,6 +87,7 @@ use Plugins::C3PO::SoxHelper;
 use Plugins::C3PO::Utils::Config;
 use Plugins::C3PO::Utils::File;
 use Plugins::C3PO::Utils::Log;
+use Plugins::C3PO::Utils::Time;
 
 use Plugins::C3PO::Formats::Format;
 use Plugins::C3PO::Formats::Wav;
@@ -98,6 +101,11 @@ use Slim::Utils::Log;
 use Slim::Utils::Prefs;
 use Slim::Utils::Strings qw(string);
 use Slim::Player::TranscodingHelper;
+use Slim::Player::Client;
+use Slim::Player::StreamingController;
+use Slim::Player::SongStreamController;
+
+use FileHandle;
 
 my $class;
 
@@ -123,6 +131,8 @@ my $LMSTranscodingHelper;
 #
 my $C3POwillStart;
 my $C3POisDownloading;
+
+my %lastCommands=();
 
 ################################################################################
 # required methods
@@ -205,11 +215,96 @@ sub initPlugin {
     # the following will enable a callback for every file type change, 
     # but is unnncesary and can leat to an unfinished loop.
     #$serverPreferences->setChange(\&fileTypesChanged, 'disabledformats');
+    
+    # Subscribe to new song event
+	Slim::Control::Request::subscribe(
+		\&newSong, 
+		[['playlist'], ['newsong']],
+	);
 }
 sub shutdownPlugin {
 	Slim::Control::Request::unsubscribe( \&newClientCallback );
 	Slim::Control::Request::unsubscribe( \&clientReconnectCallback );
+    Slim::Control::Request::unsubscribe( \&newSong );
     
+}
+sub newSong{
+    my $request = shift;
+
+	if ( my $id = $request->clientid()) {
+        
+        main::INFOLOG && $log->info("newSong request received from client ".$id);
+
+        $lastCommands{$id}=undef;
+        $lastCommands{$id}{'time'}      = Utils::Time::getNiceTimeString();
+        $lastCommands{$id}{'client'}    = undef;
+        $lastCommands{$id}{'profile'}   = undef;
+        $lastCommands{$id}{'command'}   = "unable to get last command from lms";
+        $lastCommands{$id}{'tokenized'} = undef;
+        $lastCommands{$id}{'C-3PO'}     = undef;
+        $lastCommands{$id}{'msg'}       = "unable to get last command from lms";
+                
+		my $client = Slim::Player::Client::getClient($id);
+        if (!$client) {return 0;}
+        $lastCommands{$id}{'client'}    = $client;
+        
+        my $controller = $client->controller();
+        if (!$controller) {return 0;}
+        
+        my $songStreamController = $controller->songStreamController();
+        if (!$songStreamController) {return 0;}
+          
+        my $song = $songStreamController->song();
+        if (!$song) {return 0;}
+        
+        my $songHelper=Plugins::C3PO::LMSSongHelper->new($class, $song);
+        my $transcoder =$songHelper->getTranscoder();
+        
+        my $tokenized = $transcoder->{'tokenized'};
+        my $command = $transcoder->{'command'};
+        my $profile = $transcoder->{'profile'};
+        
+        my ($binOk,%binaries) = $LMSTranscodingHelper->getBinaries($profile);
+
+        $lastCommands{$id}{'profile'}   = $profile;
+        $lastCommands{$id}{'command'}   = $command;
+        $lastCommands{$id}{'tokenized'} = $tokenized;
+        $lastCommands{$id}{'C-3PO'}     = "";
+        
+        $lastCommands{$id}{'msg'} = "\n".
+                                       "At: ".$lastCommands{$id}{'time'}."\n". 
+                                       "    Command: \n".
+                                       "    ".$lastCommands{$id}{'tokenized'}."\n";
+                                        
+        if ($C3POwillStart && $binOk && ($binaries{'C-3PO'} || $binaries{'perl'})){
+
+            if (index($tokenized,"|") ge 0){
+                $tokenized = substr($tokenized,0, index($tokenized,"|"));
+            }
+            my ($err, $C3POtokenized)= $EnvironmentHelper->getC3POcommand($tokenized);
+            
+            $lastCommands{$id}{'C-3PO'} = $err ? $err.($C3POtokenized ? $C3POtokenized :'') : $C3POtokenized;
+            
+            $lastCommands{$id}{'msg'} = $lastCommands{$id}{'msg'}."\n".
+                                           "    trasformed by C-3PO in : \n".
+                                           "    ".$lastCommands{$id}{'C-3PO'}."\n";
+        } else{
+            
+            $lastCommands{$id}{'msg'} ="";
+        }
+        
+        if (main::INFOLOG && $log->is_info) {
+            #$log->info($lastCommands{$id}{'msg'});
+            
+            my $lastCommand=$class->getLastCommand($id);
+            $log->info($lastCommand->{'msg'});  
+        }
+        
+        return 1;
+	}
+    
+    $log->warning ("missing client in new song request");
+    return 0;
 }
 
 sub fileTypesChanged{
@@ -321,17 +416,19 @@ sub initClientCodecs{
 	my $prefEnableStdin;
 	my $prefEnableConvert;
 	my $prefEnableResample;
-
+    my $prefEnableEffects;
+     
 	if (!defined($prefs->client($client)->get('codecs'))){
 	
 		($supportedCli, $prefCodecs, $prefEnableSeek,$prefEnableStdin,
-		 $prefEnableConvert,$prefEnableResample) = _defaultClientCodecs($client);
+		 $prefEnableConvert, $prefEnableResample, $prefEnableEffects) = _defaultClientCodecs($client);
 
 	} else {
 		
 		($supportedCli, $prefCodecs, $prefEnableSeek,$prefEnableStdin,
-		 $prefEnableConvert,$prefEnableResample) = _refreshClientCodecs($client);
+		 $prefEnableConvert, $prefEnableResample, $prefEnableEffects) = _refreshClientCodecs($client);
 	}
+    
 	#build the complete list string
 	for my $codec (keys %$prefCodecs){
 
@@ -347,7 +444,8 @@ sub initClientCodecs{
 	$prefs->client($client)->set('enableStdin', $prefEnableStdin);
 	$prefs->client($client)->set('enableConvert', $prefEnableConvert);
 	$prefs->client($client)->set('enableResample', $prefEnableResample);
-	
+    $prefs->client($client)->set('enableEffects', $prefEnableEffects);
+
 	$prefs->writeAll();
 	$prefs->savenow();
 	
@@ -362,7 +460,12 @@ sub initClientCodecs{
 	
 	return ($codecList);
 }
-
+sub getLastCommand{
+    my $self = shift;
+    my $clientId =shift;
+    
+    return $lastCommands{$clientId};
+}
 sub settingsChanged{
 	my $class = shift;
 	my $client=shift;
@@ -482,6 +585,14 @@ sub prettyPrintConversionCapabilities{
     
     return $LMSTranscodingHelper->prettyPrintConversionCapabilities($details,$message,$client);
 }
+sub getHtmlConversionTable{
+    my $class = shift;
+    my $details = shift;
+    my $message = shift;
+    my $client = shift;
+    
+    return $LMSTranscodingHelper->getHtmlConversionTable($details,$message,$client);
+}
 #callback for windows downloader
 sub setWinExecutablesStatus{
 	my $class = shift;
@@ -498,7 +609,7 @@ sub setWinExecutablesStatus{
 	} elsif ($status->{'code'} == 0){ #download Ok;
 	
 		$class->initPlugin();
-		settingsChanged();
+		$class->settingsChanged();
 		
 	} # else is downloading.
 	
@@ -528,8 +639,9 @@ sub _clientCalback{
 	
 	my $samplerateList= _initSampleRates($client);
 	my $dsdrateList= _initDsdRates($client);
-	
-	my $clientCodecList= $class->initClientCodecs($client);
+
+	$class->initClientCodecs($client);
+    my $codecsCli = join ' ', sort keys %{$preferences->client($client)->get('codecsCli')};
 	
 	if (main::INFOLOG && $log->is_info) {
 
@@ -543,7 +655,7 @@ sub _clientCalback{
 				   "max dsd resolution:     $maxSupportedDsdrate \n".
 				   "supported sample rates: $samplerateList \n".
 				   "supported dsd rates:    $dsdrateList \n".
-				   "supported codecs :      $clientCodecList".
+				   "supported codecs :      $codecsCli".
 				   "");
 	}
 	#register the new client in preferences.
@@ -715,12 +827,13 @@ sub _defaultClientCodecs{
 	my $prefEnableStdin =();
 	my $prefEnableConvert =();
 	my $prefEnableResample =();
+    my $prefEnableEffects =();
 	
 	my $supportedCli=();
 	my $supported=();
 	
 	#add all the codecs supported by the client.
-	for my $codec ($CapabilityHelper->clientSupportedFormats($client)) {
+	for my $codec (keys %{$CapabilityHelper->clientSupportedFormats($client)}) {
 		$supported->{$codec} = 0;
 		$supportedCli->{$codec}=1;
 		
@@ -739,7 +852,8 @@ sub _defaultClientCodecs{
 		$prefEnableStdin->{$codec}=undef;
 		$prefEnableConvert->{$codec}=undef;
 		$prefEnableResample->{$codec}=undef;
-		
+        $prefEnableEffects->{$codec}=undef;
+       
 		if ($supported->{$codec}){
 
 			$prefCodecs->{$codec}="on";
@@ -764,9 +878,11 @@ sub _defaultClientCodecs{
 			 $log->debug("Enable Stdin for : ".dump($prefEnableStdin));
 			 $log->debug("Enable Convert for : ".dump($prefEnableConvert));
 			 $log->debug("Enable Resample for : ".dump($prefEnableResample));
+             $log->debug("Enable Effects for : ".dump($prefEnableEffects));
+             
 	}
 	return ($supportedCli, $prefCodecs, $prefEnableSeek, $prefEnableStdin,
-	        $prefEnableConvert,$prefEnableResample);
+	        $prefEnableConvert,$prefEnableResample, $prefEnableEffects);
 }
 
 sub _refreshClientCodecs{
@@ -784,6 +900,7 @@ sub _refreshClientCodecs{
 	my $prefEnableStdinRef = $prefs->client($client)->get('enableStdin');
 	my $prefEnableConvertRef = $prefs->client($client)->get('enableConvert');
 	my $prefEnableResampleRef = $prefs->client($client)->get('enableResample');
+    my $prefEnableEffectsRef = $prefs->client($client)->get('enableEffects');
 	
 	if (main::DEBUGLOG && $log->is_debug) {
 			 $log->debug("pref cli              : ".dump($prefCli));
@@ -791,7 +908,8 @@ sub _refreshClientCodecs{
 			 $log->debug("ptef seek enabled     : ".dump($prefEnableSeekRef));
 			 $log->debug("ptef stdin enabled    : ".dump($prefEnableStdinRef));
 			 $log->debug("ptef convert enabled  : ".dump($prefEnableConvertRef));
-			 $log->debug("pref resample enabled : ".dump($prefEnableResampleRef));			 
+			 $log->debug("pref resample enabled : ".dump($prefEnableResampleRef));	
+             $log->debug("pref effects enabled  : ".dump($prefEnableEffectsRef));	
 	}
 
 	my $caps= $CapabilityHelper->codecs();
@@ -804,12 +922,13 @@ sub _refreshClientCodecs{
 	my $prefEnableStdin=();
 	my $prefEnableConvert =();
 	my $prefEnableResample =();
+    my $prefEnableEffects =();
 	
 	my $supported=();
 	my $supportedCli=();
 	
 	#add all the codecs supported by the client.
-	for my $codec ($CapabilityHelper->clientSupportedFormats($client)) {
+	for my $codec (keys %{$CapabilityHelper->clientSupportedFormats($client)}) {
 		$supported->{$codec} = 0;
 		$supportedCli->{$codec} = 1;
 	}
@@ -826,19 +945,20 @@ sub _refreshClientCodecs{
 
 		if ($prefRef->{$codec} && $codecs->{$codec}){
 
-			$prefCodecs->{$codec}=$prefRef->{$codec};
-			$prefEnableSeek->{$codec}=$prefEnableSeekRef->{$codec};
-			$prefEnableStdin->{$codec}=$prefEnableStdinRef->{$codec};
-			$prefEnableConvert->{$codec}=$prefEnableConvertRef->{$codec};
-			$prefEnableResample->{$codec}=$prefEnableResampleRef->{$codec};
-		
+			$prefCodecs->{$codec}           =$prefRef->{$codec};
+			$prefEnableSeek->{$codec}       =$prefEnableSeekRef->{$codec};
+			$prefEnableStdin->{$codec}      =$prefEnableStdinRef->{$codec};
+			$prefEnableConvert->{$codec}    =$prefEnableConvertRef->{$codec};
+			$prefEnableResample->{$codec}   =$prefEnableResampleRef->{$codec};
+            $prefEnableEffects->{$codec}    =$prefEnableEffectsRef->{$codec};
+
 		} elsif ($codecs->{$codec}){
 		
 			# codec was suported but disabled for player.
 			$prefCodecs->{$codec}="on";
 			$prefEnableConvert->{$codec}="on";
 			$prefEnableResample->{$codec}="on";
-			
+			$prefEnableEffects->{$codec}="on";
 			
 			if ($caps->{$codec}->{'defaultEnableSeek'}){
 
@@ -860,6 +980,7 @@ sub _refreshClientCodecs{
 			$prefEnableStdin->{$codec}=undef;
 			$prefEnableConvert->{$codec}=undef;
 			$prefEnableResample->{$codec}=undef;
+            $prefEnableEffects->{$codec}=undef;
 		}
 	}
 	for my $codec (keys %$supported){
@@ -876,7 +997,8 @@ sub _refreshClientCodecs{
 				$prefCodecs->{$codec}="on";
 				$prefEnableConvert->{$codec}="on";
 				$prefEnableResample->{$codec}="on";
-
+                $prefEnableEffects->{$codec}="on";
+                
 				if ($caps->{$codec}->{'defaultEnableSeek'}){
 
 					$prefEnableSeek->{$codec}="on";
@@ -898,6 +1020,7 @@ sub _refreshClientCodecs{
 			$prefEnableStdin->{$codec}=undef;
 			$prefEnableConvert->{$codec}=undef;
 			$prefEnableResample->{$codec}=undef;
+            $prefEnableEffects->{$codec}=undef;
 		}
 	}
 	if (main::DEBUGLOG && $log->is_debug) {
@@ -906,10 +1029,11 @@ sub _refreshClientCodecs{
 			 $log->debug("Refreshed seek enabled    : ".dump($prefEnableSeek));
 			 $log->debug("Refreshed stdin enabled:  : ".dump($prefEnableStdin));
 			 $log->debug("Refreshed Convert enabled : ".dump($prefEnableConvert));
-			 $log->debug("Refreshed Resample enable : ".dump($prefEnableResample));			 
+			 $log->debug("Refreshed Resample enable : ".dump($prefEnableResample));		
+             $log->debug("Refreshed Effects enable  : ".dump($prefEnableEffects));		
 	}
 	return ($supportedCli, $prefCodecs,$prefEnableSeek, $prefEnableStdin,
-	        $prefEnableConvert,$prefEnableResample);
+	        $prefEnableConvert,$prefEnableResample,$prefEnableEffects);
 }
 
 sub _testC3PO{
@@ -1006,6 +1130,13 @@ sub _calcStatus{
 		$ref = _getStatusLine('012','all',$ref);
 
 	}
+    if ($EnvironmentHelper->pathToSox() && 
+        !$EnvironmentHelper->soxVersion()){
+		
+		$ref = _getStatusLine('022','all',$ref);
+
+	}
+    
 	if (($prefs->get('extra_before_rate') && !($prefs->get('extra_before_rate') eq "") ) ||
 		($prefs->get('extra_after_rate') && !($prefs->get('extra_after_rate') eq "") )) {
 		
@@ -1013,17 +1144,19 @@ sub _calcStatus{
 	
 	}
 	
-	if ($EnvironmentHelper->soxVersion() < 140400){
+	if ($EnvironmentHelper->pathToSox() && $EnvironmentHelper->soxVersion() && 
+        $EnvironmentHelper->soxVersion() < 140400){
 	
 		$ref = _getStatusLine('951','all',$ref);
 		
 	} 
-	
-	if (!$EnvironmentHelper->isSoxDsdCapable){
+
+	if ($EnvironmentHelper->pathToSox() && $EnvironmentHelper->soxVersion() &&
+        !$EnvironmentHelper->isSoxDsdCapable){
 		
 		$ref = _getStatusLine('952','server',$ref);
 	}
-	
+
 	###########################################################################
 	# Client
 	#
@@ -1068,6 +1201,7 @@ sub _calcStatus{
 		my $prefEnableStdinRef		= $prefs->client($client)->get('enableStdin');
 		my $prefEnableConvertRef	= $prefs->client($client)->get('enableConvert');
 		my $prefEnableResampleRef	= $prefs->client($client)->get('enableResample');
+        my $prefEnableEffectsRef    = $prefs->client($client)->get('enableEffects');
 		
 		for my $codec (keys %$prefEnableSeekRef){
 			
@@ -1095,7 +1229,7 @@ sub _calcStatus{
 				$ref = _getStatusLine('503',$client,$ref);
 
 			}
-			if ($prefEnableResampleRef->{$codec} && !$prefEnableConvertRef->{$codec}){
+			if (($prefEnableResampleRef->{$codec} || $prefEnableEffectsRef->{$codec})&& !$prefEnableConvertRef->{$codec}){
 			
 				if ($codec eq 'alc'){
 					$ref = _getStatusLine('504',$client,$ref);
@@ -1110,7 +1244,8 @@ sub _calcStatus{
 				$ref = _getStatusLine('905',$client,$ref);
 			}
 			
-			if ($CapabilityHelper->isDsdCapable($client) && !$EnvironmentHelper->isSoxDsdCapable ){
+			if ($EnvironmentHelper->pathToSox() && $EnvironmentHelper->soxVersion() &&
+                $CapabilityHelper->isDsdCapable($client) && !$EnvironmentHelper->isSoxDsdCapable ){
 		
 				$ref = _getStatusLine('952',$client,$ref);
 			}
@@ -1225,7 +1360,7 @@ sub _buildTranscoderTable{
 	my $client=shift;
 	
 	#make sure codecs are up to date for the client:
-	my $clientCodecList=$class->initClientCodecs($client);
+	$class->initClientCodecs($client);
 	
 	my $prefs= $class->getPreferences($client);
 	

@@ -53,7 +53,9 @@ sub new {
 		serverFolder => $serverFolder,
     }, $class;
     
-    $self->_init();
+    $soxVersion =$self->_getSoxVersion();
+	($SoxFormats, $SoxEffects) =$self->_getSoxDetails();
+    
     return $self;
 }
 sub C3POfolder {
@@ -252,15 +254,28 @@ sub soxEffects{
 	return	$SoxEffects;
 }
 
+sub getC3POcommand{
+    my $self    = shift;
+    my $command = shift;
+    
+    $command= qq($command -d --nodebuglog  --noinfolog);
+	$command= Plugins::C3PO::Shared::finalizeCommand($command);
+	
+	my $ret= `$command`;
+	my $err=$?;
+	
+	if (!$err==0){
+		$log->warn('WARNING: '.$err.$ret);
+    
+    }elsif (main::DEBUGLOG && $log->is_debug) {
+			 $log->debug($ret);
+	}
+	return ($err, $ret);
+    
+}
 ####################################################################################################
 # Private
 #
-sub _init{
-	my $self = shift;  
-	$soxVersion =$self->_getSoxVersion();
-	($SoxFormats, $SoxEffects) =$self->_getSoxDetails();
-}
-
 sub _getSoxVersion{
 	my $self = shift;  
 	
@@ -268,7 +283,7 @@ sub _getSoxVersion{
 	
 	if  (! $pathToSox || ! (-e $pathToSox)){
 		$log->warn('WARNING: wrong path to SOX  - '.$pathToSox);
-		return 0;
+		return undef;
 	}
 	my $command= qq("$pathToSox" --version);
 	$command= Plugins::C3PO::Shared::finalizeCommand($command);
@@ -299,7 +314,7 @@ sub _getSoxDetails{
 	
 	if  (! $pathToSox || ! (-e $pathToSox)){
 		$log->warn('WARNING: wrong path to SOX  - '.$pathToSox);
-		return 0;
+		return undef,undef;
 	}
 	my $command= qq("$pathToSox" --help);
 	$command= Plugins::C3PO::Shared::finalizeCommand($command);
@@ -309,7 +324,7 @@ sub _getSoxDetails{
 	
 	if (!$err==0){
 		$log->warn('WARNING: '.$err);
-		return undef;
+		return undef,undef;
 	}
 
 	my $formatsHeader= "AUDIO FILE FORMATS: ";

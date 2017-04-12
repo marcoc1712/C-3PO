@@ -1,0 +1,34 @@
+[% WRAPPER setting title="PLUGIN_C3PO_CONVERT" desc="" %]
+[% END %]
+
+[% WRAPPER setting title="PLUGIN_C3PO_OUT_CODEC" desc="PLUGIN_C3PO_OUT_CODEC_DESC" %]
+	<select class="stdedit" name="pref_outCodec" id="outCodec"
+		[% IF needsClient &&  prefs.useGlogalSettings %] disabled [% END %] >
+		<option [% IF prefs.outCodec == "wav" %]selected="selected" [% END %]value="wav">
+			[% 'PLUGIN_C3PO_OUT_CODEC_WAV' | string %]
+		</option>
+		<option [% IF prefs.outCodec == "aif" %]selected="selected" [% END %]value="aif">
+			[% 'PLUGIN_C3PO_OUT_CODEC_AIFF' | string %]
+		</option>
+		<option [% IF prefs.outCodec == "flc0" %]selected="selected" [% END %]value="flc0">
+			[% 'PLUGIN_C3PO_OUT_CODEC_FLAC_0' | string %]
+		</option>
+		<option [% IF prefs.outCodec == "flc5" %]selected="selected" [% END %]value="flc5">
+			[% 'PLUGIN_C3PO_OUT_CODEC_FLAC_5' | string %]
+		</option>
+		<option [% IF prefs.outCodec == "flc8" %]selected="selected" [% END %]value="flc8">
+			[% 'PLUGIN_C3PO_OUT_CODEC_FLAC_8' | string %]
+		</option>
+		[% IF (isSoxDsdCapable && (!needsClient || prefs.useGlogalSettings || prefs.codecsCli.dsf)) %]	  
+				<option [% IF prefs.outCodec == "dsf" %]selected="selected" [% END %]value="dsf">
+					[% 'PLUGIN_C3PO_OUT_CODEC_DSF' | string %]
+				</option>
+		[% END %]
+		[% IF (isSoxDsdCapable && (!needsClient || prefs.useGlogalSettings || prefs.codecsCli.dff)) %]
+				<option [% IF prefs.outCodec == "dff" %]selected="selected" [% END %]value="dff">
+					[% 'PLUGIN_C3PO_OUT_CODEC_DFF' | string %]
+				</option>
+		[% END %]
+	</select>
+[% END %]
+

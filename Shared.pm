@@ -26,7 +26,7 @@ use Data::Dump qw(dump pp);
 my @clientPrefNamesScalar = qw(	id macaddress model modelName name 
 								maxSupportedSamplerate maxSupportedDsdrate
 								enableSeek enableStdin 
-								enableConvert enableResample
+								enableConvert enableResample enableEffects
 								showDetails);
 								
 my @clientPrefNamesHash	  = qw(	sampleRates dsdRates);
@@ -34,11 +34,12 @@ my @clientPrefNamesHash	  = qw(	sampleRates dsdRates);
 my @clientPrefNames= @clientPrefNamesScalar;
 push @clientPrefNames, @clientPrefNamesHash;
 
-my @sharedPrefNames		  = qw(	enable 
+my @sharedPrefNames		  = qw(	enable panel
 								resampleWhen resampleTo outCodec 
 								outBitDepth 
 								
 								headroom gain 
+                                effectsWhen
 								loudnessGain loudnessRef 
 								remixLeft remixRight flipChannels
 		

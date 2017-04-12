@@ -22,6 +22,7 @@ package Plugins::C3PO::Transcoder;
 use strict;
 use warnings;
 use Data::Dump qw(dump pp);
+
 my $logger;
 my $log;
 
@@ -124,10 +125,9 @@ sub _ceckC3PO{
 	
 	# there is nothing to do, native.
 	if (_isNative($transcodeTable)) {return 0;}
+    
 	if (! _isResamplingRequested($transcodeTable)){return 0;}
-	if ($transcodeTable->{'resampleTo'} eq 'X') {return 0;}
-	
-	# SCOMMENTARE QUANTO SEGUE PER POTERLO UTILIZZARE IN WINDOWS!!!!
+	if (!($transcodeTable->{'resampleWhen'} eq 'E') && $transcodeTable->{'resampleTo'} eq 'X') {return 0;}
 	
 	# In windows STDIN does not works inside C3PO, so it's disabled.
 	if (main::ISWINDOWS &&
@@ -395,11 +395,11 @@ sub buildCommand {
 	
 	}
 	$command = $transcodeTable->{'command'}||"";
-	
-	if (isLMSDebug()) {
-		$log->debug('Transcode command: '.$command);
+    
+	if (isLMSInfo()) {
+		$log->info('Transcode command: '.$command);
 	} else{
-		Plugins::C3PO::Logger::debugMessage('Transcode command: '.$command);
+		Plugins::C3PO::Logger::infoMessage('Transcode command: '.$command);
 	}
 	
 	if ($command eq ""){
@@ -424,6 +424,7 @@ sub buildCommand {
 	}
 	$command = $transcodeTable->{'command'}||"";
 	Plugins::C3PO::Logger::debugMessage('Final command    : '.$command);
+    
 	return $transcodeTable;
 }
 
@@ -494,10 +495,8 @@ sub _splitResampleAndTranscode{
 	} else{
 		Plugins::C3PO::Logger::debugMessage('Split Command: '.$commandString);
 	}
-	
-	my $targetSamplerate = $transcodeTable->{'targetSamplerate'};
-	
-	my $resampleString = Plugins::C3PO::SoxHelper::resample($transcodeTable,$targetSamplerate);
+
+    my $resampleString = Plugins::C3PO::SoxHelper::resample($transcodeTable);
 
 	$transcodeTable->{resample}=$resampleString;
 	
@@ -521,8 +520,8 @@ sub _splitResampleAndTranscode{
 sub _splitAndTranscode{
 	my $transcodeTable = shift;
 	
-	if (isLMSInfo()) {
-		$log->info('Start _splitAndTranscode')
+	if (isLMSDebug()) {
+		$log->debug('Start _splitAndTranscode')
 	} else{
 		Plugins::C3PO::Logger::debugMessage('Start _splitAndTranscode');
 	}
@@ -545,8 +544,8 @@ sub _splitAndTranscode{
 		$transcodeTable->{'command'}=$commandString;
 	}
 	
-	if (isLMSInfo()) {
-		$log->info('Is transcoding Required? '.isTranscodingRequired($transcodeTable));
+	if (isLMSDebug()) {
+		$log->debug('Is transcoding Required? '.isTranscodingRequired($transcodeTable));
 	} else{
 		Plugins::C3PO::Logger::debugMessage('Is transcoding Required? '.isTranscodingRequired($transcodeTable));
 	}
@@ -568,8 +567,8 @@ sub _splitAndTranscode{
 sub _transcodeOnly{
 	my $transcodeTable = shift;
 	
-	if (isLMSInfo()) {
-		$log->info('Start transcode Only')
+	if (isLMSDebug()) {
+		$log->debug('Start transcode Only')
 	} else{
 		Plugins::C3PO::Logger::debugMessage('Start transcode Only');
 	}
@@ -592,26 +591,25 @@ sub _native{
 	if (isLMSInfo()) {
 		$log->info('Start _native')
 	} else{
-		Plugins::C3PO::Logger::debugMessage('Start _native');
+		Plugins::C3PO::Logger::infoMessage('Start _native');
 	}
 	
 	# maybe transcoding and/or resampling was requested but is not needed
-	# and we could not issue an ampty command from C-3PO.
-	# let's use a 'dummy' transcoder.
+	# and we could not issue an empty command from C-3PO, '-' does not works, 
+	# so let's use a 'dummy' transcoder.
 	
 	my $inCodec=$transcodeTable->{'transitCodec'};
 	
 	my $format= _getFormat($inCodec);
 	my $commandstring="";
-	
-	#delegate to real formats.
-	if (isTranscodingRequired($transcodeTable)){
-		$commandstring= $format->native($transcodeTable);
-	}
+   
+	$commandstring= $format->native($transcodeTable);
 	
 	$transcodeTable->{'command'}=$commandstring;
+    
+	Plugins::C3PO::Logger::debugMessage('commandstring is: '.($commandstring ? $commandstring :'undef'));
 	
-	return $transcodeTable;
+    return $transcodeTable;
 }
 ###############################################################################
 # Repair some LMS misuse
@@ -683,7 +681,6 @@ sub _checkResample{
 	my $resampleTo= $transcodeTable->{'resampleTo'};
 
 	my $file = $transcodeTable->{'options'}->{'file'};
-	my $fileInfo;
 	my $fileSamplerate;
 	
 	my $filedsdRate;
@@ -701,21 +698,22 @@ sub _checkResample{
 			Plugins::C3PO::Logger::debugMessage('testfile: '.$testfile);
 			$transcodeTable->{'testfile'}=$testfile;
 		}
-		Plugins::C3PO::Logger::infoMessage('testfile: '.$testfile);
-		$fileInfo= Audio::Scan->scan($testfile);
-		
-		Plugins::C3PO::Logger::infoMessage('AudioScan: '.Data::Dump::dump ($fileInfo));
-		
-		$transcodeTable->{'fileInfo'}=$fileInfo;
-		$fileSamplerate=$fileInfo->{info}->{samplerate};
-		
-		my $bitsPerSample=$fileInfo->{info}->{bits_per_sample};
-		my $isFilesDsd = ($bitsPerSample && ($bitsPerSample == 1)) ? 1 :0;
-		
-		Plugins::C3PO::Logger::infoMessage('file samplerate: '.$fileSamplerate);
-		Plugins::C3PO::Logger::infoMessage('bits Per Sample: '.$bitsPerSample);
-		
-		if (($isDsdInput && !$isFilesDsd) || (!$isDsdInput && $isFilesDsd)){
+        
+        Plugins::C3PO::Logger::infoMessage('testfile: '.$testfile);
+        my $audioFile = Plugins::C3PO::AudioFile->new($testfile,$logger,$log); 
+        
+        $transcodeTable->{'fileInfo'}=$audioFile->getFileInfo();
+        
+        Plugins::C3PO::Logger::infoMessage('AudioScan: '.Data::Dump::dump ($transcodeTable->{'fileInfo'}));
+    
+        $fileSamplerate     = $audioFile->getSamplerate();
+        my $bitsPerSample   = $audioFile->_getBitsPerSample();
+        my $isFilesDsd      = $audioFile->isDsd();
+        
+        Plugins::C3PO::Logger::infoMessage('file samplerate: '.$fileSamplerate);
+		Plugins::C3PO::Logger::infoMessage('bits Per Sample: '.($bitsPerSample ? $bitsPerSample : 0 ));
+        
+        if (($isDsdInput && !$isFilesDsd) || (!$isDsdInput && $isFilesDsd)){
 		
 			Plugins::C3PO::Logger::WarningMessage("Inputtype is: ".$inCodec. 
 				" bit per sample is: ".$bitsPerSample );
@@ -729,7 +727,7 @@ sub _checkResample{
 		
 		}
 		if ($fileSamplerate){
-			
+
 			$isSupported= _isSamplerateSupported(
 									$fileSamplerate,
 									$samplerates,
@@ -745,28 +743,30 @@ sub _checkResample{
 										$dsdrates);
 										   
 			Plugins::C3PO::Logger::debugMessage('samplerate is '.($isSupported ? '' : 'not ').'supported');
-			Plugins::C3PO::Logger::debugMessage('Max syncrounus sample rate : '.$maxSyncrounusRate);
+			Plugins::C3PO::Logger::debugMessage('Max syncrounus sample rate : '.($maxSyncrounusRate ? $maxSyncrounusRate : ''));
 		}
 	}
 	my $targetSamplerate;
 	my $resamplestring="";
 	
+    #TODO check and change if input is DSD and not a 44100 multiple.
 	$maxDsdrate = $maxDsdrate*44100;
 		
 	Plugins::C3PO::Logger::infoMessage('is runtime :                 '.(isRuntime($transcodeTable)));
-	Plugins::C3PO::Logger::infoMessage('forced Samplerate :          '.($forcedSamplerate ? $forcedSamplerate :''));
+	Plugins::C3PO::Logger::infoMessage('forced Samplerate :          '.($forcedSamplerate ? $forcedSamplerate :'undef'));
 	Plugins::C3PO::Logger::infoMessage('resampleWhen :               '.$resampleWhen);
-	Plugins::C3PO::Logger::infoMessage('file samplerate:              '.($fileSamplerate ? $fileSamplerate : ''));
+	Plugins::C3PO::Logger::infoMessage('file samplerate:             '.($fileSamplerate ? $fileSamplerate : 'undef'));
+    Plugins::C3PO::Logger::infoMessage('is supported:                '.($isSupported ? 'Yes' : 'No'));
 	Plugins::C3PO::Logger::infoMessage('resampleTo :                 '.$resampleTo);
-	Plugins::C3PO::Logger::infoMessage('Max syncrounus sample rate : '.($maxSyncrounusRate ? $maxSyncrounusRate : ''));
-	Plugins::C3PO::Logger::infoMessage('isDsdOutput :                '.$isDsdOutput);
+	Plugins::C3PO::Logger::infoMessage('Max syncrounus sample rate : '.($maxSyncrounusRate ? $maxSyncrounusRate : 'undef'));
+	Plugins::C3PO::Logger::infoMessage('isDsdinput :                 '.($isDsdInput? 'Yes' : 'No'));
+    Plugins::C3PO::Logger::infoMessage('isDsdOutput :                '.($isDsdOutput? 'Yes' : 'No'));
 	Plugins::C3PO::Logger::infoMessage('maxDsdrate :                 '.$maxDsdrate);
 	Plugins::C3PO::Logger::infoMessage('maxsamplerate :              '.$maxsamplerate);
 	
-	if ($isDsdOutput){
-		# lms always force it to max samplerate.
-		$forcedSamplerate = undef;
-	}
+	
+	# lms always force it to max samplerate.
+	$forcedSamplerate = undef;
 
 	if (!isRuntime($transcodeTable)){
 		
@@ -777,13 +777,13 @@ sub _checkResample{
 		$targetSamplerate=$forcedSamplerate;
 
 	} elsif ($resampleWhen eq'N'){ #do nothing
-
+        
 	} elsif (!$fileSamplerate){
 	
 		$targetSamplerate= $isDsdOutput ? $maxDsdrate : $maxsamplerate;;
 	
 	} elsif (($resampleWhen eq'E')&& ($isSupported)){ #do nothing
-	
+        
 	} elsif ($resampleTo eq'X'){
 		
 		$targetSamplerate = $isDsdOutput ? $maxDsdrate : $maxsamplerate;;
@@ -799,34 +799,36 @@ sub _checkResample{
 	
 	$transcodeTable->{'targetSamplerate'}=$targetSamplerate;
 	
-	Plugins::C3PO::Logger::infoMessage('Target Sample rate :          '.$targetSamplerate);
+	Plugins::C3PO::Logger::infoMessage('Target Sample rate :         '.($targetSamplerate ? $targetSamplerate : "undef"));
 	
 	return $transcodeTable;
 	
 }
+
 sub _willResample{
 	my $transcodeTable=shift;
-	
-	if (!_isResamplingRequested($transcodeTable)) {return 0;}
+    
 	#be sure to call _checkResample before.
+    Plugins::C3PO::Logger::debugMessage('isResamplingRequested :       '.(_isResamplingRequested($transcodeTable)));
+	if (!_isResamplingRequested($transcodeTable)) {return 0;}
 	
 	# Keep it short and always resample if asked for.
 	#return 1;
 
-	#Aways resample if any effect is requested
-	if ($transcodeTable->{'gain'}) {return 1;}
-	if ($transcodeTable->{'loudnessGain'}) {return 1;}
-	if ($transcodeTable->{'remixLeft'} && !($transcodeTable->{'remixLeft'} eq 100)) {return 1;}
-	if ($transcodeTable->{'remixRight'} && !($transcodeTable->{'remixRight'} eq 100)) {return 1;}
-	if ($transcodeTable->{'flipChannels'}) {return 1;}
-	
+	my $inCodec= $transcodeTable->{'inCodec'};
 	my $outCodec= $transcodeTable->{'outCodec'};
-	if ($outCodec eq 'dsf'  || $outCodec eq 'dff') {return 1;} # needs sdm. and maybe lowpass.
-	
-	#Always resample if any extra effects is requested.
-	if ($transcodeTable->{'extra_before_rate'} && !($transcodeTable->{'extra_before_rate'} eq "")) {return 1;}
-	if ($transcodeTable->{'extra_after_rate'} && !($transcodeTable->{'extra_after_rate'} eq "")) {return 1;}
-	
+	my $isDsdInput = ($inCodec eq 'dsf'  || $inCodec eq 'dff') ? 1 : 0;
+	my $isDsdOutput = ($outCodec eq 'dsf'  || $outCodec eq 'dff') ? 1 : 0;
+    
+    # needs sdm. and maybe lowpass.
+    if (!$isDsdInput && $isDsdOutput) {return 1;}
+    if ($isDsdInput && !$isDsdOutput) {return 1;}
+    if ($isDsdInput && !($inCodec eq $outCodec )) {return 1;}
+    
+	#Always process if any effect is requested
+    Plugins::C3PO::Logger::debugMessage('isAnyEffectRequested :       '.(_isAnyEffectRequested($transcodeTable)));
+    if (_isAnyEffectRequested($transcodeTable)) {return 1;}
+    
 	#Resample if sample rate or bit depth are different.
 	my $targetSamplerate=$transcodeTable->{'targetSamplerate'};
 	my $fileSamplerate = $transcodeTable->{'fileInfo'}->{info}->{samplerate};
@@ -834,10 +836,9 @@ sub _willResample{
 	Plugins::C3PO::Logger::debugMessage("targetSamplerate: ".(defined $targetSamplerate ? $targetSamplerate : 'undef'));
 	Plugins::C3PO::Logger::debugMessage("fileSamplerate: ".(defined $fileSamplerate ? $fileSamplerate : 'undef'));
 
-	if (!defined $targetSamplerate) {return 0;}
+	if (!defined $targetSamplerate) {return 1;}
 	if (!$fileSamplerate || !($fileSamplerate == $targetSamplerate)){return 1;}
-	
-		
+
 	my $targetBitDepth = $transcodeTable->{'outBitDepth'};
 	my $fileBitDepth   = $transcodeTable->{'fileInfo'}->{info}->{bits_per_sample} ? 
 							$transcodeTable->{'fileInfo'}->{info}->{bits_per_sample}/8 :
@@ -846,11 +847,26 @@ sub _willResample{
 	Plugins::C3PO::Logger::debugMessage("targetBitDepth: ".(defined $targetBitDepth ? $targetBitDepth : 'undef'));
 	Plugins::C3PO::Logger::debugMessage("fileBitDepth: ".(defined $fileBitDepth ? $fileBitDepth : 'undef'));
 	
-	if (!defined $targetBitDepth) {return 0;}
+	if (!defined $targetBitDepth) {return 1;}
 	if (!$fileBitDepth || !($fileBitDepth == $targetBitDepth)){return 1;}
 	
 	return 0;
 }
+
+sub _isAnyEffectRequested{
+    my $transcodeTable=shift;
+    
+    if ($transcodeTable->{'gain'}) {return 1;}
+	if ($transcodeTable->{'loudnessGain'}) {return 1;}
+	if ($transcodeTable->{'remixLeft'} && !($transcodeTable->{'remixLeft'} eq 100)) {return 1;}
+	if ($transcodeTable->{'remixRight'} && !($transcodeTable->{'remixRight'} eq 100)) {return 1;}
+	if ($transcodeTable->{'flipChannels'}) {return 1;}
+    
+    if ($transcodeTable->{'extra_before_rate'} && !($transcodeTable->{'extra_before_rate'} eq "")) {return 1;}
+	if ($transcodeTable->{'extra_after_rate'} && !($transcodeTable->{'extra_after_rate'} eq "")) {return 1;}
+    return 0;
+}
+
 sub _getMaxRate{
 	my $rates= shift;
 	my $faultback = shift;
@@ -881,33 +897,33 @@ sub _getTestFile{
 	Plugins::C3PO::Logger::debugMessage('returning : '.$outfile);
 	return $outfile;
 }
+
 sub _isSamplerateSupported{
 	my $fileSamplerate = shift;
 	my $samplerates = shift;
 	my $isDsd = shift;
 	my $filedsdRate = shift;
     my $dsdrates = shift;
-	
+ 
 	if ($isDsd){
+        if (!defined $filedsdRate || $filedsdRate==0){
+		
+			return undef;
+        }
+        for my $rate (keys %$dsdrates){
+
+			if ($dsdrates->{$rate} && $filedsdRate==$rate) {return 1;}
+		}
+        
+	} else{
+        
 		if (!defined $fileSamplerate || $fileSamplerate==0){
 		
 			return undef;
-		}
-
-		for my $rate (keys %$samplerates){
+        }
+        for my $rate (keys %$samplerates){
 
 			if ($samplerates->{$rate} && $fileSamplerate==$rate) {return 1;}
-		}
-	} else{
-	
-		if (!defined $filedsdRate || $filedsdRate==0){
-		
-			return undef;
-		}
-
-		for my $rate (keys %$dsdrates){
-
-			if ($dsdrates->{$rate} && $filedsdRate==$rate) {return 1;}
 		}
 	}
 	return 0;
@@ -1022,7 +1038,7 @@ sub _saveHeaderFile{
 	close $head;
 	
 	Plugins::C3PO::Logger::infoMessage('header file created');
-	return 1
+	return 1;
 }
 
 sub _restoreHeader{
@@ -1170,16 +1186,22 @@ sub _isResamplingRequested{
 	
 	Plugins::C3PO::Logger::debugMessage('In codec '.$inCodec);
 	Plugins::C3PO::Logger::debugMessage('In codec '.$outCodec);
-	Plugins::C3PO::Logger::debugMessage('enableResample: '.
+	Plugins::C3PO::Logger::debugMessage('enableEffects: '.
+		($transcodeTable->{'enableEffects'}->{$inCodec} ? 
+			$transcodeTable->{'enableEffects'}->{$inCodec} : 0));
+    Plugins::C3PO::Logger::debugMessage('enableResample: '.
 		($transcodeTable->{'enableResample'}->{$inCodec} ? 
 			$transcodeTable->{'enableResample'}->{$inCodec} : 0));
 	
 	Plugins::C3PO::Logger::debugMessage('resampleWhen: '.$transcodeTable->{'resampleWhen'});
 	
-	if ($transcodeTable->{'enableResample'}->{$inCodec}) {return 1;}
+    if ($transcodeTable->{'enableResample'}->{$inCodec}) {return 1;}
+    if ($transcodeTable->{'enableEffects'}->{$inCodec}) {return 1;}
+    
 	if ($outCodec eq 'dsf'  || $outCodec eq 'dff') {return 1;} 
 	
 	return !($transcodeTable->{'resampleWhen'} eq 'N');
+    
 }
 sub isTranscodingRequired{
 	my $transcodeTable =shift;
@@ -1229,6 +1251,9 @@ sub getOutputCodec{
 	if ($transcodeTable->{'enableConvert'}->{$inCodec}){return $outCodec;}
 	
 	if ($transcodeTable->{'enableResample'}->{$inCodec} && 
+	    compareCodecs($inCodec, 'alc')){return $outCodec;}
+        
+    if ($transcodeTable->{'enableEffects'}->{$inCodec} && 
 	    compareCodecs($inCodec, 'alc')){return $outCodec;}
 
 	return $inCodec;

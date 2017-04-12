@@ -1,0 +1,60 @@
+
+[% WRAPPER setting title="PLUGIN_C3PO_EFFECTS" desc="" %]
+[% END %]
+
+[% WRAPPER setting title="PLUGIN_C3PO_EFFECTS_WHEN" desc="PLUGIN_C3PO_EFFECTS_WHEN_DESC" %]
+	<select class="stdedit" name="pref_effectsWhen" id="effectsWhen" 
+		[% IF needsClient &&  prefs.useGlogalSettings %] disabled [% END %] >
+		<option [% IF prefs.effectsWhen == "A" %]selected="selected" [% END %]value="A">
+			[% 'PLUGIN_C3PO_EFFECTS_WHEN_ALWAYS' | string %]
+		</option>
+		<option [% IF prefs.effectsWhen == "N" %]selected="selected" [% END %]value="N">
+			[% 'PLUGIN_C3PO_EFFECTS_WHEN_NEVER' | string %]
+		</option>
+		<option [% IF prefs.effectsWhen == "R" %]selected="selected" [% END %]value="R">
+			[% 'PLUGIN_C3PO_EFFECTS_ONLY_WHEN_RESAMPLING' | string %]
+		</option>
+	</select>
+[% END %]
+
+[% WRAPPER setting title="PLUGIN_C3PO_LOUDNESS_GAIN" desc="PLUGIN_C3PO_LOUDNESS_GAIN_DESC" %]
+	<input type="text" class="stdedit sliderInput_-50_15" name="pref_loudnessGain" id="loudnessGain" 
+		value="[% prefs.loudnessGain %]" size="5"
+		[% IF prefs.useGlogalSettings %] disabled [% END %]>
+[% END %]
+
+[% WRAPPER setting title="PLUGIN_C3PO_LOUDNESS_REF" desc="PLUGIN_C3PO_LOUDNESS_REF_DESC" %]
+	<input type="text" class="stdedit sliderInput_50_75" name="pref_loudnessRef" id="loudnessRef" 
+		value="[% prefs.loudnessRef %]" size="5"
+		[% IF prefs.useGlogalSettings %] disabled [% END %]>
+[% END %]
+
+[% WRAPPER setting title="PLUGIN_C3PO_REMIX_LEFT" desc="PLUGIN_C3PO_REMIX_LEFT_DESC" %]
+	<input type="text" class="stdedit sliderInput_0_100" name="pref_remixLeft" id="remixLeft" 
+		value="[% prefs.remixLeft %]" size="5"
+		[% IF prefs.useGlogalSettings %] disabled [% END %]>
+[% END %]
+
+[% WRAPPER setting title="PLUGIN_C3PO_REMIX_RIGHT" desc="PLUGIN_C3PO_REMIX_RIGHT_DESC" %]
+	<input type="text" class="stdedit sliderInput_0_100" name="pref_remixRight" id="remixRight" 
+		value="[% prefs.remixRight %]" size="5"
+		[% IF prefs.useGlogalSettings %] disabled [% END %]>
+[% END %]
+
+[% WRAPPER setting title="PLUGIN_C3PO_FLIP_CHANNELS" desc="PLUGIN_C3PO_FLIP_CHANNELS_DESC" %]
+	<input name="pref_flipChannels" type="checkbox" 
+		[% IF prefs.flipChannels %] checked [% END %]
+		[% IF prefs.useGlogalSettings %] disabled [% END %]>
+[% END %]
+
+[% WRAPPER setting title="PLUGIN_C3PO_EXTRA_BEFORE_RATE" desc="PLUGIN_C3PO_EXTRA_BEFORE_RATE_DESC" %]
+	<input type="text" class="stdedit" name="pref_extra_before_rate" id="extra_before_rate" 
+		   value="[% prefs.extra_before_rate | html %]" size="50" maxlength="100" 
+		   [% IF prefs.useGlogalSettings %] disabled [% END %]>
+[% END %]
+
+[% WRAPPER setting title="PLUGIN_C3PO_EXTRA_AFTER_RATE" desc="PLUGIN_C3PO_EXTRA__AFTER_RATEDESC" %]
+	<input type="text" class="stdedit" name="pref_extra_after_rate" id="extra_after_rate" 
+		   value="[% prefs.extra_after_rate | html %]" size="50" maxlength="100"
+		   [% IF prefs.useGlogalSettings %] disabled [% END %]>
+[% END %]

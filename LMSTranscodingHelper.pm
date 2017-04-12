@@ -86,101 +86,6 @@ sub isProfileEnabled{
     
     return Slim::Player::TranscodingHelper::enabledFormat($profile);
 }
-sub prettyPrintConversionCapabilities{
-    my $self = shift;
-    my $details = shift || 0;
-    my $message = shift || "";
-    my $client = shift || undef;
-
-    my $conv    = $self->get_conversions();
-    my $caps    = $self->get_capabilities();
-    my %players = %{_getEnabledPlayers()};
-    my %codecs  = %{$plugin->getPreferences()->get('codecs')};
-    
-    my $out="";
-    if ($message && !($message eq '')){
-        
-        $out="\n\n".$message."\n";
-    }
-    
-    my $prevInputtype="";
-    
-    if ($details){
-    
-    } else {
-
-        my $line = sprintf("%-5s %-5s %-30s %-20s %-20s\n", 'in', 'out', "[STATUS/transcoder]", 'model', 'player');
-        $out = $out."\n".$line."\n";
-
-    }
-    
-     
-    for my $profile (sort keys %$conv){
-        
-        my ($inputtype, $outputtype, $clienttype, $clientid) = _inspectProfile($profile);
-        
-        if ($client ){
-            
-            if (!($clientid eq '*') && !($client->id() eq $clientid)) {next}
-            if (!($clienttype eq '*') && !($client->model() eq $clienttype)) {next}
-        }
-                
-        my $enabled     = $self->isProfileEnabled($profile);
-        
-        my %backup      = %Slim::Player::TranscodingHelper::binaries;
-        %Slim::Player::TranscodingHelper::binaries=();
-        my $binOK       = Slim::Player::TranscodingHelper::checkBin($profile,0);
-        my %binaries    = %Slim::Player::TranscodingHelper::binaries;
-        %Slim::Player::TranscodingHelper::binaries = %backup;
-        
-        my $transcoder="";
-        my $separator="";
-        
-        for my $p (keys %binaries){
-            
-            $transcoder = $transcoder.$separator.$p;
-            $separator= "|";
-        }
-
-        my $c3po= ($players{$clientid} && $codecs{$inputtype}) ? "SET BY C-3PO PLUGIN" : "";
-        my $capLine="" ;
-        $separator= "# ";
-        
-        my %profiles= %{$caps->{$profile}};
-        for my $c (keys %profiles){
-            
-            $capLine = $capLine.$separator.$c." ". $caps->{$profile}->{$c};
-            $separator= ", ";
-        }
-        
-        my $status = $enabled ? $binOK ? $transcoder eq '' ? 'Native' : $transcoder : 'UNAVAILLABLE' : 'DISABLED';
-        
-        if ($details){
-           
-            my $line1= qq($inputtype $outputtype $clienttype $clientid $status $c3po);
-            my $line2= qq(  $capLine);
-            my $line3= qq(  $conv->{$profile});
-        
-            $out=$out.("\n".$line1."\n".$line2."\n".$line3."\n");
-           
-        } else{
-           
-            if ($prevInputtype eq $inputtype){
-                
-                my $line = sprintf("%-5s %-5s %-30s %-20s %-20s\n", "", $outputtype, "[".$status."]", $clienttype, $clientid);
-                $out = $out.$line;
-                
-            } else{
-            
-                my $line = sprintf("%-5s %-5s %-30s %-20s %-20s\n", $inputtype, $outputtype, "[".$status."]", $clienttype, $clientid);
-                $out = $out."\n".$line;
-                $prevInputtype = $inputtype;
-            }
-        }
-    }
-    $out=$out."\n";
-    return $out;
-}
 
 sub disableProfiles{
     my $self = shift;
@@ -350,7 +255,120 @@ sub enableProfile{
     }
 
 }
+sub getBinaries{
+    my $self = shift;
+    my $profile = shift;
+    
+    my %backup      = %Slim::Player::TranscodingHelper::binaries;
+    %Slim::Player::TranscodingHelper::binaries=();
+    my $binOK       = Slim::Player::TranscodingHelper::checkBin($profile,0);
+    my %binaries    = %Slim::Player::TranscodingHelper::binaries;
+    %Slim::Player::TranscodingHelper::binaries = %backup;
+    
+    return ($binOK, %binaries);
+}
 
+sub prettyPrintConversionCapabilities{
+    my $self = shift;
+    my $details = shift || 0;
+    my $message = shift || "";
+    my $client = shift || undef;
+
+    my $out="";
+    if ($message && !($message eq '')){
+        
+        $out="\n\n".$message."\n";
+    }
+
+    if (!$details){
+    
+        my $line = sprintf("%-5s %-5s %-30s %-20s %-20s\n", 'in', 'out', "[transcoder]", 'model', 'player');
+        $out = $out."\n".$self->_getPrintConversionCapabilitiesHeader($details)."\n";
+    }
+    
+    $out = $out.$self->_getPrintConversionCapabilitiesBody($details, $client)."\n";
+    
+    return $out;
+}
+sub getHtmlConversionTable {
+    my $self = shift;
+    my $details = shift || 0;
+    my $client = shift || undef;
+    
+    my $out="";
+    
+    my $conversionTable =$self->_getConversionTable($client);
+    my $prevInputtype="";
+    
+    if (!$details){
+    
+        $out=$out.'<tr>'.
+                    '<td width="10%"><b>In</b></td>'.
+                    '<td width="10%"><b>Out</b></td>'.
+                    '<td width="40%"><b>[Transcoder]</b></td>'.
+                    '<td width="20%"><b>Model</b></td>'.
+                    '<td width="20%"><b>Player Id</b></td>'.
+                   '</tr>'."\n";
+    }
+    
+    for my $profile (sort keys %$conversionTable){
+        
+        my $inputtype           = $conversionTable->{$profile}->{'inputtype'};
+        my $outputtype          = $conversionTable->{$profile}->{'outputtype'};
+        my $command             = $conversionTable->{$profile}->{'command'};
+        my $clienttype          = $conversionTable->{$profile}->{'clienttype'};
+        my $clientid            = $conversionTable->{$profile}->{'clientid'};                
+        my $enabled             = $conversionTable->{$profile}->{'enabled'};
+        my $binOK               = $conversionTable->{$profile}->{'binOK'};
+        my $bynaryString        = $conversionTable->{$profile}->{'bynaryString'};
+        my $c3poString          = $conversionTable->{$profile}->{'c3poString'};
+        my $capLine             = $conversionTable->{$profile}->{'capLine'};
+        my $status              = $conversionTable->{$profile}->{'status'};
+        my $transcoderString    = $conversionTable->{$profile}->{'transcoderString'};
+
+        if ($details){
+
+            my $line1= qq($inputtype $outputtype $clienttype $clientid $status);
+            my $line2= qq(  $capLine);
+            my $line3= qq(  $command);
+        
+            $out=$out.'<b>'.$line1.'</b>'.
+                            '<p class="tab">'.$line2.'</p>'.
+                            '<p class="tab">'.$line3.'</p>'.
+                       '<p>&nbsp;</p>';
+           
+        } else{
+            
+            $out=$out.'<tr>';
+            if ($prevInputtype eq $inputtype){
+                
+                $out=$out.'<td>'.''.'</td>';
+
+            } else{
+                
+                $out=$out.'<tr>'.
+                            '<td>'.'<p>&nbsp;</p>'.'</td>'.
+                            '<td>'.'<p>&nbsp;</p>'.'</td>'.
+                            '<td>'.'<p>&nbsp;</p>'.'</td>'.
+                            '<td>'.'<p>&nbsp;</p>'.'</td>'.
+                          '</tr>'."\n"; 
+                  
+                $out=$out.'<td><b>'.$inputtype.'</b></td>';
+                $prevInputtype = $inputtype;
+            }
+            if (!$transcoderString){
+                
+                dump $conversionTable->{$profile};
+            }
+            $out=$out.'<td>'.$outputtype.'</td>'.
+                            '<td>'.$transcoderString.'</td>'.
+                            '<td>'.$clienttype.'</td>'.
+                            '<td>'.$clientid.'</td>'.
+                      '</tr>'."\n";
+        }
+    }
+    return $out;
+}
 ####################################################################################################
 # Private
 #
@@ -406,4 +424,134 @@ sub _disableProfile{
 		$serverPreferences->savenow();
 	}
 }
+sub _getConversionTable{
+    my $self = shift;
+    my $client = shift || undef;
+    
+    my $conv    = $self->get_conversions();
+    my $caps    = $self->get_capabilities();
+    my %players = %{_getEnabledPlayers()};
+    my %codecs  = %{$plugin->getPreferences()->get('codecs')};
+    
+    my %out=();
+
+    for my $profile (sort keys %$conv){
+    
+        my ($inputtype, $outputtype, $clienttype, $clientid) = _inspectProfile($profile);
+
+        if ($client ){
+            
+            if (!($clientid eq '*') && !($client->id() eq $clientid)) {next}
+            if (!($clienttype eq '*') && !($client->model() eq $clienttype)) {next}
+        }
+        
+        $out{$profile}{'inputtype'}     =$inputtype;
+        $out{$profile}{'outputtype'}    =$outputtype;
+        $out{$profile}{'clienttype'}    =$clienttype;
+        $out{$profile}{'clientid'}      =$clientid;
+        $out{$profile}{'command'}       =$conv->{$profile};
+        
+        my $enabled = $self->isProfileEnabled($profile);
+        $out{$profile}{'enabled'} = $enabled;
+         
+        my ($binOK, %binaries) =$self->getBinaries($profile);
+        $out{$profile}{'binOK'} = $binOK;
+        $out{$profile}{'binaries'} = %binaries;
+        
+        my $bynaryString="[";
+        my $separator="";
+        
+        for my $p (keys %binaries){
+            
+            $bynaryString = $bynaryString.$separator.$p;
+            $separator= "|";
+        }
+        $bynaryString=$bynaryString."]";
+        $out{$profile}{'bynaryString'} = $bynaryString;
+
+        $out{$profile}{'c3po'} = ($players{$clientid} && $codecs{$inputtype});
+        $out{$profile}{'c3poString'} = $out{$profile}{'c3po'} ? '[SET BY C-3PO PLUGIN]' : '';
+        
+        my %caps= %{$caps->{$profile}};
+        $out{$profile}{'caps'}=  %caps;
+        
+        my $capLine="" ;
+        $separator= "# ";
+        for my $c (keys %caps){
+            $capLine = $capLine.$separator.$c." ". $caps->{$profile}->{$c};
+            $separator= ", ";
+        }
+        $out{$profile}{'capLine'}= $capLine;
+        
+        my $status = $enabled ? $binOK ? '' : '[UNAVAILABLE]' : '[DISABLED]';
+        $out{$profile}{'status'}= $status;
+        
+        my $transcoderString = $status ? $status : $bynaryString eq '[]' ? '[Native]' : $bynaryString;
+        $out{$profile}{'transcoderString'}= $transcoderString;
+    }
+    return \%out;
+}
+sub _getPrintConversionCapabilitiesHeader{
+    my $self = shift;
+    my $details = shift || 0;
+    
+    my $line="";
+     
+    if (!$details){
+    
+        $line = sprintf("%-5s %-5s %-30s %-20s %-20s\n", 'in', 'out', "[transcoder]", 'model', 'player');
+       
+    }
+    return $line;
+}
+sub _getPrintConversionCapabilitiesBody{
+    my $self = shift;
+    my $details = shift || 0;
+    my $client = shift || undef;
+    
+    my $out="";
+    
+    my $conversionTable =$self->_getConversionTable($client);
+    my $prevInputtype="";
+    for my $profile (sort keys %$conversionTable){
+        
+        my $inputtype           = $conversionTable->{$profile}->{'inputtype'};
+        my $outputtype          = $conversionTable->{$profile}->{'outputtype'};
+        my $command             = $conversionTable->{$profile}->{'command'};
+        my $clienttype          = $conversionTable->{$profile}->{'clienttype'};
+        my $clientid            = $conversionTable->{$profile}->{'clientid'};                
+        my $enabled             = $conversionTable->{$profile}->{'enabled'};
+        my $binOK               = $conversionTable->{$profile}->{'binOK'};
+        my $bynaryString        = $conversionTable->{$profile}->{'bynaryString'};
+        my $c3poString          = $conversionTable->{$profile}->{'c3poString'};
+        my $capLine             = $conversionTable->{$profile}->{'capLine'};
+        my $status              = $conversionTable->{$profile}->{'status'};
+        my $transcoderString    = $conversionTable->{$profile}->{'transcoderString'};
+
+        if ($details){
+
+            my $line1= qq($inputtype $outputtype $clienttype $clientid $status);
+            my $line2= qq(  $capLine);
+            my $line3= qq(  $command);
+        
+            $out=$out.("\n".$line1."\n".$line2."\n".$line3."\n");
+           
+        } else{
+            
+            if ($prevInputtype eq $inputtype){
+                
+                my $line = sprintf("%-5s %-5s %-30s %-20s %-20s\n", "", $outputtype, $transcoderString, $clienttype, $clientid);
+                $out = $out.$line;
+                
+            } else{
+            
+                my $line = sprintf("%-5s %-5s %-30s %-20s %-20s\n", $inputtype, $outputtype, $transcoderString, $clienttype, $clientid);
+                $out = $out."\n".$line;
+                $prevInputtype = $inputtype;
+            }
+        }
+    }
+    return $out;
+}
+
 1;
