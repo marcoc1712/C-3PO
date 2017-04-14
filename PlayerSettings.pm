@@ -117,6 +117,7 @@ sub handler {
     if (!$panel) {
          $prefs->client($client)->set('panel', 'settings');
     }
+    my $restart;
 	# SaveSettings pressed #####################################################	
 	
     if ($params->{'saveSettings'}){
@@ -125,6 +126,8 @@ sub handler {
         # it will result in a complete erasure of preferences.
         
         if ($panel eq 'settings'){
+            
+            $restart=1;
             
             if ($params->{'pref_enable'} && ($params->{'pref_resampleWhen'})){
 
@@ -195,7 +198,7 @@ sub handler {
 
         $plugin->getPreferences($client);
         $class->SUPER::handler( $client, $params );
-        $plugin->settingsChanged($client);
+        $plugin->settingsChanged($client,$restart);
 
         $prefs->savenow();
     }

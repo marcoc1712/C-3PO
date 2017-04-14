@@ -469,6 +469,7 @@ sub getLastCommand{
 sub settingsChanged{
 	my $class = shift;
 	my $client=shift;
+    my $restart=shift || undef;
 	
     my $prefs= $class->getPreferences($client);
 		
@@ -492,7 +493,35 @@ sub settingsChanged{
 	if ($client){
 		
 		_playerSettingChanged($client);
-		
+        
+        if ($restart){
+            
+            my $controller = $client->controller();
+            my $songStreamController= $controller->songStreamController();
+
+            if ($songStreamController){
+                my $song = $songStreamController->song(); 
+                my $LMSSongHelper = Plugins::C3PO::LMSSongHelper->new($class, $song);
+                my $duration = $LMSSongHelper->getDuration();
+
+                my $wrongDuration = $client->controller->playingSongDuration();
+                my $songtime = $client->controller->playingSongElapsed();
+                my $songtimeSeconds = $client->songElapsedSeconds();
+
+                if (main::DEBUGLOG && $log->is_debug) {
+
+                    $log->debug("wrongDuration    : $wrongDuration");#that's really wrong 
+                    $log->debug("duration         : $duration");
+                    $log->debug("songtime         : $songtime"); #correct BUT topped  by $wrongDuration.
+                    $log->debug("songtimeSeconds : $songtimeSeconds"); #that's from the last restart, wrong from the second time on. 
+                }
+
+                my $songElapsed = $songtime ? $songtime : "-0";
+                $client->controller()->jumpToTime($songElapsed,1);
+            } else {
+                $client->controller()->jumpToTime("-0",1);
+            }
+        }
 	} else{
 	
 		my @clientList = Slim::Player::Client::clients();

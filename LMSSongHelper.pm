@@ -73,7 +73,47 @@ sub getSong{
 }
 ################################################################################
 #
+sub getTrack{
+    my $self = shift;
+    my $LMSSong = $self->getSong();
+    
+    return $LMSSong->track();
+}
+sub getDuration{
+    my $self = shift;
+    
+    my $track=$self->getTrack();
 
+    my $virtual         = $track->virtual;
+    my $secs            = $track->secs;
+    
+    my $channels        = $track->channels;
+    my $samplerate      = $track->samplerate;
+    my $samplesize      = $track->samplesize;
+   
+    my $vbr_scale       = $track->vbr_scale;
+    my $bitrate         = $track->bitrate;
+    my $audio_size      = $track->audio_size;
+    my $audio_offset    = $track->audio_offset;
+    
+    if (!$channels || !$samplesize || !$samplerate){return undef}
+    
+    my $duration = ($audio_size - $audio_offset)*8 / ($channels * $samplesize * $samplerate);
+    
+    $log->warn("virtual     : ".($virtual ? 'Yes' :'No'));
+    $log->warn("secs        : $secs");
+    $log->warn("channels    : $channels");
+    $log->warn("samplerate  : $samplerate");
+    $log->warn("samplesize  : $samplesize");
+    $log->warn("vbr_scale   : ".($vbr_scale ? $vbr_scale :''));
+    $log->warn("bitrate     : $bitrate");
+    $log->warn("audio_size  : $audio_size");
+    $log->warn("audio_offset: $audio_offset");
+    
+    $log->warn("duration    : $duration");
+   
+   return $duration;
+}
 # copy of  Slim::Player::Song::open, returning the command.
 sub getTranscoder {
 	my ($self, $seekdata) = @_;

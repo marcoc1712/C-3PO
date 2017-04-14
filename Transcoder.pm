@@ -379,7 +379,7 @@ sub buildCommand {
 		Plugins::C3PO::Logger::debugMessage('willResample ? '._willResample($transcodeTable));
 		Plugins::C3PO::Logger::debugMessage('Is splitting requested? '._isSplittingRequested($transcodeTable));
 	}
-
+    
 	if (_willResample($transcodeTable)){
 	
 		$transcodeTable=_splitResampleAndTranscode($transcodeTable);
@@ -450,7 +450,7 @@ sub _splitResampleAndTranscode{
 	} else{
 		Plugins::C3PO::Logger::debugMessage("useSoxToTranscodeWhenResampling: ".$sox);
 	}
-	
+ 
 	my $commandString;
 	
 	if (_isSplittingRequested($transcodeTable)){
@@ -460,8 +460,8 @@ sub _splitResampleAndTranscode{
 		} else{
 			Plugins::C3PO::Logger::debugMessage('isSplittingRequested : 1');
 		}
-
-		#no compression applied, we need to resample firts.
+        
+        #no compression applied, we need to resample firts.
 		$commandString=$format->splitBeforeResampling($transcodeTable);
 			
 	} elsif (_isAStdInPipe($transcodeTable)){

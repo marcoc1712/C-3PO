@@ -249,15 +249,14 @@ sub convertStartDuration{
 	#$options->{startSec}=undef;    # s
 	#$options->{endSec}=undef;      # u
 	#$options->{durationSec}=undef; # w
-	
-	if (!$options->{durationSec}){return $options};
-	
-	my $durationSec			= $options->{durationSec}||0;
+
+    my $durationSec			= $options->{durationSec};
 	my $startSec			= $options->{startSec}||0;
-	
-	$options->{endSec}		= $durationSec+$startSec  ? 
-								$startSec+$durationSec : undef;
-	
+
+    if ($durationSec){
+        $options->{endSec}		= $durationSec+$startSec;
+        }
+
 	$options->{startTime}	= $options->{startSec} ? 
 								fracSecToMinSec($startSec) : undef;
 								

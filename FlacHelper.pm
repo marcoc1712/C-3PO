@@ -52,6 +52,7 @@ sub transcode{
 	my $compression	= $transcodeTable->{'outCompression'};
 	my $command	= $transcodeTable->{'command'};
 	
+    Plugins::C3PO::Logger::infoMessage("Start flac transcode: $file, $start, $end");
 	Plugins::C3PO::Logger::verboseMessage('Start flac transcode');
 	
 	$compression =_getCompression($compression);
