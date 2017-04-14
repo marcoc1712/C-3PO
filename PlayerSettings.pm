@@ -61,6 +61,9 @@ sub refreshStatus{
 sub handler {
 	my ($class, $client, $params, $callback, @args) = @_;
 	
+    #return early if not $client;
+    if (!$client) {return $class->SUPER::handler($client, $params );}
+    
 	#refresh capabilities, to see chamge in the global options.
 	#refresh the codec list.
 	$plugin->initClientCodecs($client);

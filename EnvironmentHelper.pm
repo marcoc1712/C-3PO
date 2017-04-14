@@ -140,7 +140,7 @@ sub testC3POEXE{
 	
 	
 	if (main::DEBUGLOG && $log->is_debug) {
-			 $log->info("command: ".$command);
+			 $log->debug("command: ".$command);
 	}
 	
 	my $ret= `$command`;
@@ -258,7 +258,12 @@ sub getC3POcommand{
     my $self    = shift;
     my $command = shift;
     
+    if (main::INFOLOG && $log->is_info) {
+			 $log->info($command);
+	}
+    
     $command= qq($command -d --nodebuglog  --noinfolog);
+
 	$command= Plugins::C3PO::Shared::finalizeCommand($command);
 	
 	my $ret= `$command`;

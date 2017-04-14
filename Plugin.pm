@@ -278,8 +278,14 @@ sub newSong{
                                         
         if ($C3POwillStart && $binOk && ($binaries{'C-3PO'} || $binaries{'perl'})){
 
-            if (index($tokenized,"|") ge 0){
+            if (index($tokenized,"& |") ge 0){
+                
+                $tokenized = substr($tokenized,0, index($tokenized,"& |"));
+            
+            }elsif (index($tokenized,"|") ge 0){
+            
                 $tokenized = substr($tokenized,0, index($tokenized,"|"));
+            
             }
             my ($err, $C3POtokenized)= $EnvironmentHelper->getC3POcommand($tokenized);
             
