@@ -278,11 +278,11 @@ sub newSong{
                                         
         if ($C3POwillStart && $binOk && ($binaries{'C-3PO'} || $binaries{'perl'})){
 
-            if (index($tokenized,"& |") ge 0){
+            if (index($tokenized,"& |") ge 0){ #linux and mac
                 
                 $tokenized = substr($tokenized,0, index($tokenized,"& |"));
             
-            }elsif (index($tokenized,"|") ge 0){
+            }elsif (index($tokenized,"|") ge 0){ #win
             
                 $tokenized = substr($tokenized,0, index($tokenized,"|"));
             
