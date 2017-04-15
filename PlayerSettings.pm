@@ -62,14 +62,14 @@ sub handler {
 	my ($class, $client, $params, $callback, @args) = @_;
 	
     #return early if not $client;
-    if (!$client) {return $class->SUPER::handler($client, $params );}
+    #if (!$client) {return $class->SUPER::handler($client, $params );}
+    if (!$client) {return undef;}
     
 	#refresh capabilities, to see chamge in the global options.
 	#refresh the codec list.
 	$plugin->initClientCodecs($client);
-
-	my @prefList=$plugin->getSharedPrefNameList();
-
+	
+    my @prefList=$plugin->getSharedPrefNameList();
 	my $prefs=$plugin->getPreferences($client);
     
     $params->{'clientCodecList'} =join ' ', sort keys %{$prefs->client($client)->get('codecsCli')};
@@ -100,13 +100,8 @@ sub handler {
 					" - param: ". $params->{'prefs'}->{'useGlogalSettings'}.
 					" - param: ". $params->{'pref_useGlogalSettings'});
 
-	}							
-
-	if (main::DEBUGLOG && $log->is_debug) {
-			$log->debug(dump("PREF CODECS before: "));
-			$log->debug(dump($prefCodecs));
-	}
-	
+	}		
+    
 	my $status= $plugin->getStatus($client);
 	
 	$params->{'displayStatus'}	= $status->{'display'};
@@ -116,83 +111,75 @@ sub handler {
 	
 	my $disabledDsdRates=_getdisabledDsdRates($client,$prefDsdRates);
     
+    # store the panel shown.
     my $panel = $prefs->client($client)->get('panel');
     if (!$panel) {
          $prefs->client($client)->set('panel', 'settings');
     }
-    my $restart;
-	# SaveSettings pressed #####################################################	
-	
+    
+    # restart playback only if settings where changed.
+    my $restart=0;
+    my $modified=0;
+	############################################################################
+	# SaveSettings pressed
+    #
     if ($params->{'saveSettings'}){
         
-        # Don't copy into prefs from disabled or not showed  parameters, 
+        # Don't copy into prefs from disabled or not shown  parameters, 
         # it will result in a complete erasure of preferences.
         
         if ($panel eq 'settings'){
             
-            $restart=1;
+            #$restart=1;
+            my $modified=0;
             
             if ($params->{'pref_enable'} && ($params->{'pref_resampleWhen'})){
 
                 for my $item (@prefList){
-                    _copyParamsToPrefs($client,$params,$item);
+                   $modified = _copyParamsToPrefs($client,$params,$item);
+                   $restart = $modified ? $modified : $restart;
                 }
-
-               for my $codec (keys %$prefSeeks){
-
-                   my $selected = $params->{'pref_enableSeek'.$codec};
-                   $prefSeeks->{$codec} = $selected ? 'on' : undef;
-               }
-               $prefs->client($client)->set('enableSeek', $prefSeeks);
-
-               for my $codec (keys %$prefStdin){
-
-                   my $selected = $params->{'pref_enableStdin'.$codec};
-                   $prefStdin->{$codec} = $selected ? 'on' : undef;
-               }
-               $prefs->client($client)->set('enableStdin', $prefStdin);
-
-               for my $codec (keys %$prefConvert){
-
-                   my $selected = $params->{'pref_enableConvert'.$codec};
-                   $prefConvert->{$codec} = $selected ? 'on' : undef;
-               }
-               $prefs->client($client)->set('enableConvert', $prefConvert);
-
-               for my $codec (keys %$prefResample){
-
-                   my $selected = $params->{'pref_enableResample'.$codec};
-                   $prefResample->{$codec} = $selected ? 'on' : undef;
-               }
-               $prefs->client($client)->set('enableResample', $prefResample);
-
-               for my $codec (keys %$prefEffects){
-
-                   my $selected = $params->{'pref_enableEffects'.$codec};
-                   $prefEffects->{$codec} = $selected ? 'on' : undef;
-               }
-               $prefs->client($client)->set('enableEffects', $prefEffects);
-
-               for my $rate (keys %$prefSampleRates){
-
-                   my $selected = $params->{'pref_sampleRates'.$rate};
-                   $prefSampleRates->{$rate} = $selected ? 'on' : undef;
-               }
-               $prefs->client($client)->set( 'sampleRates', 
-                       $plugin->translateSampleRates($prefSampleRates));
-
-               for my $rate (keys %$prefDsdRates){
-
-                   #don't copy form disabled!!!!
-                   if (!$disabledDsdRates->{$rate}){		
-                       my $selected = $params->{'pref_dsdRates'.$rate};
-                       $prefDsdRates->{$rate} = $selected ? 'on' : undef;
-                   }
-               }
-               $prefs->client($client)->set( 'dsdRates', 
-                                             $plugin->translateDsdRates($prefDsdRates));
+                
+                my $modified=0;
+                
+                ($prefSeeks,$modified) = $class->_copyParamToPrefsBooleanHash($params,'enableSeek',$prefSeeks);
+                $prefs->client($client)->set('enableSeek', $prefSeeks);
+                
+                $restart = $modified ? $modified : $restart;
+                
+                ($prefStdin,$modified) =  $class->_copyParamToPrefsBooleanHash($params,'enableStdin',$prefStdin);
+                $prefs->client($client)->set('enableStdin', $prefStdin);
+                                
+                $restart = $modified ? $modified : $restart;
+                
+                ($prefConvert,$modified) =  $class->_copyParamToPrefsBooleanHash($params,'enableConvert',$prefConvert);
+                $prefs->client($client)->set('enableConvert', $prefConvert);
+                                
+                $restart = $modified ? $modified : $restart;
+                
+                ($prefResample,$modified) = $class->_copyParamToPrefsBooleanHash($params,'enableResample',$prefResample);
+                $prefs->client($client)->set('enableResample', $prefResample);
+                                
+                $restart = $modified ? $modified : $restart;
+                
+                ($prefEffects,$modified) = $class->_copyParamToPrefsBooleanHash($params,'enableEffects',$prefEffects);
+                $prefs->client($client)->set('enableEffects', $prefEffects);
+                
+                $restart = $modified ? $modified : $restart;
+                
+                ($prefSampleRates,$modified) = $class->_copyParamToPrefsBooleanHash($params,'sampleRates',$prefSampleRates);
+                $prefs->client($client)->set( 'sampleRates', $plugin->translateSampleRates($prefSampleRates));
+                                
+                $restart = $modified ? $modified : $restart;
+                
+                ($prefDsdRates,$modified) = $class->_copyParamToPrefsBooleanHash($params,'dsdRates',$prefDsdRates);
+                $prefs->client($client)->set( 'dsdRates', $plugin->translateDsdRates($prefDsdRates));
+                                
+                $restart = $modified ? $modified : $restart;
+                
             }   
-            _copyParamsToPrefs($client,$params,'enable');
+            $modified = _copyParamsToPrefs($client,$params,'enable');
+            $restart = $modified ? $modified : $restart;
         } 
         _copyParamsToPrefs($client,$params,'panel');
 
@@ -211,17 +198,13 @@ sub handler {
     $params->{'resultingCommands'}= $plugin->getHtmlConversionTable(1,$client);
     
     my $lastCommand=$plugin->getLastCommand($client->id());
+    
     $params->{'lastCommand_time'}=$lastCommand->{'time'};
     $params->{'lastCommand_profile'}=$lastCommand->{'profile'};
     $params->{'lastCommand_command'}=$lastCommand->{'command'};
     $params->{'lastCommand_tokenized'}=$lastCommand->{'tokenized'};
     $params->{'lastCommand_C3PO'}=$lastCommand->{'C-3PO'};
-    
-	if (main::DEBUGLOG && $log->is_debug) {
-			$log->debug(dump("PREF CODECS after: "));
-			$log->debug(dump($prefCodecs));
-	}
-	
+
 	for my $item (@prefList){
 	
 		_copyPrefsToParams($client,$params,$item);
@@ -254,7 +237,6 @@ sub handler {
 	$params->{'prefs'}->{'sampleRates'}=$prefSampleRates; 
 	$params->{'prefs'}->{'dsdRates'}=$prefDsdRates; 
 	
-    
 	# copy here params that are not preference.
 	
 	$params->{'disabledCodecs'}= _getdisabledCodecs($client, $prefCodecs);
@@ -449,6 +431,7 @@ sub _copyPrefsToParams{
 
 	$params->{'prefs'}->{$item} = $prefs->client($client)->get($item);	
 }
+
 sub _copyParamsToPrefs{
 	my $client = shift;
 	my $params = shift;
@@ -461,6 +444,43 @@ sub _copyParamsToPrefs{
 			"PARAMS pref_: ".dump($params->{'pref_'.$item}).
 			" - PREFS: ".dump($prefs->client($client)->get($item)));
 	}
-	$prefs->client($client)->set($item => $params->{'pref_'.$item});	
+    
+    my $old= $prefs->client($client)->get($item);
+    my $new = $params->{'pref_'.$item};
+
+	$prefs->client($client)->set($item => $new);
+    
+    #never restart if only the panel change.
+    if ($item eq 'panel')   {return 0;}
+    
+    if (!$old && !$new)     {return 0;}
+    if (!$old || !$new)     {return 1;}
+    if ($old eq $new)       {return 0;}
+    
+    return 1;
+    
+}
+sub _copyParamToPrefsBooleanHash{
+    my $self    = shift;
+    my $params  = shift;
+    my $name    = shift;
+	my $item    = shift;
+    
+    my $modified=0;
+    
+    for my $k (keys %$item){
+        
+        my $old = $item->{$k};
+        my $new = $params->{'pref_'.$name.$k} ? 'on' : undef;
+        
+        $item->{$k} = $new;
+        
+        if (($old && (!$new || !($old eq $new) )) || 
+            ($new && (!$old || !($new eq $old) ))) {
+           
+            $modified = 1;  
+        }   
+    }
+    return ($item, $modified);
 }
 1;
