@@ -894,7 +894,8 @@ sub _defaultClientCodecs{
 			$prefCodecs->{$codec}="on";
 			$prefEnableConvert->{$codec}="on";
 			$prefEnableResample->{$codec}="on";
-
+            $prefEnableEffects->{$codec}="on";
+            
 			if ($caps->{$codec}->{'defaultEnableSeek'}){
 
 				$prefEnableSeek->{$codec}="on";

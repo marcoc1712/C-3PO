@@ -65,7 +65,7 @@ sub handler {
     #if (!$client) {return $class->SUPER::handler($client, $params );}
     if (!$client) {return undef;}
     
-	#refresh capabilities, to see chamge in the global options.
+	#refresh capabilities, to see change in the global options.
 	#refresh the codec list.
 	$plugin->initClientCodecs($client);
 	

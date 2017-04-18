@@ -577,8 +577,8 @@ PLUGIN_C3PO_PCM_TITLE_DESC
 	IT	Impostazioni valide solo per uscita in PCM (qualsiasi formato, compresso o meno).
 	
 PLUGIN_C3PO_DITHER
-	EN	- DITHERING
-	IT	- DITHERING
+	EN	DITHERING
+	IT	DITHERING
 
 PLUGIN_C3PO_DITHER-
 	EN	- Dithering
