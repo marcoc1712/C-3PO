@@ -31,10 +31,6 @@ PLUGIN_C3PO_CODEC_SELECTION_DESC
 	EN	List of input formats (aka codecs).  'Lossy' formats are not supported. PCM is WAV
 	IT	Elenco dei formati (o codec) supportati in ingresso. I formati 'lossy' non sono gestiti.
 
-PLUGIN_C3PO_CODEC_SELECTION_PLAYER_DESC
-	EN	List of input formats (aka codecs) supported by the player.
-	IT	Elenco dei formati (o codec) supportati dal lettore.
-
 PLUGIN_C3PO_HELPER_APPLICATIONS
 	EN	HELPER APPLICATIONS
 	IT	APPLICAZIONI A SUPPORTO
@@ -110,30 +106,53 @@ PLUGIN_C3PO_PLAYER_ENABLE_TITLE
 PLUGIN_C3PO_PLAYER_ENABLE_DESC
 	EN	Enable C-3PO for this player.
 	IT	Abilita C-3PO per questo player. 
-	
+
+PLUGIN_C3PO_MAX_SAMPLE_RATE
+	EN	Max PCM sample rate
+	IT	Max frequenza di campionamento (PCM)
+
+PLUGIN_C3PO_MAX_SAMPLE_RATE_DESC
+	EN	Max input PCM sample rate allowed by the player. 
+	IT	Frequenza di campionamento massima (PCM) ammessa in ingresso per il lettore.
+
+PLUGIN_C3PO_MAX_DSD_RATE
+	EN	Max DSD resolution
+	IT	Risoluzione max DSD 
+
+PLUGIN_C3PO_MAX_DSD_RATE_DESC
+	EN	Max DSD resolution. See Advanced options to enable more.
+	IT	Risoluzione DSD massima ammessa in ingresso per il lettore. Vedi Opzioni avanzate per eiminare il limite.
+
+PLUGIN_C3PO_CODEC_SELECTION_PLAYER_DESC
+	EN	List of input formats (aka codecs) supported by the player.
+	IT	Elenco dei formati (o codec) supportati dal lettore.
+
+PLUGIN_C3PO_UNSUPPORTED
+	EN	Unsupported
+	IT	Non supportato
 
 PLUGIN_C3PO_PCM_SAMPLE_RATE_LIST
-	EN	Sample Rates (PCM)
-	IT	Frequenze di campionamento (PCM)
+	EN	Supported sample rates (PCM)
+	IT	Frequenze di campionamento supportate (PCM)
 	
 PLUGIN_C3PO_PCM_SAMPLE_RATE_LIST_DESC
-	EN	List of PCM sample rate supported by the player, can not exceed the settled maximum value.
-	IT	Elenco delle frequenze di campionamento supportate dal lettore in PCM, non possono eccedere il valore massimo impostato.
+	EN	List of supported PCM output sample rates. Can't exceed the maximum value allowed by the player.
+	IT	Elenco delle frequenze di campionamento supportate in uscita. Non possono eccedere il valore massimo ammesso dal player.
 
 PLUGIN_C3PO_DSD_SAMPLE_RATE_LIST
-	EN	DSD resolutions (rate = 44100*)
-	IT	risoluzioni DSD (rate = 44100*)
+	EN	Supported DSD resolutions
+	IT	Risoluzioni DSD supportate
 	
 PLUGIN_C3PO_DSD_SAMPLE_RATE_LIST_DESC
-	EN	List of DSD resolutions supported by the player real bit rete is 44100* Hz, can not exceed the settled maximum value.
-	IT	Elenco delle risoluzioni DSD supportate dal lettore, il bit rate reale è 44100* Hz. Non possono eccedere il valore massimo impostato.
+	EN	List of supported DSD output resolutions, real bitrate is 44100 *. Can't exceed the maximum value allowed by the player
+	IT	Elenco delle risoluzioni DSD supportate in uscita, il bit rate reale è 44100*. Non possono eccedere il valore massimo ammesso dal player.
 
 PLUGIN_C3PO_USECUESHEETS
-	EN	Enable .cue sheets
+	EN	Enable cue sheets
 	IT	Abilita l'uso dei cue sheets
 
 PLUGIN_C3PO_USECUESHEETS_DESC
-	EN	Enable .cue sheets (uncheck if you need Qubuz or other StdIn services)
+	EN	Enable cue sheets (uncheck if you need Qubuz or other StdIn services)
 	IT	Abilita l'uso di cue sheets (Incompatibile con Qubuz ed altri servizi)
 
 PLUGIN_C3PO_TITLE_GOTO_PLAYERS
@@ -234,7 +253,7 @@ PLUGIN_C3PO_RESAMPLE_WHEN
 	
 PLUGIN_C3PO_RESAMPLE_WHEN_DESC
 	EN	Ask the server to resample always, never or only by exception when sample rate is not supported.
-	IT	Chiede al server di ricampionare sempre, mai o solo per eccezione, se il player non supporta la frequenza.
+	IT	Chiede al server di ricampionare sempre, mai o solo per eccezione, quando la frequenza di campionamento non è supportata.
 
 PLUGIN_C3PO_RESAMPLE_WHEN_ALWAYS
 	EN	Always
@@ -269,7 +288,7 @@ PLUGIN_C3PO_OUT_CODEC
 	IT	Formato in uscita
 
 PLUGIN_C3PO_OUT_CODEC_DESC
-	EN	Output format. Compressed are usefull when Network bandwidth is a concern, trade it by cpu load.
+	EN	Output format. Compressed are usefull when network bandwidth is a concern, trade it by cpu load.
 	IT	Formato in uscita. I formati compressi riducono l'utilizzo di rete, al costo di un maggior carico di cpu.
 
 PLUGIN_C3PO_OUT_CODEC_WAV

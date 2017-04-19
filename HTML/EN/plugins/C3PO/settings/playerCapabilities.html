@@ -1,0 +1,15 @@
+[% WRAPPER setting title="PLUGIN_C3PO_MAX_SAMPLE_RATE" desc="PLUGIN_C3PO_MAX_SAMPLE_RATE_DESC" %]
+    [% maxSampleRate %]
+[% END %]
+
+[% WRAPPER setting title="PLUGIN_C3PO_MAX_DSD_RATE" desc="PLUGIN_C3PO_MAX_DSD_RATE_DESC" %]
+    [% IF maxDsdRate %]
+        [% maxDsdRate %]
+    [% ELSE %]
+        [% "PLUGIN_C3PO_UNSUPPORTED" | string %]
+    [% END %]
+[% END %]
+
+[% WRAPPER setting title="PLUGIN_C3PO_CODEC_SELECTION_TITLE" desc="PLUGIN_C3PO_CODEC_SELECTION_PLAYER_DESC" %]
+    [% clientCodecList %]
+[% END %]

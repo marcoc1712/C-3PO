@@ -73,6 +73,8 @@ sub handler {
 	my $prefs=$plugin->getPreferences($client);
     
     $params->{'clientCodecList'} =join ' ', sort keys %{$prefs->client($client)->get('codecsCli')};
+    $params->{'maxSampleRate'} = $plugin->getMaxSupportedSampleRate($client);
+    $params->{'maxDsdRate'}= $plugin->getMaxSupportedDsdRate($client);
     
 	$params->{'soxVersion'} =$prefs->get('soxVersion');
 	$params->{'isSoxDsdCapable'} =$prefs->get('isSoxDsdCapable');
@@ -85,11 +87,12 @@ sub handler {
 	my $prefResample = $prefs->client($client)->get('enableResample');
     my $prefEffects  = $prefs->client($client)->get('enableEffects');
    
-   my $prefSampleRates = $plugin->translateSampleRates(
+    my $prefSampleRates = $plugin->translateSampleRates(
 							$prefs->client($client)->get('sampleRates'));
 	my $prefDsdRates = $plugin->translateDsdRates(
 							$prefs->client($client)->get('dsdRates'));
 
+                         
 	if (main::DEBUGLOG && $log->is_debug) {
 		$log->debug("Inizio Handler: ");
 		$log->debug("showDetails: ");		
@@ -129,8 +132,7 @@ sub handler {
         # it will result in a complete erasure of preferences.
         
         if ($panel eq 'settings'){
-            
-            #$restart=1;
+
             my $modified=0;
             
             if ($params->{'pref_enable'} && ($params->{'pref_resampleWhen'})){
@@ -139,9 +141,7 @@ sub handler {
                    $modified = _copyParamsToPrefs($client,$params,$item);
                    $restart = $modified ? $modified : $restart;
                 }
-                
-                my $modified=0;
-                
+
                 ($prefSeeks,$modified) = $class->_copyParamToPrefsBooleanHash($params,'enableSeek',$prefSeeks);
                 $prefs->client($client)->set('enableSeek', $prefSeeks);
                 
@@ -188,9 +188,14 @@ sub handler {
 
         $plugin->getPreferences($client);
         $class->SUPER::handler( $client, $params );
-        $plugin->settingsChanged($client,$restart);
-
+        
+        if ($restart){
+            $plugin->settingsChanged($client,$restart);
+        }
+        # saves at least panel change.
         $prefs->savenow();
+        #  status won't update if not after a second save.
+        # $prefs->savenow();
     }
 	# END SaveSettings ########################################################
     

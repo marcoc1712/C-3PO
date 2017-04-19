@@ -20,7 +20,7 @@ td, th {
                             <td>
 
                                 <input type="checkbox" name="pref_sampleRates[% rate.key %]" 
-                                       id="sampleRates_[% rate.key %]" value="1" [% rate.value ? "checked" : "" %]
+                                       id="sampleRates_[% rate.key %]" [% rate.value ? "checked" : "" %]
 
                                 [% FOREACH r2 IN disabledSampleRates %]
                                     [% IF rate.key == r2.key %] 
@@ -48,7 +48,7 @@ td, th {
                             <td>
 
                                 <input type="checkbox" name="pref_sampleRates[% rate.key %]" 
-                                       id="sampleRates_[% rate.key %]" value="1" [% rate.value ? "checked" : "" %]
+                                       id="sampleRates_[% rate.key %]" [% rate.value ? "checked" : "" %]
 
                                 [% FOREACH r2 IN disabledSampleRates %]
                                     [% IF rate.key == r2.key %] 
@@ -76,7 +76,7 @@ td, th {
                             <td>
 
                                 <input type="checkbox" name="pref_sampleRates[% rate.key %]" 
-                                       id="sampleRates_[% rate.key %]" value="1" [% rate.value ? "checked" : "" %]
+                                       id="sampleRates_[% rate.key %]" [% rate.value ? "checked" : "" %]
 
                                 [% FOREACH r2 IN disabledSampleRates %]
                                     [% IF rate.key == r2.key %] 
@@ -109,7 +109,7 @@ td, th {
                             <td>  
 
                                 <input type="checkbox" name="pref_dsdRates[% rate.key %]" 
-                                       id="dsdRates_[% rate.key %]" value="1" [% rate.value ? "checked" : "" %]
+                                       id="dsdRates_[% rate.key %]" [% rate.value ? "checked" : "" %]
 
                                 [% FOREACH r2 IN disabledDsdRates %]
                                     [% IF rate.key == r2.key %] 

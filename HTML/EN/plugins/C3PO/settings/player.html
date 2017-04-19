@@ -5,15 +5,8 @@
         }
     </style>
     <script>
-        window.onload = function() {
 
-            if (!prefs.panel){
-                show('settings');
-            } else{
-                show(prefs.panel);
-            };
-        };
-        function show(what) {
+        function show1(what) {
 
         document.getElementById("panel").value = what; 
         
@@ -25,23 +18,54 @@
 		}
         document.getElementById(id).style.background = "darkgrey";
         document.getElementById(id).style.color = "black";
+        
+        try { 
+                Settings.Page.submit();
+        }
+        catch(e){ return false; }
+        return true;	
      }
+     function show (what) {
+			var modified = false;
+			
+			try { modified = this.Settings.Page.isModified(); }
+			catch(e){}
+			
+			if (!modified){
+				//return true;
+                return show1(what); 	
+            }
+            
+			return Settings._confirmPageChange(function(btn, a, b){
+				if (btn == 'no' || btn == 'yes') {
+					if (btn == 'yes') {
+                        return show1(what); 					
+					}
+
+					this._resetModified();
+
+					if (btn == 'no') {
+                        return show1(what); 			
+					}
+				}
+			});
+		}
     </script>
 </head>
 
 [% PROCESS settings/header.html %]
 
     <div class="buttons">
-        <input name="settingsButton" id="settingsButton" type="submit" class="stdclick" value="[% "PLUGIN_C3PO_SETTINGS" | string %] " 
+        <input name="settingsButton" id="settingsButton" type="button" class="stdclick" value="[% "PLUGIN_C3PO_SETTINGS" | string %] " 
                 onclick="show('settings')" >
 
-        <input name="fileTypesButton" id="fileTypesButton" type="submit" class="stdclick" value="[% "PLUGIN_C3PO_FILE_TYPES" | string %]" 
+        <input name="fileTypesButton" id="fileTypesButton" type="button" class="stdclick" value="[% "PLUGIN_C3PO_FILE_TYPES" | string %]" 
                 onclick="show('fileTypes')" >
 
-        <input name="resultingCommandsButton" id="resultingCommandsButton" type="submit" class="stdclick" value="[% "PLUGIN_C3PO_RESULTING_COMMANDS" | string %]" 
+        <input name="resultingCommandsButton" id="resultingCommandsButton" type="button" class="stdclick" value="[% "PLUGIN_C3PO_RESULTING_COMMANDS" | string %]" 
                 onclick="show('resultingCommands')" >
 
-        <input name="lastCommandButton" id="lastCommandButton" type="submit" class="stdclick" value="[% "PLUGIN_C3PO_LAST_COMMAND" | string %]" 
+        <input name="lastCommandButton" id="lastCommandButton" type="button" class="stdclick" value="[% "PLUGIN_C3PO_LAST_COMMAND" | string %]" 
                 onclick="show('lastCommand')" >
 
                 <input type="text" class="stdedit" name="pref_panel" id="panel" value="[% prefs.panel | html %]" size="50" maxlength="100" hidden >
