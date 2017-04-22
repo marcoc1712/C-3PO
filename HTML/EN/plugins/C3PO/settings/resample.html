@@ -2,6 +2,8 @@
 [% WRAPPER setting title="PLUGIN_C3PO_RESAMPLE" desc="" %]
 [% END %]
 
+[% PROCESS 'plugins/C3PO/settings/sampleRates.html' %]
+    
 [% WRAPPER setting title="PLUGIN_C3PO_RESAMPLE_WHEN" desc="PLUGIN_C3PO_RESAMPLE_WHEN_DESC" %]
 	<select class="stdedit" name="pref_resampleWhen" id="resampleWhen" 
 		[% IF needsClient &&  prefs.useGlogalSettings %] disabled [% END %] >
