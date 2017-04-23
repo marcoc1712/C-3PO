@@ -3,30 +3,35 @@
 [% END %]
 
 [% PROCESS 'plugins/C3PO/settings/sampleRates.html' %]
-    
-[% WRAPPER setting title="PLUGIN_C3PO_RESAMPLE_WHEN" desc="PLUGIN_C3PO_RESAMPLE_WHEN_DESC" %]
-	<select class="stdedit" name="pref_resampleWhen" id="resampleWhen" 
-		[% IF needsClient &&  prefs.useGlogalSettings %] disabled [% END %] >
-		<option [% IF prefs.resampleWhen == "A" %]selected="selected" [% END %]value="A">
-			[% 'PLUGIN_C3PO_RESAMPLE_WHEN_ALWAYS' | string %]
-		</option>
-		<option [% IF prefs.resampleWhen == "N" %]selected="selected" [% END %]value="N">
-			[% 'PLUGIN_C3PO_RESAMPLE_WHEN_NEVER' | string %]
-		</option>
-		<option [% IF prefs.resampleWhen == "E" %]selected="selected" [% END %]value="E">
-			[% 'PLUGIN_C3PO_RESAMPLE_WHEN_NOT_SUPPORTED' | string %]
-		</option>
-	</select>
+
+[% IF 0 %]
+    [% WRAPPER setting title="PLUGIN_C3PO_RESAMPLE_WHEN" desc="PLUGIN_C3PO_RESAMPLE_WHEN_DESC" %]
+        <select class="stdedit" name="pref_resampleWhen" id="resampleWhen" 
+            [% IF needsClient &&  prefs.useGlogalSettings %] disabled [% END %] >
+            <option [% IF prefs.resampleWhen == "A" %]selected="selected" [% END %]value="A">
+                [% 'PLUGIN_C3PO_RESAMPLE_WHEN_ALWAYS' | string %]
+            </option>
+            <option [% IF prefs.resampleWhen == "N" %]selected="selected" [% END %]value="N">
+                [% 'PLUGIN_C3PO_RESAMPLE_WHEN_NEVER' | string %]
+            </option>
+            <option [% IF prefs.resampleWhen == "E" %]selected="selected" [% END %]value="E">
+                [% 'PLUGIN_C3PO_RESAMPLE_WHEN_NOT_SUPPORTED' | string %]
+            </option>
+        </select>
+    [% END %]
 [% END %]
 
 [% WRAPPER setting title="PLUGIN_C3PO_RESAMPLE_TO" desc="PLUGIN_C3PO_RESAMPLE_TO_DESC" %]
 	<select class="stdedit" name="pref_resampleTo" id="resampleTo"
 		[% IF needsClient &&  prefs.useGlogalSettings %] disabled [% END %] >
-		<option [% IF prefs.resampleTo == "X" %]selected="selected" [% END %]value="X">
-			[% 'PLUGIN_C3PO_RESAMPLE_TO_MAX' | string %]
-		</option>
 		<option [% IF prefs.resampleTo == "S" %]selected="selected" [% END %]value="S">
-			[% 'PLUGIN_C3PO_RESAMPLE_TO_MAX_SYNC' | string %]
+			[% 'PLUGIN_C3PO_RESAMPLE_TO_NEAR_SYNC' | string %]
+		</option>
+        <option [% IF prefs.resampleTo == "N" %]selected="selected" [% END %]value="N">
+			[% 'PLUGIN_C3PO_RESAMPLE_TO_NEAR_NOT_SYNC' | string %]
+		</option>
+        <option [% IF prefs.resampleTo == "X" %]selected="selected" [% END %]value="X">
+			[% 'PLUGIN_C3PO_RESAMPLE_TO_NEAR' | string %]
 		</option>
 	</select>
 [% END %]

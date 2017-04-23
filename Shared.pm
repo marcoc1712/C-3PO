@@ -35,27 +35,31 @@ my @clientPrefNames= @clientPrefNamesScalar;
 push @clientPrefNames, @clientPrefNamesHash;
 
 my @sharedPrefNames		  = qw(	enable panel
-								resampleWhen resampleTo outCodec 
-								outBitDepth 
 								
 								headroom gain 
+                                                                
+                                outCodec 
+                                
+                                resampleTo
+								quality phase aliasing noIOpt highPrecisionClock 
+								smallRollOff bandwidth  
+								
+								
                                 effectsWhen
 								loudnessGain loudnessRef 
 								remixLeft remixRight flipChannels
-		
-								quality phase aliasing noIOpt highPrecisionClock 
-								smallRollOff bandwidth  
-								extra_before_rate extra_after_rate
-								
-								ditherType ditherPrecision
+                                extra_before_rate extra_after_rate
+                                
+								outBitDepth ditherType ditherPrecision
 								
 								sdmFilterType
+                                
 								dsdLowpass1Value dsdLowpass1Order 
 								dsdLowpass2Value dsdLowpass2Order dsdLowpass2Active	
 								dsdLowpass3Value dsdLowpass3Order dsdLowpass3Active
 								dsdLowpass4Value dsdLowpass4Order dsdLowpass4Active	
 								
-								);
+								); #resampleWhen
 				
 my @globalPrefNames		  = qw(	codecs soxMultithread soxBuffer unlimitedDsdRate  
                                 serverFolder logFolder C3POfolder pathToPrefFile
@@ -143,7 +147,7 @@ sub buildTranscoderTable{
 		
 		if (defined $rate and ($rate)){
             
-            $countSampleRates +=$countSampleRates;
+            $countSampleRates = $countSampleRates+1;
 			$transcodeTable->{'sampleRates'}->{$krate}=1;
 		
 		} elsif (defined $rate and $rate eq '0' ){
@@ -163,7 +167,7 @@ sub buildTranscoderTable{
 		
 		if (defined $rate and ($rate)){
             
-            $countDSDRates+=$countDSDRates;
+            $countDSDRates = $countDSDRates+1;
 			$transcodeTable->{'dsdRates'}->{$krate}=1;
 		
 		} elsif (defined $rate and $rate eq '0' ){
@@ -175,34 +179,11 @@ sub buildTranscoderTable{
 			$transcodeTable->{'dsdRates'}->{$krate}=undef;
 		}
 	}
-
-    # if more (or less) )than one possible target sample rate, we should investigate.
-    # the actual file and detect the best fitting target.
-    # Replace the RESAMPLE WHEN control.
-
-    if (($countSampleRates == 1) && ($countDSDRates == 1)) {
-        
-        #Always to the the only (max) samplerate enabled.
-        $transcodeTable->{'resampleWhen'}='A';
-        $transcodeTable->{'resampleTo'}='X';
-        
-    }elsif  (($countSampleRates == 0) && ($countDSDRates == 0)){
-    
-        #Invalid setting, disable resampling.
-        $transcodeTable->{'resampleWhen'}='N';
-        
-    }else {
-        
-        # On exception, when the actual sample rate is not supported, to the next 
-        # (or previous if greater than the last) enabled sample rate.
-        
-        $transcodeTable->{'resampleWhen'}='E';
-    }
     
     #not used anymore but still in the code.
 	my $useGlogalSettings=$prefs->{$clientString}->{'useGlogalSettings'};
-
-	for my $i (getSharedPrefNameList()){
+    
+    for my $i (getSharedPrefNameList()){
 		
 		$transcodeTable->{$i}= $useGlogalSettings ?
 					$prefs->{$i} : $prefs->{$clientString}->{$i};
@@ -221,6 +202,33 @@ sub buildTranscoderTable{
 			$transcodeTable->{'logFolder'} = $options->{'logFolder'};
 		}
 	}
+    
+    # if user selted more (or less) )than one possible target sample rate, 
+    # we should investigate the the actual file and detect the best fitting target.
+    # Replace RESAMPLE WHEN control.
+
+    warn "******************************************* $countSampleRates";
+    warn "******************************************* $countDSDRates";
+    
+    if (($countSampleRates == 1) && ($countDSDRates == 1)) {
+        
+        #Always to the the only (max) samplerate enabled.
+        $transcodeTable->{'resampleWhen'}='A';
+        $transcodeTable->{'resampleTo'}='X';
+        warn "******************************************* Only ONE";
+        
+    }elsif  (($countSampleRates == 0) && ($countDSDRates == 0)){
+    
+        #Invalid setting, disable resampling.
+        $transcodeTable->{'resampleWhen'}='N';
+        
+    }else {
+        
+        # On exception, when the actual sample rate is not supported, to the next 
+        # (or previous if greater than the last) enabled sample rate.
+        
+        $transcodeTable->{'resampleWhen'}='E';
+    }
 
 	# split codec name and compression factor (for flac).
 	my $outCodec= $transcodeTable->{'outCodec'};

@@ -135,7 +135,7 @@ sub handler {
 
             my $modified=0;
             
-            if ($params->{'pref_enable'} && ($params->{'pref_resampleWhen'})){
+            if ($params->{'pref_enable'} && ($params->{'pref_resampleTo'})){
 
                 for my $item (@prefList){
                    $modified = _copyParamsToPrefs($client,$params,$item);

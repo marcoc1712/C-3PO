@@ -272,8 +272,20 @@ PLUGIN_C3PO_RESAMPLE_TO
 	IT	Alla frequenza
 	
 PLUGIN_C3PO_RESAMPLE_TO_DESC
-	EN	Set target sample rate at max absolute samplerate or max synchronous samplerate 
-	IT	Imposta la frequenza di campionamento alla massima assoluta disponibile o alla massima sincrona, cioè multiplo (o sottomultiplo) di quella in ingresso
+	EN	Select the target sample rate from the above supported table. If system allow actual file investigation (a warning is issued if not) the closest supported value is choosed, depending on the synchronous (exact multiple of the same base frequency) / not synchronous option, looking first to greater then to lesser values. Maximum supported sample rate is the last fault back value if no better.
+	IT	Seleziona la frequenza di campionamento tra quelle supportate (v. sopra). Se le condizioni di utilizzo lo consentono a C-3PO di determinare la frequenza di campionamento del file effettivamente inviato in esecuzione (altrimenti viene emesso un messaggio di attenzione), viene utilizzato il valore più prossimo (prima i maggiori  e solo dopo i minori), sincrono (multiplo della stessa frequenza di base) o meno. Se non è possibile determinarlo più accuratamente, viene utuilizzato il massimo valore supportato.
+
+PLUGIN_C3PO_RESAMPLE_TO_NEAR
+	EN	Closest supported (first higher then minor)
+	IT	Più prossima supportata (prima le maggiori quindi le minori)
+
+PLUGIN_C3PO_RESAMPLE_TO_NEAR_SYNC
+	EN	Closest synchronous supported (first higher then minor)
+	IT	Più prossima sincrona supportata (prima le maggiori quindi le minori)
+
+PLUGIN_C3PO_RESAMPLE_TO_NEAR_NOT_SYNC
+	EN	Closest not synchronous supported (first higher then minor)
+	IT	Più prossima non sincrona supportata (prima le maggiori quindi le minori)
 
 PLUGIN_C3PO_RESAMPLE_TO_MAX
 	EN	Max supported

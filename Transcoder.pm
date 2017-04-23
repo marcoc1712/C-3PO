@@ -113,14 +113,14 @@ sub _ceckC3PO{
 	if (isRuntime($transcodeTable)) {return 0;}
 	
 	
-	if (isLMSDebug()) {
-		$log->debug('is Native :'._isNative($transcodeTable));
-		$log->debug('isResamplingRequested :'._isResamplingRequested($transcodeTable));
-		$log->debug('resampling to :'.$transcodeTable->{'resampleTo'});
+	if (isLMSInfo()) {
+		$log->info('is Native :'._isNative($transcodeTable));
+		$log->info('isResamplingRequested :'._isResamplingRequested($transcodeTable));
+		$log->info('resampling to :'.$transcodeTable->{'resampleTo'});
 	} else{
-		Plugins::C3PO::Logger::debugMessage('is Native :'._isNative($transcodeTable));
-		Plugins::C3PO::Logger::debugMessage('isResamplingRequested :'._isResamplingRequested($transcodeTable));
-		Plugins::C3PO::Logger::debugMessage('resampling to :'.$transcodeTable->{'resampleTo'});
+		Plugins::C3PO::Logger::infoMessage('is Native :'._isNative($transcodeTable));
+		Plugins::C3PO::Logger::infoMessage('isResamplingRequested :'._isResamplingRequested($transcodeTable));
+		Plugins::C3PO::Logger::infoMessage('resampling to :'.$transcodeTable->{'resampleTo'});
 	}
 	
 	# there is nothing to do, native.
@@ -1090,6 +1090,8 @@ sub _getTargetRate{
         $target = _getNextEnabledRate($fileSamplerate, $samplerates, $ratefamily, $sync);
     }
     
+    Plugins::C3PO::Logger::infoMessage('target : '.Data::Dump::dump($target));
+    
     return (($target && $target > 0) ? $target : undef);
 	
 }
@@ -1099,18 +1101,26 @@ sub _getNextEnabledRate{
     my $family          = shift || 1;
     my $sync            = shift || "X";
     
-    Plugins::C3PO::Logger::debugMessage('fileRate : '.($fileRate ? $fileRate : ''));
-	Plugins::C3PO::Logger::debugMessage('rates : '.Data::Dump::dump($rates));
-	Plugins::C3PO::Logger::debugMessage('family : '.($family ? $family : ''));
-    Plugins::C3PO::Logger::debugMessage('sync : '.Data::Dump::dump($sync));
+    Plugins::C3PO::Logger::infoMessage('fileRate : '.($fileRate ? $fileRate : ''));
+	Plugins::C3PO::Logger::infoMessage('rates : '.Data::Dump::dump($rates));
+	Plugins::C3PO::Logger::infoMessage('family : '.($family ? $family : ''));
+    Plugins::C3PO::Logger::infoMessage('sync : '.Data::Dump::dump($sync));
     
     my $last=0;
     
-	Plugins::C3PO::Logger::debugMessage('rates : '.Data::Dump::dump(sort { $a <=> $b } keys %$rates));
+	Plugins::C3PO::Logger::infoMessage('rates : '.Data::Dump::dump(sort { $a <=> $b } keys %$rates));
 	for my $rate (sort { $a <=> $b } keys %$rates){
-
+        
+        Plugins::C3PO::Logger::infoMessage('rate : '.$rate);
         if (! $rates->{$rate}){next;}
-
+        
+        Plugins::C3PO::Logger::infoMessage('rate : '.$rate);
+        Plugins::C3PO::Logger::infoMessage('family : '.$family);
+        Plugins::C3PO::Logger::infoMessage('mod : '.($rate % $family));
+        Plugins::C3PO::Logger::infoMessage('sync : '.$sync);
+        Plugins::C3PO::Logger::infoMessage('$last : '.$last);
+        Plugins::C3PO::Logger::infoMessage('fileRate : '.($fileRate ? $fileRate : ''));
+        
         if (($rate % $family == 0) && ($sync eq "S") && ($rate > $last) ){
             
             $last = $rate;
