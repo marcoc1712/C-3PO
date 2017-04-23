@@ -134,12 +134,16 @@ sub buildTranscoderTable{
 	}
 	my $samplerates = $prefs->{$clientString}->{'sampleRates'};
 	
-	for my $krate (keys %$samplerates){
+    my $countSampleRates= 0;
+    my $countDSDRates= 0;
+	
+    for my $krate (keys %$samplerates){
 	
 		my $rate = $prefs->{$clientString}->{'sampleRates'}->{$krate};
 		
 		if (defined $rate and ($rate)){
-		
+            
+            $countSampleRates +=$countSampleRates;
 			$transcodeTable->{'sampleRates'}->{$krate}=1;
 		
 		} elsif (defined $rate and $rate eq '0' ){
@@ -154,11 +158,12 @@ sub buildTranscoderTable{
 	my $dsdrates = $prefs->{$clientString}->{'dsdRates'};
 	
 	for my $krate (keys %$dsdrates){
-	
+        
 		my $rate = $prefs->{$clientString}->{'dsdRates'}->{$krate};
 		
 		if (defined $rate and ($rate)){
-		
+            
+            $countDSDRates+=$countDSDRates;
 			$transcodeTable->{'dsdRates'}->{$krate}=1;
 		
 		} elsif (defined $rate and $rate eq '0' ){
@@ -170,7 +175,31 @@ sub buildTranscoderTable{
 			$transcodeTable->{'dsdRates'}->{$krate}=undef;
 		}
 	}
-	
+
+    # if more (or less) )than one possible target sample rate, we should investigate.
+    # the actual file and detect the best fitting target.
+    # Replace the RESAMPLE WHEN control.
+
+    if (($countSampleRates == 1) && ($countDSDRates == 1)) {
+        
+        #Always to the the only (max) samplerate enabled.
+        $transcodeTable->{'resampleWhen'}='A';
+        $transcodeTable->{'resampleTo'}='X';
+        
+    }elsif  (($countSampleRates == 0) && ($countDSDRates == 0)){
+    
+        #Invalid setting, disable resampling.
+        $transcodeTable->{'resampleWhen'}='N';
+        
+    }else {
+        
+        # On exception, when the actual sample rate is not supported, to the next 
+        # (or previous if greater than the last) enabled sample rate.
+        
+        $transcodeTable->{'resampleWhen'}='E';
+    }
+    
+    #not used anymore but still in the code.
 	my $useGlogalSettings=$prefs->{$clientString}->{'useGlogalSettings'};
 
 	for my $i (getSharedPrefNameList()){
@@ -184,7 +213,15 @@ sub buildTranscoderTable{
 	
 		$transcodeTable->{$i}=$prefs->{$i};
 	}
+
+	if (defined $options){
 	
+		$transcodeTable->{'options'}=convertStartDuration($options);
+		if ($options->{'logFolder'}) {
+			$transcodeTable->{'logFolder'} = $options->{'logFolder'};
+		}
+	}
+
 	# split codec name and compression factor (for flac).
 	my $outCodec= $transcodeTable->{'outCodec'};
 	$transcodeTable->{'outCompression'}=undef;
@@ -204,15 +241,7 @@ sub buildTranscoderTable{
 			$transcodeTable->{'outCompression'}=$compression;
 		}
 	}
-	
-	if (defined $options){
-	
-		$transcodeTable->{'options'}=convertStartDuration($options);
-		if ($options->{'logFolder'}) {
-			$transcodeTable->{'logFolder'} = $options->{'logFolder'};
-		}
-	}
-	
+
 	return $transcodeTable;
 } 
 

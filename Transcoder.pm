@@ -26,41 +26,6 @@ use Data::Dump qw(dump pp);
 my $logger;
 my $log;
 
-################################################################################
-# Resample reinvented....
-################################################################################
-
-sub isResampleToMax{
-    my $transcodeTable= shift;
-    
-    return ($transcodeTable->{'resampleTo'} eq 'X');
-
-} 
-sub isResampleToSync{
-    my $transcodeTable= shift;
-    
-    return ($transcodeTable->{'resampleTo'} eq 'S');
-
-}
-sub isResampleAlways{
-    my $transcodeTable= shift;
-    
-    return ($transcodeTable->{'resampleWhen'}='A');
-
-}
-sub isResampleNever{
-    my $transcodeTable= shift;
-    
-    return ($transcodeTable->{'resampleWhen'}='N');
-
-}
-sub isResampleWhenNotSupported{
-    my $transcodeTable= shift;
-    
-    return ($transcodeTable->{'resampleWhen'}='E');
-
-}
-
 #####################################################################
 # Plugin entry point
 #####################################################################
@@ -151,23 +116,24 @@ sub _ceckC3PO{
 	if (isLMSDebug()) {
 		$log->debug('is Native :'._isNative($transcodeTable));
 		$log->debug('isResamplingRequested :'._isResamplingRequested($transcodeTable));
-		$log->debug('resampling to :'.(isResampleToSync($transcodeTable)? "Sync" : "Max"));
+		$log->debug('resampling to :'.$transcodeTable->{'resampleTo'});
 	} else{
 		Plugins::C3PO::Logger::debugMessage('is Native :'._isNative($transcodeTable));
 		Plugins::C3PO::Logger::debugMessage('isResamplingRequested :'._isResamplingRequested($transcodeTable));
-		Plugins::C3PO::Logger::debugMessage('resampling to :'.(isResampleToSync($transcodeTable)? "Sync" : "Max"));
+		Plugins::C3PO::Logger::debugMessage('resampling to :'.$transcodeTable->{'resampleTo'});
 	}
 	
 	# there is nothing to do, native.
 	if (_isNative($transcodeTable)) {return 0;}
     
 	if (! _isResamplingRequested($transcodeTable)){return 0;}
-	if (!(isResampleWhenNotSupported($transcodeTable)) && isResampleToMax($transcodeTable)) {return 0;}
+	if (!($transcodeTable->{'resampleWhen'} eq 'E') && $transcodeTable->{'resampleTo'} eq 'X') {return 0;}
 	
 	# In windows STDIN does not works inside C3PO, so it's disabled.
 	if (main::ISWINDOWS &&
 	    _isStdInEnabled($transcodeTable) &&
-	    (isResampleWhenNotSupported($transcodeTable) ||  isResampleToSync($transcodeTable))){
+	   (($transcodeTable->{'resampleWhen'} eq 'E') || 
+	     ($transcodeTable->{'resampleTo'} eq 'S'))){
     		 
 		return 0;
 	}
@@ -711,13 +677,16 @@ sub _checkResample{
 	Plugins::C3PO::Logger::infoMessage('dsdrates :'.Data::Dump::dump($dsdrates));
 
 	my $forcedSamplerate= $transcodeTable->{'options'}->{'forcedSamplerate'};
-	
+	my $resampleWhen= $transcodeTable->{'resampleWhen'};
+	my $resampleTo= $transcodeTable->{'resampleTo'};
+
 	my $file = $transcodeTable->{'options'}->{'file'};
 	my $fileSamplerate;
 	
 	my $filedsdRate;
 	my $isSupported;
 	my $maxSyncrounusRate;
+    my $targetRate;
 	
 	my $willStart=$transcodeTable->{'C3POwillStart'};
 	
@@ -773,9 +742,17 @@ sub _checkResample{
 										$isDsdOutput,
 										$filedsdRate,
 										$dsdrates);
+            
+            $targetRate =  _getTargetRate($fileSamplerate,
+										$samplerates,
+										$isDsdOutput,
+										$filedsdRate,
+										$dsdrates,
+                                        $resampleTo);
 										   
 			Plugins::C3PO::Logger::debugMessage('samplerate is '.($isSupported ? '' : 'not ').'supported');
 			Plugins::C3PO::Logger::debugMessage('Max syncrounus sample rate : '.($maxSyncrounusRate ? $maxSyncrounusRate : ''));
+            Plugins::C3PO::Logger::debugMessage('target rate : '.($targetRate ? $targetRate : ''));
 		}
 	}
 	my $targetSamplerate;
@@ -786,10 +763,10 @@ sub _checkResample{
 		
 	Plugins::C3PO::Logger::infoMessage('is runtime :                 '.(isRuntime($transcodeTable)));
 	Plugins::C3PO::Logger::infoMessage('forced Samplerate :          '.($forcedSamplerate ? $forcedSamplerate :'undef'));
-	Plugins::C3PO::Logger::infoMessage('resampleWhen :               '.(isResampleAlways($transcodeTable) ? "Always" : isResampleNever($transcodeTable) ? "Never" : "Only when Not Supported"));
+	Plugins::C3PO::Logger::infoMessage('resampleWhen :               '.$resampleWhen);
 	Plugins::C3PO::Logger::infoMessage('file samplerate:             '.($fileSamplerate ? $fileSamplerate : 'undef'));
     Plugins::C3PO::Logger::infoMessage('is supported:                '.($isSupported ? 'Yes' : 'No'));
-	Plugins::C3PO::Logger::infoMessage('resampleTo :                 '.(isResampleToSync($transcodeTable)? "Sync" : "Max"));
+	Plugins::C3PO::Logger::infoMessage('resampleTo :                 '.$resampleTo);
 	Plugins::C3PO::Logger::infoMessage('Max syncrounus sample rate : '.($maxSyncrounusRate ? $maxSyncrounusRate : 'undef'));
 	Plugins::C3PO::Logger::infoMessage('isDsdinput :                 '.($isDsdInput? 'Yes' : 'No'));
     Plugins::C3PO::Logger::infoMessage('isDsdOutput :                '.($isDsdOutput? 'Yes' : 'No'));
@@ -808,21 +785,17 @@ sub _checkResample{
 
 		$targetSamplerate=$forcedSamplerate;
 
-	} elsif (isResampleNever($transcodeTable)){ #do nothing
+	} elsif ($resampleWhen eq'N'){ #do nothing, obsolete.
         
 	} elsif (!$fileSamplerate){
 	
 		$targetSamplerate= $isDsdOutput ? $maxDsdrate : $maxsamplerate;;
 	
-	} elsif (isResampleWhenNotSupported($transcodeTable) && ($isSupported)){ #do nothing
+	} elsif (($resampleWhen eq 'E') && ($isSupported)){ #do nothing
         
-	} elsif (isResampleToMax($transcodeTable)){
-		
-		$targetSamplerate = $isDsdOutput ? $maxDsdrate : $maxsamplerate;;
+	} elsif (defined $targetRate){
 	
-	} elsif (defined $maxSyncrounusRate){
-	
-		$targetSamplerate=$maxSyncrounusRate;
+		$targetSamplerate=$targetRate;
 		
 	} else {
 		
@@ -1049,6 +1022,124 @@ sub _getMaxSyncrounusRate{
 	#Data::Dump::dump($max);
 	return ($max > 0 ? $max : undef);
 }
+
+sub _getTargetRate{
+    
+	my $fileSamplerate=shift;
+	my $samplerates=shift;
+	my $isDsd = shift;
+	my $filedsdRate = shift;
+    my $dsdrates = shift;
+    my $sync= shift || "X";
+	
+	Plugins::C3PO::Logger::debugMessage('fileSamplerate : '.($fileSamplerate ? $fileSamplerate : ''));
+	Plugins::C3PO::Logger::debugMessage('Samplerates : '.Data::Dump::dump($samplerates));
+	Plugins::C3PO::Logger::debugMessage('is dsd : '.$isDsd);
+	Plugins::C3PO::Logger::debugMessage('filedsdRate : '.($filedsdRate ? $filedsdRate : ''));
+	Plugins::C3PO::Logger::debugMessage('dsdrates : '.Data::Dump::dump($dsdrates));
+    Plugins::C3PO::Logger::debugMessage('sync : '.Data::Dump::dump($sync));
+
+	if ($isDsd && (!defined $filedsdRate || $filedsdRate==0)){
+	
+		return undef;
+	} 
+	if (!$isDsd && (!defined $fileSamplerate || $fileSamplerate==0)){
+		
+		return undef;
+	}
+    $fileSamplerate= $fileSamplerate/1;
+	
+    my $ratefamily;
+    my $fileRate;
+	my $target=0;
+    
+	if ($isDsd){
+
+		if ($fileSamplerate % 48000 == 0) {
+		
+			$ratefamily=48000;
+	
+		} else {
+		
+			$ratefamily=44100;
+		}
+        
+        $fileRate= $fileSamplerate/$ratefamily;
+        
+        $target = _getNextEnabledRate($fileRate, $dsdrates ,1, $sync);
+       
+	} else {
+        
+        if ($fileSamplerate % 11025 == 0) {
+
+            $ratefamily=11025;
+
+        } elsif ($fileSamplerate % 12000 == 0) {
+
+            $ratefamily=12000;
+
+        } elsif ($fileSamplerate % 8000 == 0) {
+
+            $ratefamily=8000;
+
+        } else {
+
+            return undef;
+        }
+        
+        $target = _getNextEnabledRate($fileSamplerate, $samplerates, $ratefamily, $sync);
+    }
+    
+    return (($target && $target > 0) ? $target : undef);
+	
+}
+sub _getNextEnabledRate{
+    my $fileRate        = shift;
+	my $rates           = shift;
+    my $family          = shift || 1;
+    my $sync            = shift || "X";
+    
+    Plugins::C3PO::Logger::debugMessage('fileRate : '.($fileRate ? $fileRate : ''));
+	Plugins::C3PO::Logger::debugMessage('rates : '.Data::Dump::dump($rates));
+	Plugins::C3PO::Logger::debugMessage('family : '.($family ? $family : ''));
+    Plugins::C3PO::Logger::debugMessage('sync : '.Data::Dump::dump($sync));
+    
+    my $last=0;
+    
+	Plugins::C3PO::Logger::debugMessage('rates : '.Data::Dump::dump(sort { $a <=> $b } keys %$rates));
+	for my $rate (sort { $a <=> $b } keys %$rates){
+
+        if (! $rates->{$rate}){next;}
+
+        if (($rate % $family == 0) && ($sync eq "S") && ($rate > $last) ){
+            
+            $last = $rate;
+            if ($rate >= $fileRate) {return $rate;}
+        }
+        
+        if (!($rate % $family == 0) && ($sync eq "N") && ($rate > $last)){
+            
+            $last = $rate;
+            if ($rate >= $fileRate) {return $rate;}
+        }
+       
+        if (($sync eq "X") && ($rate > $last)){
+        
+            $last = $rate;
+            if ($rate >= $fileRate) {return $rate;}
+        }
+        
+    }
+    if (($sync eq "S") && $last){ return $last;}
+    if (($sync eq "N") && $last){ return $last;}
+    
+    if (!($sync eq "X")){
+        
+         return _getNextEnabledRate($fileRate, $rates, $family, "X");
+    
+    }
+    return $last;
+}
 sub _saveHeaderFile{
 	my $fh = shift;
 	my $testHeaderFile = shift;
@@ -1225,14 +1316,14 @@ sub _isResamplingRequested{
 		($transcodeTable->{'enableResample'}->{$inCodec} ? 
 			$transcodeTable->{'enableResample'}->{$inCodec} : 0));
 	
-	Plugins::C3PO::Logger::debugMessage('resampleWhen: '.(isResampleAlways($transcodeTable) ? "Always" : isResampleNever($transcodeTable) ? "Never" : "Only when Not Supported"));
+	Plugins::C3PO::Logger::debugMessage('resampleWhen: '.$transcodeTable->{'resampleWhen'});
 	
     if ($transcodeTable->{'enableResample'}->{$inCodec}) {return 1;}
     if ($transcodeTable->{'enableEffects'}->{$inCodec}) {return 1;}
     
 	if ($outCodec eq 'dsf'  || $outCodec eq 'dff') {return 1;} 
 	
-	return !(isResampleNever($transcodeTable));
+	return !($transcodeTable->{'resampleWhen'} eq 'N');
     
 }
 sub isTranscodingRequired{
