@@ -113,14 +113,14 @@ sub _ceckC3PO{
 	if (isRuntime($transcodeTable)) {return 0;}
 	
 	
-	if (isLMSInfo()) {
-		$log->info('is Native :'._isNative($transcodeTable));
-		$log->info('isResamplingRequested :'._isResamplingRequested($transcodeTable));
-		$log->info('resampling to :'.$transcodeTable->{'resampleTo'});
+	if (isLMSDebug()) {
+		$log->debug('is Native :'._isNative($transcodeTable));
+		$log->debug('isResamplingRequested :'._isResamplingRequested($transcodeTable));
+		$log->debug('resampling to :'.$transcodeTable->{'resampleTo'});
 	} else{
-		Plugins::C3PO::Logger::infoMessage('is Native :'._isNative($transcodeTable));
-		Plugins::C3PO::Logger::infoMessage('isResamplingRequested :'._isResamplingRequested($transcodeTable));
-		Plugins::C3PO::Logger::infoMessage('resampling to :'.$transcodeTable->{'resampleTo'});
+		Plugins::C3PO::Logger::debugMessage('is Native :'._isNative($transcodeTable));
+		Plugins::C3PO::Logger::debugMessage('isResamplingRequested :'._isResamplingRequested($transcodeTable));
+		Plugins::C3PO::Logger::debugMessage('resampling to :'.$transcodeTable->{'resampleTo'});
 	}
 	
 	# there is nothing to do, native.
@@ -396,10 +396,10 @@ sub buildCommand {
 	}
 	$command = $transcodeTable->{'command'}||"";
     
-	if (isLMSInfo()) {
-		$log->info('Transcode command: '.$command);
+	if (isLMSDebug()) {
+		$log->debug('Transcode command: '.$command);
 	} else{
-		Plugins::C3PO::Logger::infoMessage('Transcode command: '.$command);
+		Plugins::C3PO::Logger::debugMessage('Transcode command: '.$command);
 	}
 	
 	if ($command eq ""){
@@ -671,10 +671,10 @@ sub _checkResample{
 	my $dsdrates=$transcodeTable->{'dsdRates'};
 	my $maxDsdrate = _getMaxRate($dsdrates,0);
 
-	Plugins::C3PO::Logger::infoMessage('$maxsamplerate :'.$maxsamplerate);
-	Plugins::C3PO::Logger::infoMessage('sampleRates :'.Data::Dump::dump($samplerates));
-	Plugins::C3PO::Logger::infoMessage('$maxDsdrate :'.$maxDsdrate);
-	Plugins::C3PO::Logger::infoMessage('dsdrates :'.Data::Dump::dump($dsdrates));
+	Plugins::C3PO::Logger::debugMessage('$maxsamplerate :'.$maxsamplerate);
+	Plugins::C3PO::Logger::debugMessage('sampleRates :'.Data::Dump::dump($samplerates));
+	Plugins::C3PO::Logger::debugMessage('$maxDsdrate :'.$maxDsdrate);
+	Plugins::C3PO::Logger::debugMessage('dsdrates :'.Data::Dump::dump($dsdrates));
 
 	my $forcedSamplerate= $transcodeTable->{'options'}->{'forcedSamplerate'};
 	my $resampleWhen= $transcodeTable->{'resampleWhen'};
@@ -711,20 +711,20 @@ sub _checkResample{
         my $bitsPerSample   = $audioFile->_getBitsPerSample();
         my $isFilesDsd      = $audioFile->isDsd();
         
-        Plugins::C3PO::Logger::infoMessage('file samplerate: '.$fileSamplerate);
-		Plugins::C3PO::Logger::infoMessage('bits Per Sample: '.($bitsPerSample ? $bitsPerSample : 0 ));
+        Plugins::C3PO::Logger::debugMessage('file samplerate: '.$fileSamplerate);
+		Plugins::C3PO::Logger::debugMessage('bits Per Sample: '.($bitsPerSample ? $bitsPerSample : 0 ));
         
         if (($isDsdInput && !$isFilesDsd) || (!$isDsdInput && $isFilesDsd)){
 		
-			Plugins::C3PO::Logger::WarningMessage("Inputtype is: ".$inCodec. 
+			Plugins::C3PO::Logger::debugMessage("Inputtype is: ".$inCodec. 
 				" bit per sample is: ".$bitsPerSample );
 
 		} elsif ($isDsdInput) {
 		
 			$filedsdRate = $fileSamplerate/44100;
 
-			Plugins::C3PO::Logger::infoMessage('isDsdIn: '.$isDsdInput);
-			Plugins::C3PO::Logger::infoMessage('file dsdrate: '.$filedsdRate);
+			Plugins::C3PO::Logger::debugMessage('isDsdIn: '.$isDsdInput);
+			Plugins::C3PO::Logger::debugMessage('file dsdrate: '.$filedsdRate);
 		
 		}
 		if ($fileSamplerate){
@@ -761,17 +761,17 @@ sub _checkResample{
     #TODO check and change if input is DSD and not a 44100 multiple.
 	$maxDsdrate = $maxDsdrate*44100;
 		
-	Plugins::C3PO::Logger::infoMessage('is runtime :                 '.(isRuntime($transcodeTable)));
-	Plugins::C3PO::Logger::infoMessage('forced Samplerate :          '.($forcedSamplerate ? $forcedSamplerate :'undef'));
-	Plugins::C3PO::Logger::infoMessage('resampleWhen :               '.$resampleWhen);
-	Plugins::C3PO::Logger::infoMessage('file samplerate:             '.($fileSamplerate ? $fileSamplerate : 'undef'));
-    Plugins::C3PO::Logger::infoMessage('is supported:                '.($isSupported ? 'Yes' : 'No'));
-	Plugins::C3PO::Logger::infoMessage('resampleTo :                 '.$resampleTo);
-	Plugins::C3PO::Logger::infoMessage('Max syncrounus sample rate : '.($maxSyncrounusRate ? $maxSyncrounusRate : 'undef'));
-	Plugins::C3PO::Logger::infoMessage('isDsdinput :                 '.($isDsdInput? 'Yes' : 'No'));
-    Plugins::C3PO::Logger::infoMessage('isDsdOutput :                '.($isDsdOutput? 'Yes' : 'No'));
-	Plugins::C3PO::Logger::infoMessage('maxDsdrate :                 '.$maxDsdrate);
-	Plugins::C3PO::Logger::infoMessage('maxsamplerate :              '.$maxsamplerate);
+	Plugins::C3PO::Logger::debugMessage('is runtime :                 '.(isRuntime($transcodeTable)));
+	Plugins::C3PO::Logger::debugMessage('forced Samplerate :          '.($forcedSamplerate ? $forcedSamplerate :'undef'));
+	Plugins::C3PO::Logger::debugMessage('resampleWhen :               '.$resampleWhen);
+	Plugins::C3PO::Logger::debugMessage('file samplerate:             '.($fileSamplerate ? $fileSamplerate : 'undef'));
+    Plugins::C3PO::Logger::debugMessage('is supported:                '.($isSupported ? 'Yes' : 'No'));
+	Plugins::C3PO::Logger::debugMessage('resampleTo :                 '.$resampleTo);
+	Plugins::C3PO::Logger::debugMessage('Max syncrounus sample rate : '.($maxSyncrounusRate ? $maxSyncrounusRate : 'undef'));
+	Plugins::C3PO::Logger::debugMessage('isDsdinput :                 '.($isDsdInput? 'Yes' : 'No'));
+    Plugins::C3PO::Logger::debugMessage('isDsdOutput :                '.($isDsdOutput? 'Yes' : 'No'));
+	Plugins::C3PO::Logger::debugMessage('maxDsdrate :                 '.$maxDsdrate);
+	Plugins::C3PO::Logger::debugMessage('maxsamplerate :              '.$maxsamplerate);
 	
 	
 	# lms always force it to max samplerate.
@@ -804,7 +804,7 @@ sub _checkResample{
 	
 	$transcodeTable->{'targetSamplerate'}=$targetSamplerate;
 	
-	Plugins::C3PO::Logger::infoMessage('Target Sample rate :         '.($targetSamplerate ? $targetSamplerate : "undef"));
+	Plugins::C3PO::Logger::debugMessage('Target Sample rate :         '.($targetSamplerate ? $targetSamplerate : "undef"));
 	
 	return $transcodeTable;
 	
@@ -1090,7 +1090,7 @@ sub _getTargetRate{
         $target = _getNextEnabledRate($fileSamplerate, $samplerates, $ratefamily, $sync);
     }
     
-    Plugins::C3PO::Logger::infoMessage('target : '.Data::Dump::dump($target));
+    Plugins::C3PO::Logger::debugMessage('target : '.Data::Dump::dump($target));
     
     return (($target && $target > 0) ? $target : undef);
 	
@@ -1101,25 +1101,25 @@ sub _getNextEnabledRate{
     my $family          = shift || 1;
     my $sync            = shift || "X";
     
-    Plugins::C3PO::Logger::infoMessage('fileRate : '.($fileRate ? $fileRate : ''));
-	Plugins::C3PO::Logger::infoMessage('rates : '.Data::Dump::dump($rates));
-	Plugins::C3PO::Logger::infoMessage('family : '.($family ? $family : ''));
-    Plugins::C3PO::Logger::infoMessage('sync : '.Data::Dump::dump($sync));
+    Plugins::C3PO::Logger::debugMessage('fileRate : '.($fileRate ? $fileRate : ''));
+	Plugins::C3PO::Logger::debugMessage('rates : '.Data::Dump::dump($rates));
+	Plugins::C3PO::Logger::debugMessage('family : '.($family ? $family : ''));
+    Plugins::C3PO::Logger::debugMessage('sync : '.Data::Dump::dump($sync));
     
     my $last=0;
     
-	Plugins::C3PO::Logger::infoMessage('rates : '.Data::Dump::dump(sort { $a <=> $b } keys %$rates));
+	Plugins::C3PO::Logger::debugMessage('rates : '.Data::Dump::dump(sort { $a <=> $b } keys %$rates));
 	for my $rate (sort { $a <=> $b } keys %$rates){
         
-        Plugins::C3PO::Logger::infoMessage('rate : '.$rate);
+        Plugins::C3PO::Logger::debugMessage('rate : '.$rate);
         if (! $rates->{$rate}){next;}
         
-        Plugins::C3PO::Logger::infoMessage('rate : '.$rate);
-        Plugins::C3PO::Logger::infoMessage('family : '.$family);
-        Plugins::C3PO::Logger::infoMessage('mod : '.($rate % $family));
-        Plugins::C3PO::Logger::infoMessage('sync : '.$sync);
-        Plugins::C3PO::Logger::infoMessage('$last : '.$last);
-        Plugins::C3PO::Logger::infoMessage('fileRate : '.($fileRate ? $fileRate : ''));
+        Plugins::C3PO::Logger::debugMessage('rate : '.$rate);
+        Plugins::C3PO::Logger::debugMessage('family : '.$family);
+        Plugins::C3PO::Logger::debugMessage('mod : '.($rate % $family));
+        Plugins::C3PO::Logger::debugMessage('sync : '.$sync);
+        Plugins::C3PO::Logger::debugMessage('$last : '.$last);
+        Plugins::C3PO::Logger::debugMessage('fileRate : '.($fileRate ? $fileRate : ''));
         
         if (($rate % $family == 0) && ($sync eq "S") && ($rate > $last) ){
             

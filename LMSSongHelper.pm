@@ -223,7 +223,7 @@ sub getTranscoder {
 			&& $handler->can('canHandleTranscode') && $handler->canHandleTranscode($LMSSong);
 
 		if ($transcoder->{'streamMode'} eq 'I' || $handlerWillTranscode) {
-			main::INFOLOG && $log->info("Opening stream (no direct streaming) using $handler [$url]");
+			main::DEBUGLOG && $log->debug("Opening stream (no direct streaming) using $handler [$url]");
 		
 			$sock = $handler->new({
 				url        => $url, # it is just easier if we always include the URL here
@@ -244,7 +244,7 @@ sub getTranscoder {
 			# either directly, or via transcoding.
 			if (Slim::Music::Info::isSong($track, $contentType)) {
 	
-				main::INFOLOG && $log->info("URL is a song (audio): $url, type=$contentType");
+				main::DEBUGLOG && $log->debug("URL is a song (audio): $url, type=$contentType");
 	
 				if ($sock->opened() && !defined(Slim::Utils::Network::blocking($sock, 0))) {
 					logError("Can't set nonblocking for url: [$url]");

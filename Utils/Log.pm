@@ -22,7 +22,8 @@ package Utils::Log;
 use strict;	
 use Carp qw<longmess>;
 use Data::Dumper;
-	
+use POSIX qw(strftime);
+
 #use File::Spec::Functions qw(:ALL);
 #print ( (caller(1))[3] )."\n";
 #print "\n";
@@ -47,7 +48,12 @@ sub evalLog{
 	}
 	return 1;
 }
-
+sub getNiceTimeString {
+    my $self = shift;
+    my $time = shift || time;
+    
+    return POSIX::strftime('%Y/%m/%d %H:%M:%S', localtime($time));
+}
 sub writeLog {
 	my $logfile=shift;
 	my $msg = shift;
@@ -55,8 +61,10 @@ sub writeLog {
 	my $logLevel = shift || 'warn';
 	my $msgLevel= shift || 'warn';
 	
-	my $now = localtime;
-	my $line = qq([$now] $msg);
+    my ($package, $filename, $line, $subroutine) = caller(2);
+    
+	my $now = getNiceTimeString();
+	my $line = qq([$now] at $package ($line): $msg);
 	
 	if (evalLog($logLevel, $msgLevel)){
                 

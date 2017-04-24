@@ -258,7 +258,7 @@ sub getC3POcommand{
     my $self    = shift;
     my $command = shift;
     
-    if (main::INFOLOG && $log->is_info) {
+    if (main::DEBUGLOG && $log->is_debug) {
 			 $log->info($command);
 	}
     
@@ -306,9 +306,9 @@ sub _getSoxVersion{
 	
 	my ($version, $extra) = Plugins::C3PO::Shared::unstringVersion($versionString,$log);
 	
-	if (main::INFOLOG && $log->is_info) {
-		$log->info("Sox path  is: ".$pathToSox);
-		$log->info("Sox version is: ".$version.($extra ? $extra : ''));
+	if (main::DEBUGLOG && $log->is_debug) {
+		$log->debug("Sox path  is: ".$pathToSox);
+		$log->debug("Sox version is: ".$version.($extra ? $extra : ''));
 	}
 	return $version;
 }

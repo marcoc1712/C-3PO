@@ -400,7 +400,7 @@ sub _initDefaultPrefs{
             soxMultithread              => "0",
             soxBuffer                   => 8,
 			unlimitedDsdRate			=> "0",
-			resampleWhen				=> "A",
+			resampleWhen				=> "E",
 			resampleTo                  => "S",
 			outCodec                    => "wav",
 			outBitDepth                 => 3,

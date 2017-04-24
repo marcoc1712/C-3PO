@@ -207,15 +207,11 @@ sub buildTranscoderTable{
     # we should investigate the the actual file and detect the best fitting target.
     # Replace RESAMPLE WHEN control.
 
-    warn "******************************************* $countSampleRates";
-    warn "******************************************* $countDSDRates";
-    
     if (($countSampleRates == 1) && ($countDSDRates == 1)) {
         
         #Always to the the only (max) samplerate enabled.
         $transcodeTable->{'resampleWhen'}='A';
         $transcodeTable->{'resampleTo'}='X';
-        warn "******************************************* Only ONE";
         
     }elsif  (($countSampleRates == 0) && ($countDSDRates == 0)){
     

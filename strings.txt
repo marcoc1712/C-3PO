@@ -131,22 +131,6 @@ PLUGIN_C3PO_UNSUPPORTED
 	EN	Unsupported
 	IT	Non supportato
 
-PLUGIN_C3PO_PCM_SAMPLE_RATE_LIST
-	EN	Supported sample rates (PCM)
-	IT	Frequenze di campionamento supportate (PCM)
-	
-PLUGIN_C3PO_PCM_SAMPLE_RATE_LIST_DESC
-	EN	List of supported PCM output sample rates. Can't exceed the maximum value allowed by the player.
-	IT	Elenco delle frequenze di campionamento supportate in uscita. Non possono eccedere il valore massimo ammesso dal player.
-
-PLUGIN_C3PO_DSD_SAMPLE_RATE_LIST
-	EN	Supported DSD resolutions
-	IT	Risoluzioni DSD supportate
-	
-PLUGIN_C3PO_DSD_SAMPLE_RATE_LIST_DESC
-	EN	List of supported DSD output resolutions, real bitrate is 44100 *. Can't exceed the maximum value allowed by the player
-	IT	Elenco delle risoluzioni DSD supportate in uscita, il bit rate reale è 44100*. Non possono eccedere il valore massimo ammesso dal player.
-
 PLUGIN_C3PO_USECUESHEETS
 	EN	Enable cue sheets
 	IT	Abilita l'uso dei cue sheets
@@ -188,8 +172,8 @@ PLUGIN_C3P0_FUNCTION_CODECS_CAPTION
 	IT	Funzione / Formato in ingresso
 
 PLUGIN_C3P0_FUNCTION_CODECS_CAPTION_DESC
-	EN	Control the execution flows, in terms of single functions per input format.<br><br><b>Enable seek</b> capability ("T" and "U"), is required for cue sheet usage, but is incompatible with "I" stream format, used by many on line services (i.e. Qobuz).<br><br><b>Enable (input from) standard Input </b> capability ("I"), is required by many on line services (i.e. Qobuz), but is incompatible with 'seek' ("T" and "U"), necessary for cue sheet usage.<br><br><b>Convert</b> enables conversion to the selected 'output format'.<br><br><b>Resamle</b> Enables resampling to the selected sample rate, when appropiate. <br><br><b>Additional Effects</b> Enables additional effects, when appropiate.
-	IT	Controlla il flusso di esecuzione, in termini di funzioni per formato in ingresso.<br><br><b>Abilita ricerca (cue sheet)</b> Abilita la capacità di ricerca ("T" e "U"), indispensabile per l'uso dei cue sheets ma incompatibile con la modalità 'stdin' ("I"), necessaria per molti servizi on line (es. Qobuz).<br><br><b>Abilita 'stdIn' (es. Qobuz)</b> Abilita l'ingresso da 'standard Input' ("I"), necessario per molti servizi on line (es. Qobuz), ma incompatibile con le capacità di ricerca ("T" and "U") indispensabile per l'uso dei cue sheets.<br><br><b>Conversione</b> Abilita la conversione al 'formato in uscita' selezionato.<br><br><b>Ricampionamento</b> Abilita il ricampionamento mediante i parametri selezionati. <br><br><b>Effetti aggiuntivi</b> Applica gli effetti aggiuntivi.
+	EN	Control the execution flows, in terms of single functions per input format.<br><br><b>Enable seek</b> capability ("T" and "U"), is required for cue sheet usage, but is incompatible with "I" stream format, used by many on line services (i.e. Qobuz).<br><br><b>Enable (input from) standard Input </b> capability ("I"), is required by many on line services (i.e. Qobuz), but is incompatible with 'seek' ("T" and "U"), necessary for cue sheet usage.<br><br><b>Convert</b> enables conversion to the selected 'output format'.<br><br><b>Resamle</b> Enables resampling to the selected sample rate, when appropiate. <br><br><b>Additional Effects</b> Enables additional effects, when appropiate.<br><br><b>Effetti aggiuntivi</b> Applica gli effetti aggiuntivi.<br><br><b>Input fromats</b> See "Advanced" to add or remove support to input formats.
+	IT	Controlla il flusso di esecuzione, in termini di funzioni per formato in ingresso.<br><br><b>Abilita ricerca (cue sheet)</b> Abilita la capacità di ricerca ("T" e "U"), indispensabile per l'uso dei cue sheets ma incompatibile con la modalità 'stdin' ("I"), necessaria per molti servizi on line (es. Qobuz).<br><br><b>Abilita 'stdIn' (es. Qobuz)</b> Abilita l'ingresso da 'standard Input' ("I"), necessario per molti servizi on line (es. Qobuz), ma incompatibile con le capacità di ricerca ("T" and "U") indispensabile per l'uso dei cue sheets.<br><br><b>Conversione</b> Abilita la conversione al 'formato in uscita' selezionato.<br><br><b>Ricampionamento</b> Abilita il ricampionamento mediante i parametri selezionati. <br><br><b>Effetti aggiuntivi</b> Applica gli effetti aggiuntivi.<br><br><b>Formati in ingresso</b> Vedi "Avanzate" per modificarne l'elenco.
 
 PLUGIN_C3PO_ENABLE_SEEK_TITLE
 	EN	Enable seek (cue sheet)
@@ -247,6 +231,22 @@ PLUGIN_C3PO_SPECIAL
 	EN	SPECIAL CASES
 	IT	CASI PARTICOLARI
 
+PLUGIN_C3PO_PCM_SAMPLE_RATE_LIST
+	EN	Output sample rates (PCM)
+	IT	Frequenze di campionamento in uscita (PCM)
+	
+PLUGIN_C3PO_PCM_SAMPLE_RATE_LIST_DESC
+	EN	List of supported PCM output sample rates. Can't exceed the maximum value allowed by the player.
+	IT	Elenco delle frequenze di campionamento supportate in uscita. Non possono eccedere il valore massimo ammesso dal player.
+
+PLUGIN_C3PO_DSD_SAMPLE_RATE_LIST
+	EN	Output DSD resolutions
+	IT	Risoluzioni DSD in uscita
+	
+PLUGIN_C3PO_DSD_SAMPLE_RATE_LIST_DESC
+	EN	List of supported DSD output resolutions, real bitrate is 44100 or 48000 *. Can't exceed the maximum value allowed by the player
+	IT	Elenco delle risoluzioni DSD supportate in uscita, il bit rate reale è 44100 or 48000 *. Non possono eccedere il valore massimo ammesso dal player.
+
 PLUGIN_C3PO_RESAMPLE_WHEN
 	EN	When
 	IT	Quando
@@ -272,20 +272,20 @@ PLUGIN_C3PO_RESAMPLE_TO
 	IT	Alla frequenza
 	
 PLUGIN_C3PO_RESAMPLE_TO_DESC
-	EN	Select the target sample rate from the above supported table. If system allow actual file investigation (a warning is issued if not) the closest supported value is choosed, depending on the synchronous (exact multiple of the same base frequency) / not synchronous option, looking first to greater then to lesser values. Maximum supported sample rate is the last fault back value if no better.
-	IT	Seleziona la frequenza di campionamento tra quelle supportate (v. sopra). Se le condizioni di utilizzo lo consentono a C-3PO di determinare la frequenza di campionamento del file effettivamente inviato in esecuzione (altrimenti viene emesso un messaggio di attenzione), viene utilizzato il valore più prossimo (prima i maggiori  e solo dopo i minori), sincrono (multiplo della stessa frequenza di base) o meno. Se non è possibile determinarlo più accuratamente, viene utuilizzato il massimo valore supportato.
+	EN	Selects the output sampling rate based on the following parameters: <br> <br> <b> Reference frequency: </ b> except for particular situations (reported) is the sampling rate of the song being sent In playback, otherwise the maximum supported. <br> <br> <b> Synchronism: </ b> frequencies  are synchronous if entire multiple of the same basic frequency (11.025 or 12.000 Hz). <br> <br > Search is done on subsequent steps: <br> <br> 1. The next  greather than the reference one and in respect of the requested synchronism. <br> <br> 2. The closest to frequencies lower than the reference frequency, always respecting the synchronism. <br> <br> 3. Repeats steps 1 and 2 but omits sync. <br> <br> 4. Uses the maximum supported value. <br> <br> If no value is available, does not apply resampling.
+	IT	Individua la frequenza di campionamento in uscita tra quelle selezionate, sulla base dei seguenti parametri:<br><br><b>Frequenza di riferimento:</b> a meno di situazioni particolari (segnalate) è la frequenza di campionamento del brano inviato in riproduzione, altrimenti la massima supportata.<br><br><b>Sincronismo</b> sono sincrone, rispetto al riferimento, le frequenze multiple intere della stessa frequenza di base (11.025 o 12.000 Hz).<br><br>La ricerca avviene su passi successivi:<br><br>1. la più prossima nelle frequenzi maggiori a quella di riferimento e nel rispetto del sincronismo.<br><br>2. la più prossima nelle frequenza minori a quella di riferimento, sempre nel rispetto del sincornismo.<br><br>3. ripete i punti 1 e 2 ma omettendo il sincronismo.<br><br>4. utilizza il valore massimo supportato.<br><br>Se nessun valore è disponibile, non applica il ricampionamento.
 
 PLUGIN_C3PO_RESAMPLE_TO_NEAR
-	EN	Closest supported (first higher then minor)
-	IT	Più prossima supportata (prima le maggiori quindi le minori)
+	EN	Closest supported
+	IT	Prossima supportata
 
 PLUGIN_C3PO_RESAMPLE_TO_NEAR_SYNC
-	EN	Closest synchronous supported (first higher then minor)
-	IT	Più prossima sincrona supportata (prima le maggiori quindi le minori)
+	EN	Closest synchronous supported
+	IT	Prossima sincrona supportata
 
 PLUGIN_C3PO_RESAMPLE_TO_NEAR_NOT_SYNC
-	EN	Closest not synchronous supported (first higher then minor)
-	IT	Più prossima non sincrona supportata (prima le maggiori quindi le minori)
+	EN	Closest not synchronous supported
+	IT	Prossima non sincrona supportata
 
 PLUGIN_C3PO_RESAMPLE_TO_MAX
 	EN	Max supported
@@ -432,8 +432,8 @@ PLUGIN_C3PO_EFFECTS_WHEN
 	IT	Quando
 	
 PLUGIN_C3PO_EFFECTS_WHEN_DESC
-	EN	Ask the server to apply effects always, never or only when a resample is already involved.
-	IT	Chiede al server di applicare gli effetti sempre, mai o solo quando è già richiesto anche un ricampionamento.
+	EN	Ask the server to apply effects always or only when a resample is already involved.
+	IT	Chiede al server di applicare gli effetti sempre o solo quando è già richiesto anche un ricampionamento.
 
 PLUGIN_C3PO_EFFECTS_WHEN_ALWAYS
 	EN	Always

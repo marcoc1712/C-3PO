@@ -274,6 +274,8 @@ sub newSong{
         $lastCommands{$id}{'msg'} = "\n".
                                        "At: ".$lastCommands{$id}{'time'}."\n". 
                                        "    Command: \n".
+                                       "    ".$lastCommands{$id}{'command'}."\n\n".
+                                       "    Tokenized command: \n".
                                        "    ".$lastCommands{$id}{'tokenized'}."\n";
                                         
         if ($C3POwillStart && $binOk && ($binaries{'C-3PO'} || $binaries{'perl'})){
@@ -296,7 +298,7 @@ sub newSong{
                                            "    ".$lastCommands{$id}{'C-3PO'}."\n";
         } else{
             
-            $lastCommands{$id}{'msg'} ="";
+            #$lastCommands{$id}{'msg'} ="";
         }
         
         if (main::INFOLOG && $log->is_info) {

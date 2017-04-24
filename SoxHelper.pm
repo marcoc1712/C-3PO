@@ -170,7 +170,7 @@ sub resample{
     my $lowpass='';
     my $sdm='';
     my $rateString='';
-    Plugins::C3PO::Logger::infoMessage('SOX output samplerate: '.($outSamplerate ? $outSamplerate : 'undef'));
+    Plugins::C3PO::Logger::debugMessage('SOX output samplerate: '.($outSamplerate ? $outSamplerate : 'undef'));
     
     if ($outSamplerate) {
             
