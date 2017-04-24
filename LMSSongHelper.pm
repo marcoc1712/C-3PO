@@ -100,20 +100,24 @@ sub getDuration{
     
     my $duration = ($audio_size - $audio_offset)*8 / ($channels * $samplesize * $samplerate);
     
-    $log->warn("virtual     : ".($virtual ? 'Yes' :'No'));
-    $log->warn("secs        : $secs");
-    $log->warn("channels    : $channels");
-    $log->warn("samplerate  : $samplerate");
-    $log->warn("samplesize  : $samplesize");
-    $log->warn("vbr_scale   : ".($vbr_scale ? $vbr_scale :''));
-    $log->warn("bitrate     : $bitrate");
-    $log->warn("audio_size  : $audio_size");
-    $log->warn("audio_offset: $audio_offset");
+    if (main::DEBUGLOG && $log->is_debug) {
+        
+        $log->debug("virtual     : ".($virtual ? 'Yes' :'No'));
+        $log->debug("secs        : $secs");
+        $log->debug("channels    : $channels");
+        $log->debug("samplerate  : $samplerate");
+        $log->debug("samplesize  : $samplesize");
+        $log->debug("vbr_scale   : ".($vbr_scale ? $vbr_scale :''));
+        $log->debug("bitrate     : $bitrate");
+        $log->debug("audio_size  : $audio_size");
+        $log->debug("audio_offset: $audio_offset");
+
+        $log->debug("duration    : $duration");
+    }
     
-    $log->warn("duration    : $duration");
-   
-   return $duration;
+    return $duration;
 }
+
 # copy of  Slim::Player::Song::open, returning the command.
 sub getTranscoder {
 	my ($self, $seekdata) = @_;
