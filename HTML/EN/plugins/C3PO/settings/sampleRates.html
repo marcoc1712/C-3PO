@@ -98,38 +98,39 @@ td, th {
         </tr>
     </table>
 [% END %]
+[% IF isSoxDsdCapable %]	  
+    [% WRAPPER setting title="PLUGIN_C3PO_DSD_SAMPLE_RATE_LIST" desc="PLUGIN_C3PO_DSD_SAMPLE_RATE_LIST_DESC" %]
+        <table>
+            <tr>
+                [% FOREACH rate IN prefs.dsdRates %]
+                    [% FOREACH r3 IN OrderedDsdRates %]
+                        [% IF rate.key == r3.key %] 
+                            [% IF r3.value %]
+                                <td>  
 
-[% WRAPPER setting title="PLUGIN_C3PO_DSD_SAMPLE_RATE_LIST" desc="PLUGIN_C3PO_DSD_SAMPLE_RATE_LIST_DESC" %]
-    <table>
-        <tr>
-            [% FOREACH rate IN prefs.dsdRates %]
-                [% FOREACH r3 IN OrderedDsdRates %]
-                    [% IF rate.key == r3.key %] 
-                        [% IF r3.value %]
-                            <td>  
+                                    <input type="checkbox" name="pref_dsdRates[% rate.key %]" 
+                                           id="dsdRates_[% rate.key %]" [% rate.value ? "checked" : "" %]
 
-                                <input type="checkbox" name="pref_dsdRates[% rate.key %]" 
-                                       id="dsdRates_[% rate.key %]" [% rate.value ? "checked" : "" %]
+                                    [% FOREACH r2 IN disabledDsdRates %]
+                                        [% IF rate.key == r2.key %] 
+                                            [% IF r2.value %] disabled [% END %]
+                                            [% LAST %]   
+                                        [% END %]
+                                    [% END %]>
 
-                                [% FOREACH r2 IN disabledDsdRates %]
-                                    [% IF rate.key == r2.key %] 
-                                        [% IF r2.value %] disabled [% END %]
-                                        [% LAST %]   
-                                    [% END %]
-                                [% END %]>
-                                
-                                <label for="pref_dsdRates_[% rate.key %]"> [% r3.value %]
-                                
-                                </label> 
+                                    <label for="pref_dsdRates_[% rate.key %]"> [% r3.value %]
 
-                            </td>
+                                    </label> 
+
+                                </td>
+                            [% END %]
+                            [% LAST %]
                         [% END %]
-                        [% LAST %]
-                    [% END %]
-                [% END %] 
-            [% END %]
-        </tr>
-    </table>
+                    [% END %] 
+                [% END %]
+            </tr>
+        </table>
+    [% END %]
 [% END %]
 
 

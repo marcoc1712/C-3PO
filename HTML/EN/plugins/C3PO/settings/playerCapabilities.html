@@ -2,11 +2,13 @@
     [% maxSampleRate %]
 [% END %]
 
-[% WRAPPER setting title="PLUGIN_C3PO_MAX_DSD_RATE" desc="PLUGIN_C3PO_MAX_DSD_RATE_DESC" %]
-    [% IF maxDsdRate %]
-        [% maxDsdRate %]
-    [% ELSE %]
-        [% "PLUGIN_C3PO_UNSUPPORTED" | string %]
+[% IF isSoxDsdCapable %]
+    [% WRAPPER setting title="PLUGIN_C3PO_MAX_DSD_RATE" desc="PLUGIN_C3PO_MAX_DSD_RATE_DESC" %]
+        [% IF (prefs.codecsCli.dsf || prefs.codecsCli.dff) && maxDsdRate %]
+            [% maxDsdRate %]
+        [% ELSE %]
+            [% "PLUGIN_C3PO_UNSUPPORTED" | string %]
+        [% END %]
     [% END %]
 [% END %]
 

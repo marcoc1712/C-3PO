@@ -52,7 +52,8 @@ my @sharedPrefNames		  = qw(	enable panel
                                 
 								outBitDepth ditherType ditherPrecision
 								
-								sdmFilterType
+								sdmFilterType sdmTrellisOrder sdmTrellisNum sdmTrellisLatency
+                                sdmTrellisOrderActive sdmTrellisNumActive sdmTrellisLatencyActive
                                 
 								dsdLowpass1Value dsdLowpass1Order 
 								dsdLowpass2Value dsdLowpass2Order dsdLowpass2Active	
@@ -61,7 +62,8 @@ my @sharedPrefNames		  = qw(	enable panel
 								
 								); #resampleWhen
 				
-my @globalPrefNames		  = qw(	codecs soxMultithread soxBuffer unlimitedDsdRate  
+my @globalPrefNames		  = qw(	codecs soxMultithread soxBuffer  
+                                unlimitedDsdRate sdmTrellis
                                 serverFolder logFolder C3POfolder pathToPrefFile
 								pathToFlac pathToSox pathToFaad pathToFFmpeg
 								pathToC3PO_exe pathToC3PO_pl pathToPerl

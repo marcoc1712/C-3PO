@@ -183,8 +183,9 @@ sub maxSupportedDsdRate{
 	}
 	
 	my $dsd64Rate= 88200; # Native, DOP is double, could be handled?
+    
 	if ($self->maxSupportedSamplerate($client) >= $dsd64Rate*16){
-		return 512;
+		return 1024;
 	}
 	if ($self->maxSupportedSamplerate($client) >= $dsd64Rate*8){
 		return 512;
@@ -198,6 +199,7 @@ sub maxSupportedDsdRate{
 	if ($self->maxSupportedSamplerate($client) >= $dsd64Rate){
 		return 64;
 	}
+    return 0;
 }
 sub defaultSampleRates{
 	my $self = shift; 
@@ -216,8 +218,7 @@ sub defaultDsdRates{
 	my $capDsdrates=$self->dsdrates();
 	my $maxSupportedDsdrate= $self->maxSupportedDsdRate($client);
 	
-	# default enable only DSD64 when supported.
-	return $self->_defaultRates($capDsdrates,$maxSupportedDsdrate >0 ? 64 : 0);
+	return $self->_defaultRates($capDsdrates,$maxSupportedDsdrate);
 	
 }
 sub guessSampleRateList{

@@ -335,6 +335,52 @@ sub _migratePrefs{
                 $self->{preferences}->set('effectsWhen',"A");
             }
         }
+        if ($prefVersion < 20204){
+
+            if (!$client){
+
+                $self->{preferences}->set('sdmTrellis', '');
+                $self->{preferences}->set('sdmTrellisOrder', 13);
+                $self->{preferences}->set('sdmTrellisOrderActive', 0);
+                $self->{preferences}->set('sdmTrellisNum', 8);
+                $self->{preferences}->set('sdmTrellisNumActive', 0);
+                $self->{preferences}->set('sdmTrellisLatency', 1024);
+                $self->{preferences}->set('sdmTrellisLatencyActive', 0);
+            
+            } else {
+            
+                if  ($self->{preferences}->get('sdmTrellis')){
+                    
+                    $self->{preferences}->client($client)->set('sdmTrellisOrder',
+                                    $self->{preferences}->get('sdmTrellisOrder'));
+                                    
+                     $self->{preferences}->set('sdmTrellisOrderActive', 
+                                    $self->{preferences}->get('sdmTrellisOrderActive'));     
+                                    
+                    $self->{preferences}->client($client)->set('sdmTrellisNum',
+                                    $self->{preferences}->get('SDMtrellisNum'));
+                                    
+                    $self->{preferences}->client($client)->set('sdmTrellisNumActive',
+                                    $self->{preferences}->get('sdmTrellisNumActive'));
+                                    
+                    $self->{preferences}->client($client)->set('sdmTrellisLatency',
+                                    $self->{preferences}->get('sdmTrellisLatency'));
+                                    
+                    $self->{preferences}->client($client)->set('sdmTrellisLatencyActive',
+                                    $self->{preferences}->get('sdmTrellisLatencyActive'));
+            
+                } else{
+
+                        $self->{preferences}->client($client)->set('sdmTrellisOrder',13);
+                        $self->{preferences}->client($client)->set('sdmTrellisNum',8);
+                        $self->{preferences}->client($client)->set('sdmTrellisLatency',1024);
+                        
+                        $self->{preferences}->client($client)->set('sdmTrellisOrderActive',0);
+                        $self->{preferences}->client($client)->set('sdmTrellisNumActive',0);
+                        $self->{preferences}->client($client)->set('sdmTrellisLatencyActive',0);
+                }
+            }
+        }
         #here next versions additionals migration fetures
 	}
 		
@@ -400,6 +446,13 @@ sub _initDefaultPrefs{
             soxMultithread              => "0",
             soxBuffer                   => 8,
 			unlimitedDsdRate			=> "0",
+            sdmTrellis                  => "0",
+            sdmTrellisOrder             => "13",
+            sdmTrellisOrderActive       => "0",
+            sdmTrellisNum               => "8",
+            sdmTrellisNumActive         => "0",
+            sdmTrellisLatency           => "1024",
+            sdmTrellisLatencyActive     => "0",
 			resampleWhen				=> "E",
 			resampleTo                  => "S",
 			outCodec                    => "wav",

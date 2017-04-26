@@ -60,7 +60,7 @@ sub prefs {
     #avoid erasure of all preference on save.
 	#my @list= $plugin->getSharedPrefNameList();
 	my @list=();
-    push (@list, 'enable', 'unlimitedDsdRate', 'soxMultithread', 'soxBuffer');
+    push (@list, 'enable', 'unlimitedDsdRate', 'sdmTrellis', 'soxMultithread', 'soxBuffer');
 	
 	return ($plugin->getPreferences(), @list);		  
 }

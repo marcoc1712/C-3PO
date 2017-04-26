@@ -78,6 +78,7 @@ sub handler {
     
 	$params->{'soxVersion'} =$prefs->get('soxVersion');
 	$params->{'isSoxDsdCapable'} =$prefs->get('isSoxDsdCapable');
+    $params->{'sdmTrellis'} =$prefs->get('sdmTrellis');
        
 	my $codecsCli    = $prefs->client($client)->get('codecsCli');
 	my $prefCodecs   = $prefs->client($client)->get('codecs');
@@ -175,8 +176,7 @@ sub handler {
                 ($prefDsdRates,$modified) = $class->_copyParamToPrefsBooleanHash($params,'dsdRates',$prefDsdRates);
                 $prefs->client($client)->set( 'dsdRates', $plugin->translateDsdRates($prefDsdRates));
                                 
-                $restart = $modified ? $modified : $restart;
-                
+                $restart = $modified ? $modified : $restart;  
             }   
             $modified = _copyParamsToPrefs($client,$params,'enable');
             $restart = $modified ? $modified : $restart;

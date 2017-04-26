@@ -117,7 +117,12 @@
 			[% IF prefs.unlimitedDsdRate %] checked [% END %]
 				[% IF !prefs.codecs.dsf && ! prefs.codecs.dff %] disabled [% END %]>
 		[% END %]
-
+        
+        [% WRAPPER setting title="PLUGIN_C3PO_SDM_TRELLIS" desc="PLUGIN_C3PO_SDM_TRELLIS_DESC" %]
+			<input name="pref_sdmTrellis" type="checkbox" 
+			[% IF prefs.sdmTrellis %] checked [% END %]
+				[% IF !prefs.codecs.dsf && ! prefs.codecs.dff %] disabled [% END %]>
+		[% END %]
          <hr>
         
 	[% END %]

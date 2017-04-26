@@ -99,6 +99,14 @@ PLUGIN_C3PO_UNLIMITED_DSD_RATES_DESC
 	EN	Allow dsd resolutions to be greater than "Max sample rate"/88200. CAUTION: could produce noise dangerous for you and your speakers
 	IT	Non limitare la risoluzione DSD in uscita al "Massimo sample rate supportato"/88200. ATTENZIONE pu� generare rumore dannoso per te e per i diffusori.
 
+PLUGIN_C3PO_SDM_TRELLIS
+	EN	Trellis/viterbi search in sdm filter.
+	IT	Ricerca trellis/viterbi nel filtro sdm
+
+PLUGIN_C3PO_SDM_TRELLIS_DESC
+	EN	Enable trellis/viterbi search in sdm filter.<br> WARNING: The result of using these parameters is hard to predict and can include high noise levels or instability. Caution is advised
+	IT	Abilita la ricerca trellis/viterbi nel filtro sdm. <br> ATTENZIONE: Il risultato dell'uso di questi parametri è difficilmente prevedibile e può comportare rumore ad alto livello o instabilità. Usare con cautela.
+
 PLUGIN_C3PO_PLAYER_ENABLE_TITLE
 	EN	Enable C-3PO for this player.
 	IT	Abilita C-3PO per questo player. 
@@ -236,16 +244,16 @@ PLUGIN_C3PO_PCM_SAMPLE_RATE_LIST
 	IT	Frequenze di campionamento in uscita (PCM)
 	
 PLUGIN_C3PO_PCM_SAMPLE_RATE_LIST_DESC
-	EN	List of supported PCM output sample rates. Can't exceed the maximum value allowed by the player.
-	IT	Elenco delle frequenze di campionamento supportate in uscita. Non possono eccedere il valore massimo ammesso dal player.
+	EN	List of supported PCM output sample rates. Can't exceed the maximum value allowed by the player.<br>When the reference value is found as selected, resampling is avoided, else is applyed with target at the closest selected value (see "Target Sample rate is"). 
+	IT	Elenco delle frequenze di campionamento supportate in uscita. Non possono eccedere il valore massimo ammesso dal player.<br>Quando il valore di riferimento corrisponde ad uno selezionato, non avviene il ricampionamento, altrimenti viene effettuato al valore più prossimo (vedi "Alla frequenza"). 
 
 PLUGIN_C3PO_DSD_SAMPLE_RATE_LIST
 	EN	Output DSD resolutions
 	IT	Risoluzioni DSD in uscita
 	
 PLUGIN_C3PO_DSD_SAMPLE_RATE_LIST_DESC
-	EN	List of supported DSD output resolutions, real bitrate is 44100 or 48000 *. Can't exceed the maximum value allowed by the player
-	IT	Elenco delle risoluzioni DSD supportate in uscita, il bit rate reale è 44100 or 48000 *. Non possono eccedere il valore massimo ammesso dal player.
+	EN	List of supported DSD output resolutions, real bitrate is 44100 or 48000 *. Can't exceed the maximum value allowed by the player.<br> When the reference value is found as selected, resampling is avoided, else is applyed with target at the closest selected value (see "Target Sample rate is"). 
+	IT	Elenco delle risoluzioni DSD supportate in uscita, il bit rate reale è 44100 or 48000 *. Non possono eccedere il valore massimo ammesso dal player.<br>Quando il valore di riferimento corrisponde ad uno selezionato, non avviene il ricampionamento, altrimenti viene effettuato al valore più prossimo (vedi "Alla frequenza"). 
 
 PLUGIN_C3PO_RESAMPLE_WHEN
 	EN	When
@@ -272,8 +280,8 @@ PLUGIN_C3PO_RESAMPLE_TO
 	IT	Alla frequenza
 	
 PLUGIN_C3PO_RESAMPLE_TO_DESC
-	EN	Selects the output sampling rate based on the following parameters: <br> <br> <b> Reference frequency: </ b> except for particular situations (reported) is the sampling rate of the song being sent In playback, otherwise the maximum supported. <br> <br> <b> Synchronism: </ b> frequencies  are synchronous if entire multiple of the same basic frequency (11.025 or 12.000 Hz). <br> <br > Search is done on subsequent steps: <br> <br> 1. The next  greather than the reference one and in respect of the requested synchronism. <br> <br> 2. The closest to frequencies lower than the reference frequency, always respecting the synchronism. <br> <br> 3. Repeats steps 1 and 2 but omits sync. <br> <br> 4. Uses the maximum supported value. <br> <br> If no value is available, does not apply resampling.
-	IT	Individua la frequenza di campionamento in uscita tra quelle selezionate, sulla base dei seguenti parametri:<br><br><b>Frequenza di riferimento:</b> a meno di situazioni particolari (segnalate) è la frequenza di campionamento del brano inviato in riproduzione, altrimenti la massima supportata.<br><br><b>Sincronismo</b> sono sincrone, rispetto al riferimento, le frequenze multiple intere della stessa frequenza di base (11.025 o 12.000 Hz).<br><br>La ricerca avviene su passi successivi:<br><br>1. la più prossima nelle frequenzi maggiori a quella di riferimento e nel rispetto del sincronismo.<br><br>2. la più prossima nelle frequenza minori a quella di riferimento, sempre nel rispetto del sincornismo.<br><br>3. ripete i punti 1 e 2 ma omettendo il sincronismo.<br><br>4. utilizza il valore massimo supportato.<br><br>Se nessun valore è disponibile, non applica il ricampionamento.
+	EN	Selects the output sampling rate based on the following parameters: <br> <br> <b> Reference frequency: </ b> except for particular situations (reported) is the sampling rate of the song being sent In playback, otherwise the maximum supported. <br> <br> <b> Synchronism: </ b> frequencies  are synchronous if entire multiple of the same basic frequency (11.025 or 12.000 Hz). <br> <br > Search is done on subsequent steps: <br> <br> 1. The next  (equall or ) greather than the reference one and in respect of the requested synchronism. <br> <br> 2. The closest to frequencies lower than the reference frequency, always respecting the synchronism. <br> <br> 3. Repeats steps 1 and 2 but omits sync. <br> <br> 4. Uses the maximum supported value. <br> <br> If no value is available, does not apply resampling.
+	IT	Individua la frequenza di campionamento in uscita tra quelle selezionate, sulla base dei seguenti parametri:<br><br><b>Frequenza di riferimento:</b> a meno di situazioni particolari (segnalate) è la frequenza di campionamento del brano inviato in riproduzione, altrimenti la massima supportata.<br><br><b>Sincronismo</b> sono sincrone, rispetto al riferimento, le frequenze multiple intere della stessa frequenza di base (11.025 o 12.000 Hz).<br><br>La ricerca avviene su passi successivi:<br><br>1. la più prossima nelle frequenze (uguale o) maggiori a quella di riferimento e nel rispetto del sincronismo.<br><br>2. la più prossima nelle frequenza minori a quella di riferimento, sempre nel rispetto del sincornismo.<br><br>3. ripete i punti 1 e 2 ma omettendo il sincronismo.<br><br>4. utilizza il valore massimo supportato.<br><br>Se nessun valore è disponibile, non applica il ricampionamento.
 
 PLUGIN_C3PO_RESAMPLE_TO_NEAR
 	EN	Closest supported
@@ -712,8 +720,8 @@ PLUGIN_C3PO_SDM_FILTER_TYPE
 	IT	- filtro sdm
 
 PLUGIN_C3PO_SDM_FILTER_TYPE_DESC
-	EN	select the filter to apply in the sigma delta modulator effect
-	IT	seleziona il filto da applicare durante la fase di odulazione sigma- delta.
+	EN	select the filter to apply in the sigma delta modulator effect. <br> See advanced option to add more choice.
+	IT	seleziona il filto da applicare durante la fase di odulazione sigma- delta.<br> Vedi opzioni avanzate per ulteiori possibilità.
 	
 PLUGIN_C3PO_SDM_FILTER_TYPE_DISABLED
 	EN	Disabled (no sdm)
@@ -762,6 +770,54 @@ PLUGIN_C3PO_SDM_TYPE_CLANS_7
 PLUGIN_C3PO_SDM_TYPE_CLANS_8
 	EN	clans-8
 	IT	clans-8
+
+PLUGIN_C3PO_SDM_TRELLIS_PLAYER
+	EN	- Trellis/viterbi search in sdm filter.
+	IT	- Ricerca trellis/viterbi nel filtro sdm
+
+PLUGIN_C3PO_SDM_TRELLIS_DESC_PLAYER
+	EN	The noise filter may be combined with a partial trellis/viterbi search by supplying the following options:
+	IT	Il filtro sdm può essere combinato con una ricerca trellis/viterbi, fornendo i seguenti parametri:
+
+PLUGIN_C3PO_SDM_TRELLIS_WARNING
+	EN	WARNING: The result of using these parameters is hard to predict and can include high noise levels or instability. Caution is advised
+	IT	ATTENZIONE: Il risultato dell'uso di questi parametri è difficilmente prevedibile e può comportare rumore ad alto livello o instabilità. Usare con cautela.
+
+PLUGIN_C3PO_SDM_TRELLIS_ORDER
+	EN	-- Trellis order
+	IT	-- Trellis order
+
+PLUGIN_C3PO_SDM_TRELLIS_ORDER_DESC
+	EN	min 3, max 32. Default value 13.
+	IT	min 3, max 32. Default value 13.
+
+PLUGIN_C3PO_TRELLIS_ORDER_CB
+	EN	active
+	IT	attivo
+
+PLUGIN_C3PO_SDM_TRELLIS_NUM
+	EN	-- Number of paths to consider
+	IT	-- Numero di percorsi da considerare
+
+PLUGIN_C3PO_SDM_TRELLIS_NUM_DESC
+	EN	min 4, max 32. Default value 8.
+	IT	min 4, max 32. Default value 8.
+
+PLUGIN_C3PO_TRELLIS_NUM_CB
+	EN	active
+	IT	attivo
+
+PLUGIN_C3PO_SDM_TRELLIS_LATENCY
+	EN	-- Output latency
+	IT	-- Latenza
+
+PLUGIN_C3PO_SDM_TRELLIS_LATENCY_DESC
+	EN	min 128, max 2048. Default value 1024.
+	IT	min 128, max 2048. Default value 1024.
+
+PLUGIN_C3PO_TRELLIS_LATENCY_CB
+	EN	active
+	IT	attivo
 
 PLUGIN_C3PO_DSD_IN_TITLE
 	EN	DSD input Lowpass filter.

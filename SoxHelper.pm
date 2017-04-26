@@ -225,10 +225,12 @@ sub resample{
         } elsif ($sdmFilterType eq 'auto'){
 
             $sdm = $sdm.' sdm'; #auto
+            $sdm = $sdm._sdmTrellis($transcodeTable);
 
         } else {
 
             $sdm = $sdm.' sdm -f '.$sdmFilterType;
+            $sdm = $sdm._sdmTrellis($transcodeTable);
         }
     
     } 
@@ -434,7 +436,41 @@ sub _gain{
     return $effects;
     
 }
-
+sub _sdmTrellis{
+    my $transcodeTable = shift;
+    
+    my $sdmTrellis              =$transcodeTable->{'sdmTrellis'};
+    my $sdmTrellisOrder         =$transcodeTable->{'sdmTrellisOrder'};
+    my $sdmTrellisNum           =$transcodeTable->{'sdmTrellisNum'};
+    my $sdmTrellisLatency       =$transcodeTable->{'sdmTrellisLatency'};
+    my $sdmTrellisOrderActive	=$transcodeTable->{'sdmTrellisOrderActive'};
+    my $sdmTrellisNumActive		=$transcodeTable->{'sdmTrellisNumActive'};
+    my $sdmTrellisLatencyActive =$transcodeTable->{'sdmTrellisLatencyActive'};
+    
+    my $out="";
+    
+    if ($sdmTrellis && ($sdmTrellisOrderActive || $sdmTrellisNumActive || $sdmTrellisLatencyActive)){
+        $out=" ";
+    } else {return "";}
+   
+    if ($sdmTrellisOrderActive){ # 3 - 32, def 13.
+        
+        $sdmTrellisOrder = $sdmTrellisOrder ? $sdmTrellisOrder : 13;
+        $out = qq($out -t $sdmTrellisOrder);
+        
+    }
+    if ($sdmTrellisNumActive){
+        $sdmTrellisNum = $sdmTrellisNum ? $sdmTrellisNum : 8; # 4 -32, def. 8.
+        $out = qq($out -n $sdmTrellisNum); 
+    
+    }
+    if ($sdmTrellisLatencyActive){
+        $sdmTrellisLatency = $sdmTrellisLatency ? $sdmTrellisLatency : 1024;
+        $out = qq($out -l $sdmTrellisLatency); # 100 - 2048, def 1024.
+    
+    }
+    return $out;
+}
 sub _effects{
     my $transcodeTable = shift;
     

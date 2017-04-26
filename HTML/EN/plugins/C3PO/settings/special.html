@@ -12,7 +12,7 @@
         [% WRAPPER setting title="PLUGIN_C3PO_OUT_BITDEPTH-" desc="PLUGIN_C3PO_OUT_BITDEPTH_DESC-" %]
             [% PROCESS 'plugins/C3PO/settings/bitDepth.html' %]
         [% END %]
-
+        
         [% WRAPPER setting title="PLUGIN_C3PO_DITHER_TYPE-" desc="PLUGIN_C3PO_DITHER_TYPE_DESC" %]
             [% PROCESS 'plugins/C3PO/settings/ditherType.html' %]
         [% END %]
@@ -22,10 +22,10 @@
                 [% PROCESS 'plugins/C3PO/settings/ditherPrecision.html' %]
             [% END %]
         [% END %]
-
+    <br>
 	[% WRAPPER setting title="PLUGIN_C3PO_DSD_TITLE" %] [% END %]
 	[% PROCESS 'plugins/C3PO/settings/sdm.html' %]
-
+    <br>
 	[% PROCESS 'plugins/C3PO/settings/dsdLowPass.html' %]
 
 [% END %]

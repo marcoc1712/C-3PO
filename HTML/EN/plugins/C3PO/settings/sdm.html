@@ -42,3 +42,31 @@
         </option>
     </select>	
 [% END %]
+[% IF sdmTrellis %]
+    [% WRAPPER setting title="PLUGIN_C3PO_SDM_TRELLIS_PLAYER" %]
+        [% "PLUGIN_C3PO_SDM_TRELLIS_WARNING" | string %]
+    [% END %]
+    
+    [% WRAPPER setting title="PLUGIN_C3PO_SDM_TRELLIS_ORDER" desc="PLUGIN_C3PO_SDM_TRELLIS_ORDER_DESC" %]
+        <input type="text" class="stdedit sliderInput_3_32" name="pref_sdmTrellisOrder" id="sdmTrellisOrder" 
+               value="[% prefs.sdmTrellisOrder %]" size="5">
+        <input name="pref_sdmTrellisOrderActive" type="checkbox" 
+            [% IF prefs.sdmTrellisOrderActive %] checked [% END %]
+        <label for="pref_sdmTrellisOrderActive" >[% "PLUGIN_C3PO_TRELLIS_ORDER_CB" | string %] &nbsp;&nbsp; </label>
+    [% END %]
+    [% WRAPPER setting title="PLUGIN_C3PO_SDM_TRELLIS_NUM" desc="PLUGIN_C3PO_SDM_TRELLIS_NUM_DESC" %]
+        <input type="text" class="stdedit sliderInput_4_32" name="pref_sdmTrellisNum" id="sdmTrellisNum" 
+               value="[% prefs.sdmTrellisNum %]" size="5">
+        <input name="pref_sdmTrellisNumActive" type="checkbox" 
+            [% IF prefs.sdmTrellisNumActive %] checked [% END %]
+        <label for="pref_sdmTrellisNumActive" >[% "PLUGIN_C3PO_TRELLIS_NUM_CB" | string %] &nbsp;&nbsp; </label>
+    [% END %]
+    [% WRAPPER setting title="PLUGIN_C3PO_SDM_TRELLIS_LATENCY" desc="PLUGIN_C3PO_SDM_TRELLIS_LATENCY_DESC" %]
+        <input type="text" class="stdedit sliderInput_128_2048_128" name="pref_sdmTrellisLatency" id="sdmTrellisLatency" 
+               value="[% prefs.sdmTrellisLatency %]" size="5">
+        <input name="pref_sdmTrellisLatencyActive" type="checkbox" 
+            [% IF prefs.sdmTrellisLatencyActive %] checked [% END %]
+        <label for="pref_sdmTrellisLatencyActive" >[% "PLUGIN_C3PO_TRELLIS_NUM_CB" | string %] &nbsp;&nbsp; </label>
+    [% END %]
+
+[% END %]
