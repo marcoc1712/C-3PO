@@ -114,14 +114,12 @@
 	
 		[% WRAPPER setting title="PLUGIN_C3PO_UNLIMITED_DSD_RATES" desc="PLUGIN_C3PO_UNLIMITED_DSD_RATES_DESC" %]
 			<input name="pref_unlimitedDsdRate" type="checkbox" 
-			[% IF prefs.unlimitedDsdRate %] checked [% END %]
-				[% IF !prefs.codecs.dsf && ! prefs.codecs.dff %] disabled [% END %]>
+			[% IF prefs.unlimitedDsdRate %] checked [% END %]>
 		[% END %]
         
         [% WRAPPER setting title="PLUGIN_C3PO_SDM_TRELLIS" desc="PLUGIN_C3PO_SDM_TRELLIS_DESC" %]
 			<input name="pref_sdmTrellis" type="checkbox" 
-			[% IF prefs.sdmTrellis %] checked [% END %]
-				[% IF !prefs.codecs.dsf && ! prefs.codecs.dff %] disabled [% END %]>
+			[% IF prefs.sdmTrellis %] checked [% END %]>
 		[% END %]
          <hr>
         
