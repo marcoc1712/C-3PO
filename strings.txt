@@ -721,7 +721,7 @@ PLUGIN_C3PO_SDM_FILTER_TYPE
 
 PLUGIN_C3PO_SDM_FILTER_TYPE_DESC
 	EN	select the filter to apply in the sigma delta modulator effect. <br> See advanced option to add more choice.
-	IT	seleziona il filto da applicare durante la fase di odulazione sigma- delta.<br> Vedi opzioni avanzate per ulteiori possibilità.
+	IT	seleziona il filto da applicare durante la fase di odulazione sigma- delta.<br> Vedi opzioni avanzate per ulteriori possibilità.
 	
 PLUGIN_C3PO_SDM_FILTER_TYPE_DISABLED
 	EN	Disabled (no sdm)
@@ -780,16 +780,16 @@ PLUGIN_C3PO_SDM_TRELLIS_DESC_PLAYER
 	IT	Il filtro sdm può essere combinato con una ricerca trellis/viterbi, fornendo i seguenti parametri:
 
 PLUGIN_C3PO_SDM_TRELLIS_WARNING
-	EN	WARNING: The result of using these parameters is hard to predict and can include high noise levels or instability. Caution is advised
-	IT	ATTENZIONE: Il risultato dell'uso di questi parametri è difficilmente prevedibile e può comportare rumore ad alto livello o instabilità. Usare con cautela.
+	EN	WARNING: The result of using these parameters is hard to predict and can include high noise levels or instability. Caution is advised.
+	IT	ATTENZIONE: Il risultato dell'uso di questi parametri è difficilmente prevedibile e può comportare rumore ad alto livello o instabilità. 
 
 PLUGIN_C3PO_SDM_TRELLIS_ORDER
 	EN	-- Trellis order
 	IT	-- Trellis order
 
 PLUGIN_C3PO_SDM_TRELLIS_ORDER_DESC
-	EN	min 3, max 32. Default value 13.
-	IT	min 3, max 32. Default value 13.
+	EN	min 3, max 32. Default value 13, Actual value if disabled depends on selected filter.
+	IT	min 3, max 32. Default value 13, il valore applicato quando disabilitato dipende dal filtro selezionato.
 
 PLUGIN_C3PO_TRELLIS_ORDER_CB
 	EN	active
@@ -800,8 +800,8 @@ PLUGIN_C3PO_SDM_TRELLIS_NUM
 	IT	-- Numero di percorsi da considerare
 
 PLUGIN_C3PO_SDM_TRELLIS_NUM_DESC
-	EN	min 4, max 32. Default value 8.
-	IT	min 4, max 32. Default value 8.
+	EN	min 4, max 32. Default value 8, actual value if disabled depends on selected filter.
+	IT	min 4, max 32. Default value 8, il valore applicato quando disabilitato dipende dal filtro selezionato.
 
 PLUGIN_C3PO_TRELLIS_NUM_CB
 	EN	active
@@ -812,8 +812,8 @@ PLUGIN_C3PO_SDM_TRELLIS_LATENCY
 	IT	-- Latenza
 
 PLUGIN_C3PO_SDM_TRELLIS_LATENCY_DESC
-	EN	min 128, max 2048. Default value 1024.
-	IT	min 128, max 2048. Default value 1024.
+	EN	min 128, max 2048. Default value 1024, actual value if disabled depends on selected filter.
+	IT	min 128, max 2048. Default value 1024, il valore applicato quando disabilitato dipende dal filtro selezionato.
 
 PLUGIN_C3PO_TRELLIS_LATENCY_CB
 	EN	active

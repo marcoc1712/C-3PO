@@ -736,13 +736,6 @@ sub _checkResample{
 									$filedsdRate,
 									$dsdrates);
 			
-			$maxSyncrounusRate=
-				_getMaxSyncrounusRate($fileSamplerate,
-										$samplerates,
-										$isDsdOutput,
-										$filedsdRate,
-										$dsdrates);
-            
             $targetRate =  _getTargetRate($fileSamplerate,
 										$samplerates,
 										$isDsdOutput,
@@ -751,8 +744,7 @@ sub _checkResample{
                                         $resampleTo);
 										   
 			Plugins::C3PO::Logger::debugMessage('samplerate is '.($isSupported ? '' : 'not ').'supported');
-			Plugins::C3PO::Logger::debugMessage('Max syncrounus sample rate : '.($maxSyncrounusRate ? $maxSyncrounusRate : ''));
-            Plugins::C3PO::Logger::debugMessage('target rate : '.($targetRate ? $targetRate : ''));
+			Plugins::C3PO::Logger::debugMessage('target rate : '.($targetRate ? $targetRate : ''));
 		}
 	}
 	my $targetSamplerate;
@@ -933,98 +925,7 @@ sub _isSamplerateSupported{
 	}
 	return 0;
 }
-sub _getMaxSyncrounusRate{
-	my $fileSamplerate=shift;
-	my $samplerates=shift;
-	my $isDsd = shift;
-	my $filedsdRate = shift;
-    my $dsdrates = shift;
-	
-	Plugins::C3PO::Logger::debugMessage('fileSamplerate : '.($fileSamplerate ? $fileSamplerate : ''));
-	Plugins::C3PO::Logger::debugMessage('Samplerates : '.Data::Dump::dump($samplerates));
-	Plugins::C3PO::Logger::debugMessage('is dsd : '.$isDsd);
-	Plugins::C3PO::Logger::debugMessage('filedsdRate : '.($filedsdRate ? $filedsdRate : ''));
-	Plugins::C3PO::Logger::debugMessage('dsdrates : '.Data::Dump::dump($dsdrates));
-	
-	if ($isDsd && (!defined $filedsdRate || $filedsdRate==0)){
-	
-		return undef;
-	} 
-	if (!$isDsd && (!defined $fileSamplerate || $fileSamplerate==0)){
-		
-		return undef;
-	}
-	my $ratefamily;
-	
-	if ($isDsd){
-		my $max=0;
-
-		if ($fileSamplerate % 48000 == 0) {
-		
-			$ratefamily=48000;
-	
-		} else {
-		
-			$ratefamily=44100;
-		}
-		for my $rs (keys %$dsdrates){
-
-			if (! $samplerates->{$rs}){next;}
-			my $rate = $rs*$ratefamily;
-
-			#Data::Dump::dump($max,$rate, $rateFamily, $rate % $rateFamily, $samplerates->{$rate});
-
-			if ($rate>$max){
-
-				$max = $rate;
-			}
-		} 
-		return ($max > 0 ? $max : undef);
-	} 
-	
-	$fileSamplerate= $fileSamplerate/1;
-	
-	#Data::Dump::dump(!($fileSamplerate % 11025));
-	
-	if ($fileSamplerate % 11025 == 0) {
-		
-		$ratefamily=11025;
-	
-	} elsif ($fileSamplerate % 12000 == 0) {
-		
-		$ratefamily=12000;
-		
-	} elsif ($fileSamplerate % 8000 == 0) {
-		
-		$ratefamily=8000;
-		
-	} else {
-	
-		return undef;
-	}
-	
-	#Data::Dump::dump($rateFamily);
-	
-	my $max=0;
-	
-	for my $rs (keys %$samplerates){
-		
-		if (! $samplerates->{$rs}){next;}
-		my $rate = $rs/1;
-		
-		#Data::Dump::dump($max,$rate, $rateFamily, $rate % $rateFamily, $samplerates->{$rate});
-		
-		if (($rate % $ratefamily == 0 ) && ($rate>$max)){
-			
-			$max = $rate;
-		}
-	} 
-	#Data::Dump::dump($max);
-	return ($max > 0 ? $max : undef);
-}
-
 sub _getTargetRate{
-    
 	my $fileSamplerate=shift;
 	my $samplerates=shift;
 	my $isDsd = shift;
@@ -1066,7 +967,9 @@ sub _getTargetRate{
         
         $fileRate= $fileSamplerate/$ratefamily;
         
-        $target = _getNextEnabledRate($fileRate, $dsdrates ,1, $sync);
+        my $ratefamily = $sync eq "N" ? $ratefamily == 44100 ? 48000 : 44100 :  $ratefamily;
+        
+        $target = _getNextEnabledRate($fileRate, $dsdrates ,1, $sync)*$ratefamily;
        
 	} else {
         
