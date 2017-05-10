@@ -751,6 +751,18 @@ sub _initSampleRates{
 	
 	return ($sampleRateList);
 }
+sub _countRates{
+    my $rates= shift;
+    my $count=0;
+    
+    for my $rs (keys %$rates){
+		
+		if ( $rates->{$rs}){
+			$count = $count+1;
+		}
+	} 
+    return $count;
+}
 sub _initDsdRates{
 	my $client = shift;
 
@@ -1243,10 +1255,9 @@ sub _calcStatus{
 		
 		for my $codec (keys %$prefEnableSeekRef){
 			
-			if ($prefEnableStdinRef->{$codec} && 
-			    main::ISWINDOWS &&
-				(($prefs->get('resampleWhen')eq 'E') ||
-				 ($prefs->get('resampleTo') eq 'S'))) {
+			if  (($prefEnableStdinRef->{$codec}) && 
+                 ((($codec eq 'dsf'  || $codec eq 'dff') && (_countRates($prefs->client($client)->get('dsdRates'))> 1)) ||
+                  (!($codec eq 'dsf'  || $codec eq 'dff') && (_countRates($prefs->client($client)->get('sampleRates'))>1)))) {
 				
 				if (main::DEBUGLOG && $log->is_debug) {	
 					$log->debug("Player: ".$client->name());
@@ -1352,7 +1363,7 @@ sub _setupTranscoder{
                  $log->debug(dump($transcodeTable));
                  $log->debug("logger: ".dump(\%logger));
         }
-
+       
         my $commandTable=Plugins::C3PO::Transcoder::initTranscoder($transcodeTable,\%logger);
 
         if (main::DEBUGLOG && $log->is_debug){

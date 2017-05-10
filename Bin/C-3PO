@@ -346,11 +346,11 @@ sub main{
 		Plugins::C3PO::Logger::infoMessage(
 				"Start copy from STDIN");
 		while (
-			sysread (STDIN, $buffer, 65536)	# read in (up to) 64k chunks, write
+			sysread (STDIN, $buffer, 4096)	# read in (up to) 4k chunks, write
 			and syswrite STDOUT, $buffer	# exit if read or write fails
 			) {
 				Plugins::C3PO::Logger::debugMessage(
-				"copied 64Kb chunk from STDIN");
+				"copied 4Kb chunk from STDIN");
 		}
 		if ($!){		
 

@@ -37,7 +37,9 @@ sub initTranscoder{
 	if ($logger && $logger->{'log'}) {$log=$logger->{'log'};}
 	
 	#TODO: unificare i sistemi di log da una unica classe.
-	
+    #warn isLMSDebug() ? "is LMS Debug" : " is not LMS Debug";
+    #warn isLMSInfo() ? "is LMS Info" : " is not LMS Info";
+    
 	if (isLMSDebug()) {
 		$log->debug('Start initTranscoder');
 	}
@@ -128,17 +130,31 @@ sub _ceckC3PO{
     
 	if (! _isResamplingRequested($transcodeTable)){return 0;}
 	if (!($transcodeTable->{'resampleWhen'} eq 'E') && $transcodeTable->{'resampleTo'} eq 'X') {return 0;}
-	
-	# In windows STDIN does not works inside C3PO, so it's disabled.
-	if (main::ISWINDOWS &&
-	    _isStdInEnabled($transcodeTable) &&
-	   (($transcodeTable->{'resampleWhen'} eq 'E') || 
-	     ($transcodeTable->{'resampleTo'} eq 'S'))){
-    		 
-		return 0;
-	}
-	return 1;
 
+    # if we have only one possible target sample rate, just use it.
+    
+    if (($codec eq 'dsf'  || $codec eq 'dff') && (_countRates($transcodeTable->{'dsdRates'})== 1)){
+		$transcodeTable->{'resampleTo'}='X';
+        $transcodeTable->{'resampleWhen'}='A';
+        return 0;
+    }
+    if (!($codec eq 'dsf'  || $codec eq 'dff') && (_countRates($transcodeTable->{'sampleRates'}) == 1)){
+		$transcodeTable->{'resampleTo'}='X';
+        $transcodeTable->{'resampleWhen'}='A';
+        return 0;
+    }
+    
+	# In windows STDIN does not works inside C3PO.
+    # In Linux works, but we have unexpected stops in playlist, caused by borken pipe errors,
+    # better alwais fault back to max amplerate.
+    
+    if (_isStdInEnabled($transcodeTable)){
+        $transcodeTable->{'resampleTo'}='X';
+        $transcodeTable->{'resampleWhen'}='A';
+        return 0;
+	}
+    
+    return 1;
 }
 sub _buildProfile{
 	my $transcodeTable = shift;
@@ -172,7 +188,9 @@ sub _useC3PO{
 
 	if (isLMSDebug()) {
 		$log->debug('Start _useC3PO');
-	}
+	} else {
+        Plugins::C3PO::Logger::debugMessage('Start _useC3PO');
+    }
 
 	my $result={};
 
@@ -863,7 +881,18 @@ sub _isAnyEffectRequested{
 	if ($transcodeTable->{'extra_after_rate'} && !($transcodeTable->{'extra_after_rate'} eq "")) {return 1;}
     return 0;
 }
-
+sub _countRates{
+    my $rates= shift;
+    my $count=0;
+    
+    for my $rs (keys %$rates){
+		
+		if ( $rates->{$rs}){
+			$count = $count+1;
+		}
+	} 
+    return $count;
+}
 sub _getMaxRate{
 	my $rates= shift;
 	my $faultback = shift;

@@ -973,15 +973,15 @@ PLUGIN_C3PO_STATUS_ALL_022
 
 PLUGIN_C3PO_STATUS_101
 	EN	Unable to run C-3PO transcoder, fault back to PERL. See server log.
-	IT	Impossibile eseguire C-3PO transcoder, verr� utilizzato PERL. Verificare il log del server.
+	IT	Impossibile eseguire C-3PO transcoder, verrà utilizzato PERL. Verificare il log del server.
 		
 PLUGIN_C3PO_STATUS_CLIENT_502
-	EN	StdIn (es. Qobuz) enabled in windows, fault back to 'Always upsample' at 'Max allowed sample rate'.
-	IT	StdIn (es. Qobuz) abilitato in windows, verrà utilizzato Il ricampionamento al massimo sample rate supportato.
+	EN	StdIn (es. Qobuz) enabled, will resample at the max allowed sample rate.
+	IT	StdIn (es. Qobuz) abilitato, verrà utilizzato Il ricampionamento al massimo sample rate supportato.
 
 PLUGIN_C3PO_STATUS_SERVER_502
-	EN	StdIn (es. Qobuz) enabled in windows, fault back to 'Always upsample' at 'Max allowed sample rate' (see players).
-	IT	StdIn (es. Qobuz) abilitato in windows, verr� utilizzato Il ricampionamento al massimo sample rate supportato (controllare in player).
+	EN	StdIn (es. Qobuz) enabled, will resample at the Max allowed sample rate (see players).
+	IT	StdIn (es. Qobuz) abilitato, verrà utilizzato Il ricampionamento al massimo sample rate supportato (controllare in player).
 
 PLUGIN_C3PO_STATUS_CLIENT_503
 	EN	StdIn (es. Qobuz) and Seek (cue sheet) capability selected for the same codec. Seek will be ignored.
