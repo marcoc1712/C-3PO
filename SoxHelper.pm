@@ -250,11 +250,11 @@ sub resample{
     }
     
     my $dither='';
-    if ($isDsdOutput){
+    if (! $isDsdOutput){
         
     ###########################################################################
     # DITHER, to be applied only when OUTPUT IS PCM.
-
+ 
         if (! $ditherType || ($ditherType eq -1)) {
             $dither = ' -D'; #disabled
         } elsif ($ditherType eq 1 ){
@@ -282,7 +282,7 @@ sub resample{
         }elsif ($ditherType eq 'C' ){
             $dither = ' dither -f high-shibata';
         }
-
+        
         if ($ditherType && $ditherPrecision && ($ditherPrecision > 0) && ($soxVersion > 140400)){
             $dither = $dither.' -p '.$ditherPrecision;
         }
