@@ -43,26 +43,34 @@ sub initTranscoder{
 	if (isLMSDebug()) {
 		$log->debug('Start initTranscoder');
 	}
-	
+
 	my $commandTable={};
 	my $codecs=$transcodeTable->{'codecs'};
+    
+    #save selected settings.
+    my $resampleTo =   $transcodeTable->{'resampleTo'};
+	my $resampleWhen = $transcodeTable->{'resampleWhen'};
 
 	for my $codec (keys %$codecs){
-		
+        
+		#restore selected settings.
+        $transcodeTable->{'resampleTo'}=$resampleTo;
+        $transcodeTable->{'resampleWhen'}= $resampleWhen;
+        
 		$transcodeTable->{'command'}="";
 		
 		if (!$codecs->{$codec}) {next;}
 				
 		my $cmd={};
-		if (isLMSDebug()) {
-			$log->debug("checking $codec");
+		if (isLMSInfo()) {
+			$log->info("checking $codec");
 		}
 		$transcodeTable->{'inCodec'}=$codec;
 
 		if (_ceckC3PO($transcodeTable)){
 			
-			if (isLMSDebug()) {
-				$log->debug("Use C3PO for $codec");
+			if (isLMSInfo()) {
+				$log->info("Use C3PO for $codec");
 			}
 
 			$cmd=_useC3PO($transcodeTable);
@@ -70,8 +78,8 @@ sub initTranscoder{
 
 		} else {
 		
-			if (isLMSDebug()) {
-				$log->debug("Use Server for $codec");
+			if (isLMSInfo()) {
+				$log->info("Use Server for $codec");
 			}
 			
 			$cmd=_useServer($transcodeTable);
@@ -98,8 +106,9 @@ sub _ceckC3PO{
 	my $willStart=$transcodeTable->{'C3POwillStart'}||0;
 	my $codec = $transcodeTable->{'inCodec'};
 	
-	if (isLMSDebug()) {
-		$log->debug('$willStart '.$willStart);
+	if (isLMSInfo()) {
+		$log->info('inCodec '.$codec.',  willStart '.$willStart);
+        $log->info('resampling to :'.$transcodeTable->{'resampleTo'});
 	}
 	
 	if (!((defined $willStart) &&
@@ -113,22 +122,21 @@ sub _ceckC3PO{
 	
 	# safety
 	if (isRuntime($transcodeTable)) {return 0;}
-	
-	
-	if (isLMSDebug()) {
-		$log->debug('is Native :'._isNative($transcodeTable));
-		$log->debug('isResamplingRequested :'._isResamplingRequested($transcodeTable));
-		$log->debug('resampling to :'.$transcodeTable->{'resampleTo'});
+    
+	if (isLMSInfo()) {
+		$log->info('is Native :'._isNative($transcodeTable));
+		$log->info('_isSOXrequired :'._isSOXrequired($transcodeTable));
+		$log->info('resampling to :'.$transcodeTable->{'resampleTo'});
 	} else{
-		Plugins::C3PO::Logger::debugMessage('is Native :'._isNative($transcodeTable));
-		Plugins::C3PO::Logger::debugMessage('isResamplingRequested :'._isResamplingRequested($transcodeTable));
-		Plugins::C3PO::Logger::debugMessage('resampling to :'.$transcodeTable->{'resampleTo'});
+		Plugins::C3PO::Logger::infoMessage('is Native :'._isNative($transcodeTable));
+		Plugins::C3PO::Logger::infoMessage('_isSOXrequired :'._isSOXrequired($transcodeTable));
+		Plugins::C3PO::Logger::infoMessage('resampling to :'.$transcodeTable->{'resampleTo'});
 	}
 	
 	# there is nothing to do, native.
 	if (_isNative($transcodeTable)) {return 0;}
     
-	if (! _isResamplingRequested($transcodeTable)){return 0;}
+	if (! _isSOXrequired($transcodeTable)){return 0;}
 	if (!($transcodeTable->{'resampleWhen'} eq 'E') && $transcodeTable->{'resampleTo'} eq 'X') {return 0;}
 
     # if we have only one possible target sample rate, just use it.
@@ -146,7 +154,7 @@ sub _ceckC3PO{
     
 	# In windows STDIN does not works inside C3PO.
     # In Linux works, but we have unexpected stops in playlist, caused by borken pipe errors,
-    # better alwais fault back to max amplerate.
+    # better alwais fault back to max samplerate resampling.
     
     if (_isStdInEnabled($transcodeTable)){
         $transcodeTable->{'resampleTo'}='X';
@@ -350,11 +358,17 @@ sub _isNative{
 
 	my $transcodeTable =shift;
 	my $inCodec = $transcodeTable->{'inCodec'};
+    
+    if (! isTranscodingEnabled($transcodeTable) &&
+        ! isResamplingEnabled($transcodeTable) &&
+        ! areEffectsEnabled($transcodeTable))
+        {return 1;}
+    
+	#if (! isTranscodingEnabled($transcodeTable) &&
+	#	! _isSOXrequired($transcodeTable)) {return 1;}
+	#	
 	
-	if (! $transcodeTable->{'enableConvert'}->{$inCodec} &&
-		! _isResamplingRequested($transcodeTable)) {return 1;}
-		
-	return 0;
+    return 0;
 }
 ################################################################
 # C-3PO executable entry point.
@@ -365,40 +379,47 @@ sub buildCommand {
 
 	my $command="";
 	
-	if (isLMSDebug()) {
-		$log->debug('Start buildCommand');
+	if (isLMSInfo()) {
+		$log->info('Start buildCommand');
 	} else{
 	
-		Plugins::C3PO::Logger::debugMessage('Start buildCommand');
+		Plugins::C3PO::Logger::infoMessage('Start buildCommand');
 	}
 	
 	$transcodeTable=_normalizeCodecs($transcodeTable);
 	
-	if (_isResamplingRequested($transcodeTable)) {
+    my $willUseSOX;
+	if (_isSOXrequired($transcodeTable)) {
 	
 		$transcodeTable= _checkResample($transcodeTable);
-	}
-	
-	#save incodec.
-	$transcodeTable->{'transitCodec'}=$transcodeTable->{'inCodec'};
-	
-	if (isLMSDebug()) {
-		$log->debug('inCodec: '.$transcodeTable->{'inCodec'});
-		$log->debug('transitCodec: '.$transcodeTable->{'transitCodec'});
-		$log->debug('outCodec: '.$transcodeTable->{'outCodec'});
-		$log->debug('Is resampling requested? '._isResamplingRequested($transcodeTable));
-		$log->debug('willResample ? '._willResample($transcodeTable));
-		$log->debug('Is splitting requested? '._isSplittingRequested($transcodeTable));
-	} else{
-		Plugins::C3PO::Logger::debugMessage('inCodec: '.$transcodeTable->{'inCodec'});
-		Plugins::C3PO::Logger::debugMessage('transitCodec: '.$transcodeTable->{'transitCodec'});
-		Plugins::C3PO::Logger::debugMessage('outCodec: '.$transcodeTable->{'outCodec'});
-		Plugins::C3PO::Logger::debugMessage('Is resampling requested? '._isResamplingRequested($transcodeTable));
-		Plugins::C3PO::Logger::debugMessage('willResample ? '._willResample($transcodeTable));
-		Plugins::C3PO::Logger::debugMessage('Is splitting requested? '._isSplittingRequested($transcodeTable));
+        $willUseSOX = _willUseSOX($transcodeTable);
 	}
     
-	if (_willResample($transcodeTable)){
+	#save incodec.
+    my $inCodec = $transcodeTable->{'inCodec'};
+	$transcodeTable->{'transitCodec'}=$inCodec;
+    
+    my $outCodec=getOutputCodec($transcodeTable);
+
+	if (isLMSInfo()) {
+		$log->info('inCodec: '.$transcodeTable->{'inCodec'});
+		$log->info('transitCodec: '.$transcodeTable->{'transitCodec'});
+		$log->info('outCodec: '.$outCodec);
+        $log->info('Is resampling requested? '.isResamplingEnabled($transcodeTable));
+        $log->info('Is SOX required? '._isSOXrequired($transcodeTable));
+		$log->info('will SOX be Used ? '.$willUseSOX);
+		$log->info('Is splitting requested? '._isSplittingRequested($transcodeTable));
+	} else{
+		Plugins::C3PO::Logger::infoMessage('inCodec: '.$transcodeTable->{'inCodec'});
+		Plugins::C3PO::Logger::infoMessage('transitCodec: '.$transcodeTable->{'transitCodec'});
+		Plugins::C3PO::Logger::infoMessage('outCodec: '.$outCodec);
+		Plugins::C3PO::Logger::infoMessage('Is resampling requested? '.isResamplingEnabled($transcodeTable));
+		Plugins::C3PO::Logger::infoMessage('Is SOX required? '._isSOXrequired($transcodeTable));
+		Plugins::C3PO::Logger::infoMessage('will SOX be Used ? '.$willUseSOX);
+		Plugins::C3PO::Logger::infoMessage('Is splitting requested? '._isSplittingRequested($transcodeTable));
+	}
+    
+	if ($willUseSOX){
 	
 		$transcodeTable=_splitResampleAndTranscode($transcodeTable);
 	
@@ -414,10 +435,10 @@ sub buildCommand {
 	}
 	$command = $transcodeTable->{'command'}||"";
     
-	if (isLMSDebug()) {
-		$log->debug('Transcode command: '.$command);
+	if (isLMSInfo()) {
+		$log->info('Transcode command: '.$command);
 	} else{
-		Plugins::C3PO::Logger::debugMessage('Transcode command: '.$command);
+		Plugins::C3PO::Logger::infoMessage('Transcode command: '.$command);
 	}
 	
 	if ($command eq ""){
@@ -676,7 +697,7 @@ sub _checkResample{
 	Plugins::C3PO::Logger::debugMessage('Start _checkResample');
 	
 	my $inCodec= $transcodeTable->{'inCodec'};
-	my $outCodec= $transcodeTable->{'outCodec'};
+	my $outCodec= getOutputCodec($transcodeTable);
 	
 	my $isDsdInput = ($inCodec eq 'dsf'  || $inCodec eq 'dff') ? 1 : 0;
 	my $isDsdOutput = ($outCodec eq 'dsf'  || $outCodec eq 'dff') ? 1 : 0;
@@ -820,18 +841,16 @@ sub _checkResample{
 	
 }
 
-sub _willResample{
+sub _willUseSOX{
 	my $transcodeTable=shift;
-    
-	#be sure to call _checkResample before.
-    Plugins::C3PO::Logger::debugMessage('isResamplingRequested :       '.(_isResamplingRequested($transcodeTable)));
-	if (!_isResamplingRequested($transcodeTable)) {return 0;}
+
+	if (!_isSOXrequired($transcodeTable)) {return 0;}
 	
 	# Keep it short and always resample if asked for.
 	#return 1;
 
 	my $inCodec= $transcodeTable->{'inCodec'};
-	my $outCodec= $transcodeTable->{'outCodec'};
+	my $outCodec= getOutputCodec($transcodeTable);
 	my $isDsdInput = ($inCodec eq 'dsf'  || $inCodec eq 'dff') ? 1 : 0;
 	my $isDsdOutput = ($outCodec eq 'dsf'  || $outCodec eq 'dff') ? 1 : 0;
     
@@ -870,6 +889,11 @@ sub _willResample{
 
 sub _isAnyEffectRequested{
     my $transcodeTable=shift;
+    my $inCodec= $transcodeTable->{'inCodec'};
+    
+    if (! areEffectsEnabled($transcodeTable)) {return 0;}
+    if (! isResamplingEnabled($transcodeTable) &&
+        ! $transcodeTable->{'effectsWhen'} eq "A") {return 0;}
     
     if ($transcodeTable->{'gain'}) {return 1;}
 	if ($transcodeTable->{'loudnessGain'}) {return 1;}
@@ -1242,32 +1266,51 @@ sub _isAStdInPipe {
 	}	
 	return 0;
 }
+sub isTranscodingEnabled{ 
+    my $transcodeTable =shift;
+    my $inCodec= $transcodeTable->{'inCodec'};
+    return $transcodeTable->{'enableConvert'}->{$inCodec};  
+}
+sub isResamplingEnabled{
+    my $transcodeTable =shift;
+    my $inCodec= $transcodeTable->{'inCodec'};
+    return $transcodeTable->{'enableResample'}->{$inCodec};  
+}
 
-sub _isResamplingRequested{
+sub areEffectsEnabled{
+    my $transcodeTable =shift;
+    my $inCodec= $transcodeTable->{'inCodec'};
+    return $transcodeTable->{'enableEffects'}->{$inCodec};
+    
+}
+
+sub _isSOXrequired{
 	my $transcodeTable =shift;
 	
 	my $inCodec= $transcodeTable->{'inCodec'};
-	my $outCodec= $transcodeTable->{'outCodec'};
+	my $outCodec= getOutputCodec($transcodeTable);
 	
 	Plugins::C3PO::Logger::debugMessage('In codec '.$inCodec);
 	Plugins::C3PO::Logger::debugMessage('In codec '.$outCodec);
-	Plugins::C3PO::Logger::debugMessage('enableEffects: '.
-		($transcodeTable->{'enableEffects'}->{$inCodec} ? 
-			$transcodeTable->{'enableEffects'}->{$inCodec} : 0));
-    Plugins::C3PO::Logger::debugMessage('enableResample: '.
-		($transcodeTable->{'enableResample'}->{$inCodec} ? 
-			$transcodeTable->{'enableResample'}->{$inCodec} : 0));
+	Plugins::C3PO::Logger::debugMessage('enable Effects: '.
+		(areEffectsEnabled($transcodeTable) ?  1 : 0));
+    Plugins::C3PO::Logger::debugMessage('enable Resample: '.
+		(isResamplingEnabled($transcodeTable) ? 1 : 0));
 	
 	Plugins::C3PO::Logger::debugMessage('resampleWhen: '.$transcodeTable->{'resampleWhen'});
 	
-    if ($transcodeTable->{'enableResample'}->{$inCodec}) {return 1;}
-    if ($transcodeTable->{'enableEffects'}->{$inCodec}) {return 1;}
+    if (($outCodec eq 'dsf'  || $outCodec eq 'dff') &&
+        isTranscodingEnabled($transcodeTable)){return 1;}
     
-	if ($outCodec eq 'dsf'  || $outCodec eq 'dff') {return 1;} 
-	
-	return !($transcodeTable->{'resampleWhen'} eq 'N');
+    if (isResamplingEnabled($transcodeTable)) {return 1;}
+    
+    if (areEffectsEnabled($transcodeTable) && 
+        $transcodeTable->{'effectsWhen'} eq "A") {return 1;}
+
+	return 0;
     
 }
+
 sub isTranscodingRequired{
 	my $transcodeTable =shift;
 	
@@ -1275,8 +1318,8 @@ sub isTranscodingRequired{
 	my $inCodec		   = $transcodeTable->{'inCodec'};
 	my $outCodec	   = getOutputCodec($transcodeTable);
 	my $transitCodec   = $transcodeTable->{'transitCodec'};
-	my $enableConvert  = $transcodeTable->{'enableConvert'}->{$inCodec};
-	
+    
+	my $enableConvert  = isTranscodingEnabled($transcodeTable);
 	
 	if (isLMSDebug()) {
 		$log->debug('isRuntime '.$isRuntime);
@@ -1290,13 +1333,14 @@ sub isTranscodingRequired{
 		Plugins::C3PO::Logger::debugMessage('inCodec '.$inCodec);
 		Plugins::C3PO::Logger::debugMessage('transitCodec '.$transitCodec);
 		Plugins::C3PO::Logger::debugMessage('outCodec '.$outCodec);
-		Plugins::C3PO::Logger::debugMessage('enableConvert '.(defined $enableConvert ? '1' : '0'));
+		Plugins::C3PO::Logger::debugMessage('enableConvert '.($enableConvert ? '1' : '0'));
 	}
 	
 	if (! $isRuntime && ! $enableConvert) {return 0;}
-	if (!compareCodecs($transitCodec, $outCodec)) {return 1;}
+	if (compareCodecs($transitCodec, $outCodec)) {return 0;}
+    
+    return 1;
 }
- 
 
 ###############################################################################
 # Depending somehow on Format....
@@ -1312,13 +1356,12 @@ sub getOutputCodec{
 		Plugins::C3PO::Logger::traceMessage('getOutputCodec : ');
 		die;
 	}
+	if (isTranscodingEnabled($transcodeTable)){return $outCodec;}
 	
-	if ($transcodeTable->{'enableConvert'}->{$inCodec}){return $outCodec;}
-	
-	if ($transcodeTable->{'enableResample'}->{$inCodec} && 
+	if (isResamplingEnabled($transcodeTable) && 
 	    compareCodecs($inCodec, 'alc')){return $outCodec;}
         
-    if ($transcodeTable->{'enableEffects'}->{$inCodec} && 
+    if (areEffectsEnabled($transcodeTable) && 
 	    compareCodecs($inCodec, 'alc')){return $outCodec;}
 
 	return $inCodec;

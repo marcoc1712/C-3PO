@@ -60,14 +60,12 @@
 	[% END %]
     
     [% WRAPPER setting title="PLUGIN_C3PO_SOX_MULTITHREAD" desc="PLUGIN_C3PO_SOX_MULTITHREAD_DESC" %]
-		<input name="pref_soxMultithread" type="checkbox" [% IF prefs.soxMultithread %] checked [% END %]
-               [% IF soxVersion < 140402 %] disabled [% END %]>
+		<input name="pref_soxMultithread" type="checkbox" [% IF prefs.soxMultithread %] checked [% END %] >
 	[% END %]
     
     [% WRAPPER setting title="PLUGIN_C3PO_SOX_BUFFER" desc="PLUGIN_C3PO_SOX_BUFFER_DESC" %]
         <input type="text" class="stdedit sliderInput_8_128" name="pref_soxBuffer" id="soxBuffer" 
-               value="[% prefs.soxBuffer %]" size="5"
-               [% IF soxVersion < 140402 %] disabled [% END %]>  
+               value="[% prefs.soxBuffer %]" size="5" >  
     [% END %]
     
     [% WRAPPER setting title="PLUGIN_C3PO_FFMPEG" desc="" %]

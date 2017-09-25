@@ -38,8 +38,11 @@ sub resample{
     #  get values
     #
 
+    my $isResamplingEnabled = 
+        Plugins::C3PO::Transcoder::isResamplingEnabled($transcodeTable);
+        
     my $isRuntime = Plugins::C3PO::Transcoder::isRuntime($transcodeTable);
-	
+    
 	my $isTranscodingRequired = 
 		Plugins::C3PO::Transcoder::isTranscodingRequired($transcodeTable);
 	
@@ -109,8 +112,7 @@ sub resample{
     #
 	$inCodec =_translateCodec($inCodec);
 	
-	if ($isTranscodingRequired &&
-		$useSoxToEncodeWhenResampling){
+	if ($useSoxToEncodeWhenResampling){
 		
 		$outCodec=_translateCodec($outCodec);
 		
@@ -172,7 +174,7 @@ sub resample{
     my $rateString='';
     Plugins::C3PO::Logger::debugMessage('SOX output samplerate: '.($outSamplerate ? $outSamplerate : 'undef'));
     
-    if ($outSamplerate) {
+    if ($outSamplerate && $isResamplingEnabled) {
             
         ############################################################################
         # RATE (resamling command) # rate -v -L -n -t -a -b 90.7 -f 192000
@@ -196,6 +198,7 @@ sub resample{
         if ($outSamplerate){$rateString= $rateString.' '.$outSamplerate};
     
     }
+    
     if ($isDsdInput && ($outSamplerate || !($effects eq '')) ){
         
         ############################################################################

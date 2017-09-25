@@ -323,7 +323,7 @@ sub native{
     my $transcodeTable = shift;
     
     # does not work in windows.
-    #return$self->_dummyTranscoder($transcodeTable); 
+    #return $self->_dummyTranscoder($transcodeTable); 
 
     return Plugins::C3PO::SoxHelper::transcode($transcodeTable);
 }

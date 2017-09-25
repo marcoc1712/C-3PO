@@ -94,7 +94,7 @@ sub getDuration{
     my $vbr_scale       = $track->vbr_scale;
     my $bitrate         = $track->bitrate;
     my $audio_size      = $track->audio_size;
-    my $audio_offset    = $track->audio_offset;
+    my $audio_offset    = $track->audio_offset || 0;
     
     if (!$channels || !$samplesize || !$samplerate){return undef}
     
