@@ -742,12 +742,14 @@ sub _checkResample{
         Plugins::C3PO::Logger::infoMessage('testfile: '.$testfile);
         my $audioFile = Plugins::C3PO::AudioFile->new($testfile,$logger,$log); 
         
+		Plugins::C3PO::Logger::infoMessage('AudioScan: '.Data::Dump::dump ($audioFile));
+		
         $transcodeTable->{'fileInfo'}=$audioFile->getFileInfo();
         
-        Plugins::C3PO::Logger::infoMessage('AudioScan: '.Data::Dump::dump ($transcodeTable->{'fileInfo'}));
+        Plugins::C3PO::Logger::infoMessage('transcodeTable fileInfo: '.Data::Dump::dump ($transcodeTable->{'fileInfo'}));
     
         $fileSamplerate     = $audioFile->getSamplerate();
-        my $bitsPerSample   = $audioFile->_getBitsPerSample();
+        my $bitsPerSample   = $audioFile->getBitsPerSample();
         my $isFilesDsd      = $audioFile->isDsd();
         
         Plugins::C3PO::Logger::debugMessage('file samplerate: '.$fileSamplerate);

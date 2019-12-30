@@ -25,38 +25,11 @@ use warnings;
 use Audio::Scan;
 
 ###############################################################################
-# log system
-###############################################################################
-
-my $logger;
-my $log;
-
-sub isLMSDebug{
-	my $self = shift;
-	
-	if ($logger && $logger->{DEBUGLOG} && $log && $log->is_debug) {return 1}
-	return 0;
-}
-sub isLMSInfo{
-	my $self = shift;
-	
-	if (isLMSDebug()) {return 1;}
-	if ($logger && $logger->{INFOLOG} && $log && $log->is_info) {return 1}
-	return 0;
-}
-sub getLog{
-	my $self = shift;
-	
-	return $log;
-}
-###############################################################################
 # constructor
 ###############################################################################
 sub new { 
 	my $class   = shift; 
-    my $file    = shift; 
-	$logger     = shift;
-	$log        = shift;
+    my $file    = shift;
 
 	my $self = {  
         _file => $file,
@@ -74,16 +47,20 @@ sub new {
     if (!-r $file)  {$self->{_error} = "can't read $file"; return $self;}
 
     my $fileInfo= Audio::Scan->scan($file);
-
+	
+	if (!$fileInfo || !$fileInfo->{info} || $fileInfo->{info}->{samplerate}) {
+		 
+		 $self->{_error} = "$file is not an audio file";
+		 return $self;
+	}
+	
     $self->{_samplerate}        = $fileInfo->{info}->{samplerate};
     $self->{_bits_per_sample}   = $fileInfo->{info}->{bits_per_sample};
     $self->{_isDsd}             = ( $self->{_bits_per_sample} && ( $self->{_bits_per_sample} == 1)) ? 1 :0;
     $self->{_fileInfo}          = $fileInfo;
     $self->{_info}              = $fileInfo->{info};
     $self->{_tags}              = $fileInfo->{tags};
-    
-    if (!$self->{_samplerate}) {$self->{_error} = "$file is not an audio file"}
-    
+   
     return $self;
 }
 
@@ -115,7 +92,7 @@ sub getSamplerate{
 		
 	return  $self->{_samplerate} ;
 }
-sub _getBitsPerSample{
+sub getBitsPerSample{
 	my $self  = shift;
 		
 	return  $self->{_bits_per_sample} ;
