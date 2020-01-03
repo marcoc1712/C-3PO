@@ -188,7 +188,7 @@ PLUGIN_C3PO_ENABLE_SEEK_TITLE
 	IT	Abilita ricerca (cue sheet).
 
 PLUGIN_C3PO_ENABLE_SEEK_DESC
-	EN	Enable seek capability ("T" and "U"), is required for cue sheet usage and changing position within a track, but is incompatible with "I" stream format, used by many online services (e.g. Qobuz). If needed, untick Enable 'stdin' (below).
+	EN	Enable seek capabilities ("T" and "U"), necessary for cue sheet usage but incompatible with "I" stream format, used by many on line services (i.e. Qobuz).
 	IT	Abilita la capacità di ricerca ("T" e "U"), indispensabile per l'uso dei cue sheets ma incompatibile con la modalità 'stdin' "I", necessaria per molti servizi on line (es. Qobuz).
 
 PLUGIN_C3PO_ENABLE_STDIN_TITLE
@@ -196,8 +196,8 @@ PLUGIN_C3PO_ENABLE_STDIN_TITLE
 	IT	Abilita 'stdIn' (es. Qobuz).
 	
 PLUGIN_C3PO_ENABLE_STDIN_DESC
-	EN	Enable (input from) standard Input capability ("I"), is required by many online services (e.g. Qobuz), but is incompatible with 'seek' ("T" and "U"), necessary for cue sheet usage and changing position within a track. If needed, untick Enable seek (above).
-	IT	Abilita l'ingresso da 'standard Input' ("I"), necessario per molti servizi on line (es. Qobuz), ma incompatibile con le capacità di ricerca ("T" and "U")indispensabile per l'uso dei cue sheets.
+	EN	Enable input from standard Input capability ("I"), used by many on line services (i.e. Qobuz), but incompatible with ("T" and "U"), necessary for cue sheet usage.
+	IT	Abilita l'ingresso da 'standard Input' ("I"), necessario per molti servizi on line (es. Qobuz), ma incompatibile con le capacit� di ricerca ("T" and "U")indispensabile per l'uso dei cue sheets.
 
 PLUGIN_C3PO_CONVERT_TITLE
 	EN	Convert
@@ -967,7 +967,7 @@ PLUGIN_C3PO_STATUS_SERVER_021
 	EN	Squeezelite version is non compliant (Squeezelite-R2). See players.
 	IT	La versione di Squeezelite non è compatibile (Squeezelite-R2). Vedi Lettori.
 
-PLUGIN_C3PO_STATUS_022
+PLUGIN_C3PO_STATUS_ALL_022
 	EN	SOX version is non compliant or can't execute SOX.
 	IT	La versione di SOX  non è compatibile o è impossibile eseguire SOX.
 
@@ -999,7 +999,7 @@ PLUGIN_C3PO_STATUS_CLIENT_521
 	EN	Player is not Squeezelite, assuming is compliant.
 	IT	Il player non è Squeezelite, si assume sia compatibile.
 
-PLUGIN_C3PO_STATUS_CLIENT_522
+PLUGIN_C3PO_STATUS_SERVER_522
 	EN	Squeezelite version is non R2, assuming is compliant.
 	IT	La versione di Squeezelite non è R2, si assume sia compatibile.
 
@@ -1035,7 +1035,7 @@ PLUGIN_C3PO_STATUS_CLIENT_921
 	EN	Using Daphile as player, assuming is Squeezelite-R2 compliant.
 	IT	Utilizzo di Daphile come player, si assume sia compatibile con Squeezelite-R2.
 
-PLUGIN_C3PO_STATUS_951
+PLUGIN_C3PO_STATUS_ALL_951
 	EN	SOX version is outdated, Replace it with a newer version to enable more transcoding capibilities.
 	IT	La versione di SOX in uso non è aggiornata, sostituirla con una più recente per abilitare ulteriori funzionalità.
 
