@@ -1,0 +1,10 @@
+ATtenzione, il file  winCompile.bat, per qualche motivo non funziona, quindi:
+
+1. aprire un terminale e posizionarsi della directory del plugin (es. F:\SVILUPPO\slimserver\Plugins\C3PO).
+2. lanciare il comando di compilazione, come da file  winCompile.bat (es.  pp -a lib C-3PO.pl -o F:\sviluppo\slimserver\Plugins\C3PO\Bin\MSWin32-x86-multi-thread\C-3PO.exe)
+
+NOTA BENE:
+
+Sul computer in uso deve esere installato PP (PAR) per PERL 5.14!!! Altrimenti non funziona.
+
+
