@@ -45,13 +45,25 @@
 [% END %]
 
 [% WRAPPER setting title="PLUGIN_C3PO_EXTRA_BEFORE_RATE" desc="PLUGIN_C3PO_EXTRA_BEFORE_RATE_DESC" %]
-	<input type="text" class="stdedit" name="pref_extra_before_rate" id="extra_before_rate" 
-		   value="[% prefs.extra_before_rate | html %]" size="50" maxlength="1000" 
-		   [% IF prefs.useGlogalSettings %] disabled [% END %]>
+		<textarea class="stdedit" name="pref_extra_before_rate" id="extra_before_rate" cols="45" rows="3">[% prefs.extra_before_rate %]</textarea>
 [% END %]
 
 [% WRAPPER setting title="PLUGIN_C3PO_EXTRA_AFTER_RATE" desc="PLUGIN_C3PO_EXTRA__AFTER_RATEDESC" %]
-	<input type="text" class="stdedit" name="pref_extra_after_rate" id="extra_after_rate" 
-		   value="[% prefs.extra_after_rate | html %]" size="50" maxlength="1000"
-		   [% IF prefs.useGlogalSettings %] disabled [% END %]>
+		<textarea class="stdedit" name="pref_extra_after_rate" id="extra_after_rate" cols="45" rows="3">[% prefs.extra_after_rate %]</textarea>
+[% END %]
+
+[% IF 1==2 %]
+
+	[% WRAPPER setting title="PLUGIN_C3PO_EXTRA_BEFORE_RATE" desc="PLUGIN_C3PO_EXTRA_BEFORE_RATE_DESC" %]
+		<input type="text" class="stdedit" name="pref_extra_before_rate" id="extra_before_rate" 
+			   value="[% prefs.extra_before_rate | html %]" size="100" maxlength="1000" 
+			   [% IF prefs.useGlogalSettings %] disabled [% END %]>
+	[% END %]
+
+
+	[% WRAPPER setting title="PLUGIN_C3PO_EXTRA_AFTER_RATE" desc="PLUGIN_C3PO_EXTRA__AFTER_RATEDESC" %]
+		<input type="text" class="stdedit" name="pref_extra_after_rate" id="extra_after_rate" 
+			   value="[% prefs.extra_after_rate | html %]" size="100" maxlength="1000"
+			   [% IF prefs.useGlogalSettings %] disabled [% END %]>
+	[% END %]
 [% END %]

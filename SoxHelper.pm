@@ -71,7 +71,10 @@ sub resample{
 	my $smallRollOff		=$transcodeTable->{'smallRollOff'};
 
 	my $extra_before_rate	=$transcodeTable->{'extra_before_rate'};
+	$extra_before_rate      =~ s/([\n+\r+\s+])/ /g;
+	
 	my $extra_after_rate	=$transcodeTable->{'extra_after_rate'};
+	$extra_after_rate       =~ s/([\n+\r+\s+])/ /g;
 
 	my $ditherType			=$transcodeTable->{'ditherType'};
 	my $ditherPrecision		=$transcodeTable->{'ditherPrecision'};

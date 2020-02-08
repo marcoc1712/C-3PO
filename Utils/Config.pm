@@ -25,58 +25,47 @@ use Config;
 #use Data::Dump;
 #use File::Spec::Functions qw(:ALL);
 
+sub expandINC_STD{
+	
+	#we could not use this method in WIN becouse it returns some warnings that mess up the result.
+	my $libPath = shift;
+	
+	require Slim::bootstrap;
+	require Slim::Utils::OSDetect;
+	
+	Slim::bootstrap->loadModules($libPath);
+	
+	return @INC;
+	
+}
+
 sub expandINC{
 	my $libPath = shift;
 
 	my $arch= getArchName();
 	my $perlmajorversion = getPerlMajorVersion();
 	   
-	#Data::Dump::dump ($arch, $perlmajorversion);
+	#Data::Dump::dump ($arch, $perlmajorversion, $Config{'version'});
 	
 	my @newINC = (
-		
-		File::Spec->canonpath(File::Spec->catdir($libPath,'lib','arch',$perlmajorversion, $arch)),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'lib','arch',$perlmajorversion, $arch, 'auto')),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'lib','arch',$arch)),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'lib','arch',$arch, 'auto')),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'lib','arch',$Config{'version'}, $Config::Config{'archname'})),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'lib','arch',$Config{'version'}, $Config::Config{'archname'}, 'auto')),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'lib','arch',$perlmajorversion, $Config::Config{'archname'})),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'lib','arch',$perlmajorversion, $Config::Config{'archname'}, 'auto')),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'lib','arch',$Config::Config{'archname'})),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'lib','arch',$Config::Config{'archname'}, 'auto')),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'lib','arch',$Config{'version'})),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'lib','arch',$Config{'version'}, 'auto')),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'lib','arch',$perlmajorversion)),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'lib','arch',$perlmajorversion, 'auto')),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'lib')), 
-		File::Spec->canonpath(File::Spec->catdir($libPath,'lib','auto')),
+	
 		File::Spec->canonpath(File::Spec->catdir($libPath,'CPAN','arch',$perlmajorversion, $arch)),
 		File::Spec->canonpath(File::Spec->catdir($libPath,'CPAN','arch',$perlmajorversion, $arch, 'auto')),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'CPAN','arch',$arch)),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'CPAN','arch',$arch, 'auto')),
 		File::Spec->canonpath(File::Spec->catdir($libPath,'CPAN','arch',$Config{'version'}, $Config::Config{'archname'})),
 		File::Spec->canonpath(File::Spec->catdir($libPath,'CPAN','arch',$Config{'version'}, $Config::Config{'archname'}, 'auto')),
 		File::Spec->canonpath(File::Spec->catdir($libPath,'CPAN','arch',$perlmajorversion, $Config::Config{'archname'})),
 		File::Spec->canonpath(File::Spec->catdir($libPath,'CPAN','arch',$perlmajorversion, $Config::Config{'archname'}, 'auto')),
 		File::Spec->canonpath(File::Spec->catdir($libPath,'CPAN','arch',$Config::Config{'archname'})),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'CPAN','arch',$Config::Config{'archname'}, 'auto')),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'CPAN','arch',$Config{'version'})),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'CPAN','arch',$Config{'version'}, 'auto')),
 		File::Spec->canonpath(File::Spec->catdir($libPath,'CPAN','arch',$perlmajorversion)),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'CPAN','arch',$perlmajorversion, 'auto')),
-		File::Spec->canonpath(File::Spec->catdir($libPath,'CPAN')), 
-		File::Spec->canonpath(File::Spec->catdir($libPath,'CPAN','auto')),
-		File::Spec->canonpath(File::Spec->catdir($libPath)),
-	);
-	my @out=();
-	for my $p (@newINC){
+		File::Spec->canonpath(File::Spec->catdir($libPath,'lib')), 
+		File::Spec->canonpath(File::Spec->catdir($libPath,'CPAN')),
+		File::Spec->canonpath( $libPath ),
 		
-		if (-e $p){
-			unshift @INC, $p;
-		}
-	}
-	return @out;
+	);
+	
+	#Data::Dump::dump (@newINC);
+	
+	return @newINC;
 }
 
 sub getPerlMajorVersion{

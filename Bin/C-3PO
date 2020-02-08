@@ -90,22 +90,12 @@ if ($file eq 'C-3PO.exe'){
 	die "unexpected filename";
 }
 
+# Add plugin directories to load initial modules.
+
 my $lib = File::Spec->rel2abs(catdir($C3PODir, 'lib'));
-my $cpan= File::Spec->rel2abs(catdir($C3PODir,'CPAN'));
-
-my @a=($C3PODir,$lib,$cpan);
-for my $i (@a){addToArray($i, \@INC);}
-
-require Utils::Config;
-
-@a= Utils::Config::expandINC($C3PODir);
-for my $i (@a){addToArray($i, \@INC);}
-
-#unshift @INC, Utils::Config::expandINC($C3PODir);
-
-my @inc2=();
-for my $i (@INC){addToArray($i,\@inc2);}
-
+unshift @INC, $lib;
+unshift @INC, $C3PODir;
+	
 # let standard modules load.
 #
 use constant SLIM_SERVICE => 0;
@@ -130,7 +120,7 @@ use constant NOMYSB       => 1;
 #######################################################################
 require Logger;
 require Transcoder;
-require AudioFile;
+#require AudioFile;
 require Shared;
 require OsHelper;
 
@@ -200,20 +190,17 @@ sub main{
 		Plugins::C3PO::Logger::verboseMessage("Now log file is $logfile");
 	
 	}
-
+	my @inc2=();
 	if (defined $options->{'serverFolder'}){
 		
 		$serverFolder=$options->{'serverFolder'};
-
-		my $lib = File::Spec->rel2abs(catdir($serverFolder, 'lib'));
-		my $cpan= File::Spec->rel2abs(catdir($serverFolder,'CPAN'));
-
-		my @a=($serverFolder,$lib,$cpan);
-		for my $i (@a){addToArray($i, \@INC);}
-
+		
 		require Utils::Config;
-		@a= Utils::Config::expandINC($serverFolder);
-		for my $i (@a){addToArray($i, \@INC);}
+		my @a= Utils::Config::expandINC($serverFolder);
+		unshift @INC, @a;
+		
+		
+		for my $i (@INC){addToArray($i,\@inc2);}
 		
 		#in LMS CPAN or lib.
 		
@@ -221,8 +208,16 @@ sub main{
 		require YAML::XS;
 		require Data::Dump;
 		require Audio::Scan;
+		require AudioFile;
 
 	}
+	# Add plugin directories on top.
+	unshift @INC, $lib;
+	unshift @INC, $C3PODir;
+
+	my @inc3=();
+	for my $i (@INC){addToArray($i,\@inc3);}
+	
 	Plugins::C3PO::Logger::debugMessage('DEBUGLOG '.main::DEBUGLOG);
 	Plugins::C3PO::Logger::debugMessage('INFOLOG '.main::INFOLOG);
 	Plugins::C3PO::Logger::debugMessage('loglevel '.$logLevel);
@@ -233,6 +228,7 @@ sub main{
 	Plugins::C3PO::Logger::debugMessage('inc0'.Data::Dump::dump(@inc0));
 	Plugins::C3PO::Logger::debugMessage('inc1'.Data::Dump::dump(@inc1));
 	Plugins::C3PO::Logger::debugMessage('inc2'.Data::Dump::dump(@inc2));
+	Plugins::C3PO::Logger::debugMessage('inc3'.Data::Dump::dump(@inc3));
 	Plugins::C3PO::Logger::debugMessage('INC '.Data::Dump::dump(@INC));
 	
 	Plugins::C3PO::Logger::debugMessage('Inc: '.$INC{'Module/Load.pm'});
@@ -346,11 +342,11 @@ sub main{
 		Plugins::C3PO::Logger::infoMessage(
 				"Start copy from STDIN");
 		while (
-			sysread (STDIN, $buffer, 4096)	# read in (up to) 4k chunks, write
+			sysread (STDIN, $buffer, 65536)	# read in (up to) 64k chunks, write
 			and syswrite STDOUT, $buffer	# exit if read or write fails
 			) {
 				Plugins::C3PO::Logger::debugMessage(
-				"copied 4Kb chunk from STDIN");
+				"copied 64Kb chunk from STDIN");
 		}
 		if ($!){		
 
@@ -503,4 +499,3 @@ sub addToArray{
 	}
 }
 1;
-

@@ -1095,10 +1095,12 @@ sub _testC3PO{
 	if (!$exe){
 
 		if (main::ISWINDOWS){
-
-			require Plugins::C3PO::WindowsDownloader;
-			Plugins::C3PO::WindowsDownloader->download($self);
-			$C3POisDownloading=1;
+			
+			#not requested anymore 2.03.01
+			
+			#require Plugins::C3PO::WindowsDownloader; 
+			#Plugins::C3PO::WindowsDownloader->download($self);
+			#$C3POisDownloading=1;
 		}
 				
 		$pl= $EnvironmentHelper->testC3POPL();
